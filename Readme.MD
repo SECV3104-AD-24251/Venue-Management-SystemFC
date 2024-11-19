@@ -1,7 +1,6 @@
-Test
-Vamos
+Team Vamos
 
 Luqman
 Hafiz
 Alif
-Danish
+Danish Hamiki
