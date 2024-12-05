@@ -1,7 +1,27 @@
+import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import axios from 'axios';
+
+// Define the TypeScript interface for the Venue
+interface Venue {
+    id: number;
+    name: string;
+    location: string;
+    capacity: number;
+}
 
 export default function Dashboard() {
+    // Explicitly type the state as an array of Venue objects
+    const [venues, setVenues] = useState<Venue[]>([]);
+
+    useEffect(() => {
+        // Fetch venues data from API
+        axios.get('/api/venues')  // Adjust if you used web.php for routing
+            .then(response => setVenues(response.data))
+            .catch(error => console.error('Error fetching venues:', error));
+    }, []);
+
     return (
         <AuthenticatedLayout
             header={
@@ -16,7 +36,31 @@ export default function Dashboard() {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
-                            You're logged in!
+                            <h3 className="text-lg font-medium">Venue List</h3>
+                            <table className="min-w-full mt-6 table-auto">
+                                <thead>
+                                    <tr>
+                                        <th className="px-4 py-2 border-b">Name</th>
+                                        <th className="px-4 py-2 border-b">Location</th>
+                                        <th className="px-4 py-2 border-b">Capacity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {venues.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={3} className="text-center py-2">No venues available.</td>
+                                        </tr>
+                                    ) : (
+                                        venues.map((venue) => (
+                                            <tr key={venue.id}>
+                                                <td className="px-4 py-2 border-b">{venue.name}</td>
+                                                <td className="px-4 py-2 border-b">{venue.location}</td>
+                                                <td className="px-4 py-2 border-b">{venue.capacity}</td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

@@ -4,6 +4,20 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+// routes/web.php
+
+use App\Models\Venue;
+
+Route::get('/insert-venue', function () {
+    // Insert a new venue
+    Venue::create([
+        'name' => 'Conference Room A',
+        'location' => 'Building 1, Floor 2',
+        'capacity' => 50,
+    ]);
+
+    return 'Venue Inserted!';
+});
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
