@@ -15,12 +15,16 @@ export default function Dashboard() {
     // Explicitly type the state as an array of Venue objects
     const [venues, setVenues] = useState<Venue[]>([]);
 
+    // Fetch venues data from API on component mount
     useEffect(() => {
-        // Fetch venues data from API
-        axios.get('/api/venues')  // Adjust if you used web.php for routing
-            .then(response => setVenues(response.data))
-            .catch(error => console.error('Error fetching venues:', error));
-    }, []);
+        axios.get('/api/venues')  // Ensure this endpoint is correct
+            .then(response => {
+                setVenues(response.data);  // Set the venues data to state
+            })
+            .catch(error => {
+                console.error('Error fetching venues:', error);
+            });
+    }, []); // Empty dependency array makes this run only once
 
     return (
         <AuthenticatedLayout
@@ -37,6 +41,8 @@ export default function Dashboard() {
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             <h3 className="text-lg font-medium">Venue List</h3>
+
+                            {/* Table to display venues */}
                             <table className="min-w-full mt-6 table-auto">
                                 <thead>
                                     <tr>
