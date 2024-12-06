@@ -4,8 +4,9 @@ import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode } from 'react';
+import Box from '@mui/material/Box';
+import { ThemeProvider } from '@mui/material/styles';
 
-// Define the TypeScript interface for the Venue
 interface Venue {
     id: number;
     name: string;
@@ -35,7 +36,7 @@ export default function Dashboard(
             .catch(error => {
                 console.error('Error fetching venues:', error);
             });
-    }, []); // Empty dependency array makes this run only once
+    }, []); 
 
     return (
         <AuthenticatedLayout
@@ -44,6 +45,7 @@ export default function Dashboard(
                     Dashboard
                 </h2>
             }
+
         >
             <Head title = "Dashboard"/>
             <div className="py-12">
