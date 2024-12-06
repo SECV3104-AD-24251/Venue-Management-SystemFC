@@ -10,7 +10,7 @@ class VenueController extends Controller
     public function index()
     {
         $venues = Venue::all();  // Fetch all venues from the database
-        return response()->json($venues); // Return the data as JSON
+        return view('venues.index', compact('venues'));  // Return the data as JSON
     }
     
 }
