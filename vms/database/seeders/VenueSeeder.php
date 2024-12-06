@@ -14,4 +14,3 @@ class VenueSeeder extends Seeder
        Venue::create(['name' => 'Outdoor Stage', 'name'=> 'Building B', 'capacity'=> 1000 ]);
     }
 }
-
