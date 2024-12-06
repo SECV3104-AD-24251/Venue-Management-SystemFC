@@ -26,14 +26,3 @@ Route::middleware('api')->get('/venues', function (Request $request) {
 Route::get('/venues', [VenueController::class, 'index']);
 
 // app/Http/Controllers/VenueController.php
-
-
-class VenueController extends Controller
-{
-    public function index()
-    {
-        $venues = Venue::all();  // Fetch all venues from the database
-        return response()->json($venues);  // Return venues as JSON
-    }
-}
-
