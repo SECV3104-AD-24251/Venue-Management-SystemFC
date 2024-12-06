@@ -6,13 +6,23 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\Venue;
 
-Route::get('/insert-venue', function () {
-    return Inertia::render('Insert Venue');
-})->name('insert');
+
 
 Route::get('/venue', function () {
     return Inertia::render('Venue');
 })->name('venue');
+
+Route::get('/booking', function () {
+    return Inertia::render('Booking');
+})->name('booking');
+
+Route::get('/viewbooking', function () {
+    return Inertia::render('ViewBooking');
+})->name('viewbooking');
+
+Route::get('/class', function () {
+    return Inertia::render('ClassSchedule');
+})->name('schedule');
 
 
 Route::get('/', function () {

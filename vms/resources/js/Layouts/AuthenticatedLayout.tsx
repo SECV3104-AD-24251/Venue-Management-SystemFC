@@ -39,6 +39,25 @@ export default function Authenticated({
                                 >
                                     Venue                                
                                 </NavLink>
+                                <NavLink
+                                    href={route('booking')}
+                                    active={route().current('booking')}
+                                >
+                                    Booking                                
+                                </NavLink>
+                                <NavLink
+                                    href={route('viewbooking')}
+                                    active={route().current('viewbooking')}
+                                >
+                                    View Booking                               
+                                </NavLink>
+                                <NavLink
+                                    href={route('schedule')}
+                                    active={route().current('schedule')}
+                                >
+                                    Class Schedule                              
+                                </NavLink>
+
                             </div>
                         </div>
 
