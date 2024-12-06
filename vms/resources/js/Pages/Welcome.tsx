@@ -53,7 +53,7 @@ export default function Welcome({
                             {auth.user ? (
                                 <Link
                                     href={route('dashboard')}
-                                    className="rounded-md px-4 py-2 bg-[#FF2D20] text-white hover:bg-[#e5231c] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF2D20]"
+                                    className="text-xl rounded-md px-4 py-2 bg-[#80aaff] text-white hover:bg-[#00264d] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#FF2D20]"
                                 >
                                     Dashboard
                                 </Link>

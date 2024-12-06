@@ -30,8 +30,9 @@ export default function Login({
 
     return (
         <GuestLayout>
+            <div className="flex items-center justify-center text-center block text-l font-medium text-gray-700 ">Log In</div>
             <Head title="Log in" />
-
+         
             {status && (
                 <div className="mb-4 text-sm font-medium text-green-600">
                     {status}

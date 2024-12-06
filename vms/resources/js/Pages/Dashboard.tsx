@@ -34,43 +34,6 @@ export default function Dashboard() {
                 </h2>
             }
         >
-            <Head title="Dashboard" />
-
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            <h3 className="text-lg font-medium">Venue List</h3>
-
-                            {/* Table to display venues */}
-                            <table className="min-w-full mt-6 table-auto">
-                                <thead>
-                                    <tr>
-                                        <th className="px-4 py-2 border-b">Name</th>
-                                        <th className="px-4 py-2 border-b">Location</th>
-                                        <th className="px-4 py-2 border-b">Capacity</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {venues.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={3} className="text-center py-2">No venues available.</td>
-                                        </tr>
-                                    ) : (
-                                        venues.map((venue) => (
-                                            <tr key={venue.id}>
-                                                <td className="px-4 py-2 border-b">{venue.name}</td>
-                                                <td className="px-4 py-2 border-b">{venue.location}</td>
-                                                <td className="px-4 py-2 border-b">{venue.capacity}</td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </AuthenticatedLayout>
     );
 }

@@ -24,6 +24,8 @@ export default function Register() {
 
     return (
         <GuestLayout>
+            <div className="flex items-center justify-center text-center block text-l font-medium text-gray-700 ">Register</div>
+
             <Head title="Register" />
 
             <form onSubmit={submit}>

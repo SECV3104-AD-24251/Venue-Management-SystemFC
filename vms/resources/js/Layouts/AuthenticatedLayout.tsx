@@ -22,7 +22,7 @@ export default function Authenticated({
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                    <ApplicationLogo className="block h-10 w-auto fill-current text-gray-800" />
                                 </Link>
                             </div>
 
@@ -32,6 +32,12 @@ export default function Authenticated({
                                     active={route().current('dashboard')}
                                 >
                                     Dashboard
+                                </NavLink>
+                                <NavLink
+                                    href={route('venue')}
+                                    active={route().current('venue')}
+                                >
+                                    Venue                                
                                 </NavLink>
                             </div>
                         </div>

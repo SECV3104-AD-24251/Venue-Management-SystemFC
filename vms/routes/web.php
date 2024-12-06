@@ -4,8 +4,6 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
-// routes/web.php
-
 use App\Models\Venue;
 
 Route::get('/insert-venue', function () {
@@ -18,6 +16,10 @@ Route::get('/insert-venue', function () {
 
     return 'Venue Inserted!';
 });
+Route::get('/venue', function () {
+    return Inertia::render('Venue');
+})->name('venue');
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
