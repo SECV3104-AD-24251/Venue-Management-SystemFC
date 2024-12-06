@@ -7,15 +7,9 @@ use Inertia\Inertia;
 use App\Models\Venue;
 
 Route::get('/insert-venue', function () {
-    // Insert a new venue
-    Venue::create([
-        'name' => 'Conference Room A',
-        'location' => 'Building 1, Floor 2',
-        'capacity' => 50,
-    ]);
+    return Inertia::render('Insert Venue');
+})->name('insert');
 
-    return 'Venue Inserted!';
-});
 Route::get('/venue', function () {
     return Inertia::render('Venue');
 })->name('venue');
