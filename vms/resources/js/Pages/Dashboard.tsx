@@ -52,7 +52,8 @@ export default function Dashboard(
             display: 'flex', // Enables Flexbox
             gap: '40px', // Space between boxes
             flexWrap: 'wrap', // Allows wrapping to the next row
-            justifyContent: 'flex-start', // Align boxes to the left
+            // Align boxes to the left
+            allignItems: 'center,'
         }}
         >
     {/* Box 1 */}
