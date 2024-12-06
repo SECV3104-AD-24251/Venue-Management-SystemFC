@@ -9,12 +9,9 @@ class VenueSeeder extends Seeder
 {
     public function run()
     {
-        // Create a new Venue instance and save it
-        $venue = new Venue();
-        $venue->name = 'Auditorium';
-        $venue->location = 'Building 2, Floor 1';
-        $venue->capacity = 200;
-        $venue->save();
+       Venue::create(['name' => 'Main Auditorium', 'name'=> 'Building A', 'capacity'=> 500 ]);
+       Venue::create(['name' => 'ConferenceB Hall', 'name'=> 'Building c', 'capacity'=> 200 ]);
+       Venue::create(['name' => 'Outdoor Stage', 'name'=> 'Building B', 'capacity'=> 1000 ]);
     }
 }
 

@@ -57,9 +57,9 @@ export default function Dashboard() {
                                     ) : (
                                         venues.map((venue) => (
                                             <tr key={venue.id}>
-                                                <td className="px-4 py-2 border-b">{venue.name}</td>
-                                                <td className="px-4 py-2 border-b">{venue.location}</td>
-                                                <td className="px-4 py-2 border-b">{venue.capacity}</td>
+                                                <td className="text-center py-2 px-4 py-2 border-b">{venue.name}</td>
+                                                <td className="text-center py-2 px-4 py-2 border-b">{venue.location}</td>
+                                                <td className="text-center py-2 px-4 py-2 border-b">{venue.capacity}</td>
                                             </tr>
                                         ))
                                     )}
