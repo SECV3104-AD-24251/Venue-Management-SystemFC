@@ -48,11 +48,12 @@ export default function Dashboard(
         <Box
             sx={{
             mt: 4,
-            ml: 10,
+            //ml: 10,
             display: 'flex', // Enables Flexbox
             gap: '40px', // Space between boxes
             flexWrap: 'wrap', // Allows wrapping to the next row
-            justifyContent: 'flex-start', // Align boxes to the left
+            allignItems: 'center',
+            justifyContent: 'center'
         }}
         >
     {/* Box 1 */}
