@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode } from 'react';
 import {Box, Typography} from '@mui/material'
+import { BarChart } from '@mui/x-charts/BarChart';
 
 interface Venue {
     id: number;
@@ -43,8 +44,10 @@ export default function Dashboard(
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
                     Dashboard
                 </h2>
+                
             }
         >
+            
         <Box
             sx={{
             mt: 4,
@@ -163,6 +166,18 @@ export default function Dashboard(
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             Welcome Back, {user.name}
+
+                            <BarChart
+                series={[
+                    { data: [35, 44, 24, 34] },
+                    { data: [51, 6, 49, 30] },
+                    { data: [15, 25, 30, 50] },
+                    { data: [60, 50, 15, 25] },
+                    ]}
+                    height={290}
+                    xAxis={[{ data: ['Q1', 'Q2', 'Q3', 'Q4'], scaleType: 'band' }]}
+                    margin={{ top: 10, bottom: 30, left: 40, right: 10 }}
+            />
                         </div>
                     </div>
                 </div>

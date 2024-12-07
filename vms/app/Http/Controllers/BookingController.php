@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Http\Request;
+use App\Models\Booking;
 
 class BookingController extends Controller
 {
@@ -20,10 +22,21 @@ class BookingController extends Controller
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|email',
+        'capacity' => 'required|integer',
         'venue_id' => 'required|exists:venues,id',
         'date' => 'required|date',
         'time' => 'required',
         'comments' => 'nullable|string',
+    ]);
+
+    Booking::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'capacity' => $request->capacity, 
+        'venue_id' => $request->venue_id,
+        'date' => $request->date,
+        'time' => $request->time,
+        'comments' => $request->comments,
     ]);
 
     Booking::create($validated);
