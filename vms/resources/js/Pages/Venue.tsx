@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
+import DangerButton from '@/Components/NormalButton';
+import NormalButton from '@/Components/NormalButton';
 
 interface Venue {
     id: number;
@@ -47,6 +49,8 @@ export default function Dashboard() {
                                         <th className="px-4 py-2 border-b">Name</th>
                                         <th className="px-4 py-2 border-b">Location</th>
                                         <th className="px-4 py-2 border-b">Capacity</th>
+                                        <th className="px-4 py-2 border-b">Details</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -60,6 +64,7 @@ export default function Dashboard() {
                                                 <td className="text-center py-2 px-4 py-2 border-b">{venue.name}</td>
                                                 <td className="text-center py-2 px-4 py-2 border-b">{venue.location}</td>
                                                 <td className="text-center py-2 px-4 py-2 border-b">{venue.capacity}</td>
+                                                <td className="text-center py-2 px-4 py-2 border-b"><NormalButton>See Details</NormalButton></td>
                                             </tr>
                                         ))
                                     )}
