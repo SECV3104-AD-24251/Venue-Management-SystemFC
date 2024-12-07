@@ -5,7 +5,7 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\Venue;
-
+use App\Http\Controllers\BookingController;
 
 
 Route::get('/venue', function () {
@@ -37,6 +37,9 @@ Route::get('/', function () {
 Route::get('/api/venues', [VenueController::class, 'index']);
 
 Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show');
+
+Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
+
 
 
 Route::get('/dashboard', function () {
