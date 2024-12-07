@@ -64,13 +64,13 @@ export default function Booking() {
                         <form onSubmit={handleBookingSubmit} className="space-y-6">
                         <div>
                             <InputLabel htmlFor="name" value="Full Name" />
-                            <TextInput id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} />
+                            <TextInput id="name" value={data.name} onChange={(e) => setData('name', e.target.value)} className="block w-1/2 border-gray-300 rounded-md shadow-sm" />
                             <InputError message={errors.name} />
                         </div>
 
                         <div>
                             <InputLabel htmlFor="email" value="Email (@graduate.utm.my)" />
-                            <TextInput id="email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} />
+                            <TextInput id="email" type="email" value={data.email} onChange={(e) => setData('email', e.target.value)} className="block w-1/2 border-gray-300 rounded-md shadow-sm" />
                             <InputError message={errors.email} />
                         </div>
 
@@ -80,7 +80,7 @@ export default function Booking() {
                             id="venue_id"
                             value={data.venue_id}
                             onChange={(e) => setData('venue_id', e.target.value)}
-                            className="block w-full border-gray-300 rounded-md shadow-sm"
+                            className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                         >
                         <option value="">-- Choose Venue --</option>
                             {venues.map((venue) => (
@@ -120,7 +120,7 @@ export default function Booking() {
                         id="comments"
                         value={data.comments}
                         onChange={(e) => setData('comments', e.target.value)}
-                        className="block w-full mt-1 border-gray-300 rounded-md shadow-sm"
+                        className="block w-1/2 mt-1 border-gray-300 rounded-md shadow-sm"
                     />
                 </div>
 
