@@ -2,17 +2,11 @@ import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 
-export default function VenueDetails({ venue }: { venue: { name: string; location: string; capacity: number } }) {
+export default function VenueDetails({ venue }: { venue: { name: string; location: string; capacity: number; image: string } }) {
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Venue Details
-                </h2>
-            }
+            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Venue Details</h2>}
         >
-            <Head title="Venue Details" />
-
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
@@ -20,6 +14,11 @@ export default function VenueDetails({ venue }: { venue: { name: string; locatio
                             <h3 className="text-2xl font-bold">{venue.name}</h3>
                             <p>Location: {venue.location}</p>
                             <p>Capacity: {venue.capacity}</p>
+                            <img
+                                src={venue.image}
+                                alt={`Image of ${venue.name}`}
+                                className="mt-4 rounded-lg w-full max-w-md"
+                            />
                         </div>
                     </div>
                 </div>
@@ -27,3 +26,4 @@ export default function VenueDetails({ venue }: { venue: { name: string; locatio
         </AuthenticatedLayout>
     );
 }
+
