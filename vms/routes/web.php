@@ -25,6 +25,7 @@ Route::get('/class', function () {
 })->name('schedule');
 
 
+
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -38,7 +39,6 @@ Route::get('/api/venues', [VenueController::class, 'index']);
 
 Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show');
 
-Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
 
 
 

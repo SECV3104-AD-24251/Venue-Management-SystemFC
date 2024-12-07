@@ -37,9 +37,8 @@ export default function VenueDetails({ venue }: { venue: { name: string; locatio
                                         </ul>
                                     </p>
                                 </div>
-                                <Link href={route('booking.index')} className="px-6 py-3 text-lg font-semibold bg-blue-500 text-white rounded hover:bg-blue-600">
-                                        <NormalButton>BOOK NOW</NormalButton>
-                                </Link>
+                                <Link href='/booking'><NormalButton className="px-6 py-3 text-3xl font-semibold w-full md:w-auto">BOOK NOW</NormalButton></Link>
+
                             </div>
                         </div>
                     </div>
