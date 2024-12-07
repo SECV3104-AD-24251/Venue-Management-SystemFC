@@ -15,4 +15,20 @@ class BookingController extends Controller
             // Pass any data here if needed
         ]);
     }
+    public function store(Request $request)
+{
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email',
+        'venue_id' => 'required|exists:venues,id',
+        'date' => 'required|date',
+        'time' => 'required',
+        'comments' => 'nullable|string',
+    ]);
+
+    Booking::create($validated);
+
+    return back()->with('success', 'Booking successful!');
+}
+
 }

@@ -39,7 +39,7 @@ Route::get('/api/venues', [VenueController::class, 'index']);
 
 Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show');
 
-
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
 
 Route::get('/dashboard', function () {
