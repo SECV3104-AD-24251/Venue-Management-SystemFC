@@ -5,6 +5,7 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import NormalButton from '@/Components/NormalButton';
 import TextInput from '@/Components/TextInput';
+import axios from 'axios';
 
 export default function Booking() {
     interface Venue {
