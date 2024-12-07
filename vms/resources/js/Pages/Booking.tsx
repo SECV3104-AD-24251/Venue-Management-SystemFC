@@ -105,14 +105,14 @@ export default function Booking() {
                                 </div>
 
                                 <div>
-                                    <InputLabel htmlFor="capacity" value="Capacity" />
+                                    <InputLabel htmlFor="capacity" value="Number of students" />
                                     <TextInput
                                         id="capacity"
                                         type="number"
                                         value={data.capacity}
                                         onChange={handleCapacityChange}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
-                                        placeholder="Enter capacity"
+                                        placeholder="Enter number of students"
                                     />
                                     <InputError message={errors.capacity} />
                                 </div>
