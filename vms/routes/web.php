@@ -36,6 +36,9 @@ Route::get('/', function () {
 
 Route::get('/api/venues', [VenueController::class, 'index']);
 
+Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show');
+
+
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');

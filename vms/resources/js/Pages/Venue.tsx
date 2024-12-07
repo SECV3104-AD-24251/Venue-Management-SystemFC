@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import axios from 'axios';
-import DangerButton from '@/Components/NormalButton';
+import { Link } from '@inertiajs/react';
 import NormalButton from '@/Components/NormalButton';
 
 interface Venue {
@@ -64,7 +64,12 @@ export default function Dashboard() {
                                                 <td className="text-center py-2 px-4 py-2 border-b">{venue.name}</td>
                                                 <td className="text-center py-2 px-4 py-2 border-b">{venue.location}</td>
                                                 <td className="text-center py-2 px-4 py-2 border-b">{venue.capacity}</td>
-                                                <td className="text-center py-2 px-4 py-2 border-b"><NormalButton>See Details</NormalButton></td>
+                                                <td className="text-center py-2 px-4 py-2 border-b"> <Link
+                                                                                href={route('venues.show', { id: venue.id })}
+                                                                                className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                                                                                >
+                                                                                See Details
+                                                                                </Link></td>
                                             </tr>
                                         ))
                                     )}
