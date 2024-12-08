@@ -23,21 +23,23 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming request
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'capacity' => 'required|integer',
-            'venue_id' => 'required|exists:venues,id',  // Ensure the venue_id exists in the venues table
-            'date' => 'required|date',
-            'time' => 'required',
-            'comments' => 'nullable|string',
-        ]);
+    // Validate the incoming request
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email',
+        'capacity' => 'required|integer',
+        'venue_id' => 'required|exists:venues,id',
+        'date' => 'required|date',
+        'start_time' => 'required|date_format:H:i',
+        'end_time' => 'required|date_format:H:i|after:start_time', // Ensure end_time is after start_time
+        'comments' => 'nullable|string',
+    ]);
 
         // Check if the venue is already booked for the selected date and time
         $existingBooking = Booking::where('venue_id', $request->venue_id)
             ->where('date', $request->date)
-            ->where('time', $request->time)
+            ->where('start_time', $request->start_time)
+            ->where('end_time', $request->end_time)
             ->exists();
 
         if ($existingBooking) {
@@ -49,10 +51,11 @@ class BookingController extends Controller
         Booking::create([
             'name' => $request->name,
             'email' => $request->email,
-            'capacity' => $request->capacity, 
+            'capacity' => $request->capacity,
             'venue_id' => $request->venue_id,
             'date' => $request->date,
-            'time' => $request->time,
+            'start_time' => $request->start_time, // Ensure this is passed
+            'end_time' => $request->end_time,     // Ensure this is passed
             'comments' => $request->comments,
         ]);
 

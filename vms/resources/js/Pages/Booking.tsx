@@ -30,7 +30,8 @@ export default function Booking() {
         capacity: '',
         venue_id: '',
         date: '',
-        time: '',
+        start_time: '',
+        end_time: '',
         comments: '',
     });
 
@@ -188,17 +189,30 @@ export default function Booking() {
                                     <InputError message={errors.date} />
                                 </div>
 
-                                {/* Booking Time */}
+                                {/* Booking STart Time */}
                                 <div>
-                                    <InputLabel htmlFor="time" value="Booking Time" />
+                                    <InputLabel htmlFor="start_time" value="Booking Start Time" />
                                     <TextInput
-                                        id="time"
+                                        id="start_time"
                                         type="time"
-                                        value={data.time}
-                                        onChange={(e) => setData('time', e.target.value)}
+                                        value={data.start_time}
+                                        onChange={(e) => setData('start_time', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
-                                    <InputError message={errors.time} />
+                                    <InputError message={errors.start_time} />
+                                </div>
+
+                                {/* Booking End Time */}
+                                <div>
+                                    <InputLabel htmlFor="end_atetime" value="Booking End Time" />
+                                    <TextInput
+                                        id="start_time"
+                                        type="time"
+                                        value={data.end_time}
+                                        onChange={(e) => setData('end_time', e.target.value)}
+                                        className="block w-1/2 border-gray-300 rounded-md shadow-sm"
+                                    />
+                                    <InputError message={errors.end_time} />
                                 </div>
 
                                 {/* Comments */}

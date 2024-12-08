@@ -19,7 +19,8 @@ class Booking extends Model
         'capacity',
         'venue_id',
         'date',
-        'time',
+        'start_time',
+        'end_time',
         'comments',
     ];
 

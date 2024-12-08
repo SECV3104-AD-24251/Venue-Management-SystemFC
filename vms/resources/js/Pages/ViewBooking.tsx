@@ -13,7 +13,8 @@ interface Booking {
     capacity: number;
     venue: Venue | null;
     date: string;
-    time: string;
+    start_time: string;
+    end_time: string;
     comments: string | null;
 }
 
@@ -52,7 +53,8 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings }) => {
                                             <tr>
                                                 <th className="border-b px-4 py-2 text-left">Venue</th>
                                                 <th className="border-b px-4 py-2 text-left">Date</th>
-                                                <th className="border-b px-4 py-2 text-left">Time</th>
+                                                <th className="border-b px-4 py-2 text-left">Start Time</th>
+                                                <th className="border-b px-4 py-2 text-left">End Time</th>
                                                 <th className="border-b px-4 py-2 text-left">Capacity</th>
                                             </tr>
                                         </thead>
@@ -65,7 +67,8 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings }) => {
                                                     >
                                                         <td className="border-b px-4 py-2">{booking.venue?.name || 'No venue'}</td>
                                                         <td className="border-b px-4 py-2">{booking.date}</td>
-                                                        <td className="border-b px-4 py-2">{booking.time}</td>
+                                                        <td className="border-b px-4 py-2">{booking.start_time}</td>
+                                                        <td className="border-b px-4 py-2">{booking.end_time}</td>
                                                         <td className="border-b px-4 py-2">{booking.capacity}</td>
                                                     </tr>
                                                     {expandedRow === booking.id && (

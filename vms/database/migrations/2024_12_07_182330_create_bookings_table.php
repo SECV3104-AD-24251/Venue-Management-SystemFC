@@ -18,7 +18,8 @@ return new class extends Migration
             $table->integer('capacity');
             $table->foreignId('venue_id')->constrained('venues');
             $table->date('date');
-            $table->time('time');
+            $table->time('start_time');
+            $table->time('end_time');
             $table->text('comments')->nullable();
             $table->timestamps();
         });
