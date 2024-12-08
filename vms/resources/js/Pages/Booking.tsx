@@ -19,6 +19,10 @@ export default function Booking() {
     const [venues, setVenues] = useState<Venue[]>([]); // All venues
     const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]); // Filtered venues
 
+    // State for error popup
+    const [showPopup, setShowPopup] = useState(false);
+    const [popupMessage, setPopupMessage] = useState('');
+
     // Form handling
     const { data, setData, errors, post, processing, reset } = useForm({
         name: '',
@@ -65,9 +69,18 @@ export default function Booking() {
             },
             onError: (errors) => {
                 console.error('Error submitting form:', errors); // Log errors if needed
+
+                // Check for specific errors and trigger the popup with the message
+                const errorMessage = errors?.error || 'An error occurred. Please try again.';
+                setPopupMessage(errorMessage);
+                setShowPopup(true);
             },
-            //onSuccess: () => reset(),
         });
+    };
+
+    const handleClosePopup = () => {
+        setShowPopup(false);
+        setPopupMessage('');
     };
 
     return (
@@ -79,6 +92,21 @@ export default function Booking() {
             }
         >
             <Head title="Booking" />
+
+            {/* Error Popup */}
+            {showPopup && (
+                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 className="text-red-600 text-lg font-semibold">{popupMessage}</h3>
+                        <button
+                            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
+                            onClick={handleClosePopup}
+                        >
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">

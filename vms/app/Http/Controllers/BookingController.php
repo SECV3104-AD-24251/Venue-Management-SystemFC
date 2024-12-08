@@ -17,6 +17,7 @@ class BookingController extends Controller
         // Return the booking data to the view
         return Inertia::render('ViewBooking', [
             'bookings' => $bookings,  // Pass bookings data to the frontend
+            'errors' => ['error' => 'This venue is already booked!'],
         ]);
     }
 
@@ -32,6 +33,17 @@ class BookingController extends Controller
             'time' => 'required',
             'comments' => 'nullable|string',
         ]);
+
+        // Check if the venue is already booked for the selected date and time
+        $existingBooking = Booking::where('venue_id', $request->venue_id)
+            ->where('date', $request->date)
+            ->where('time', $request->time)
+            ->exists();
+
+        if ($existingBooking) {
+            // Return an error if the venue is already booked for the selected time
+            return back()->withErrors(['error' => 'This venue is already booked for the selected time and date.']);
+        }
 
         // Create the booking entry in the database
         Booking::create([
