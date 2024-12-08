@@ -24,6 +24,22 @@ Route::get('/class', function () {
     return Inertia::render('ClassSchedule');
 })->name('schedule');
 
+// route to count of total rooms
+Route::get('/api/rooms/count', function () {
+    return response()->json([
+        'totalRooms' => App\Models\Venue::count(),
+    ]);
+});
+
+// route to count of total bookings
+Route::get('/api/bookings/count', function () {
+    $totalBookings = App\Models\Booking::count();
+    \Log::info('Total bookings count:', ['count' => $totalBookings]); // Log for debugging
+    return response()->json(['totalBookings' => $totalBookings]);
+});
+
+
+
 
 
 Route::get('/', function () {

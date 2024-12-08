@@ -4,174 +4,193 @@ import { Head } from '@inertiajs/react';
 import axios from 'axios';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode } from 'react';
-import {Box, Typography} from '@mui/material'
-import { BarChart } from '@mui/x-charts/BarChart';
+import { Box, Typography } from '@mui/material';
 
 interface Venue {
-    id: number;
-    name: string;
-    location: string;
-    capacity: number;
+  id: number;
+  name: string;
+  location: string;
+  capacity: number;
 }
 
 export default function Dashboard(
-    {
-        header,
-        children,
-    }: PropsWithChildren<{ header?: ReactNode }>
+  {
+    header,
+    children,
+  }: PropsWithChildren<{ header?: ReactNode }>
 ) {
-    const user = usePage().props.auth.user;
+  const user = usePage().props.auth.user;
+  const [showingNavigationDropdown, setShowingNavigationDropdown] =
+    useState(false);
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
-    
-    const [venues, setVenues] = useState<Venue[]>([]);
+  const [venues, setVenues] = useState<Venue[]>([]);
 
-    // Fetch venues data from API on component mount
-    useEffect(() => {
-        axios.get('/api/venues')  // Ensure this endpoint is correct
-            .then(response => {
-                setVenues(response.data);  // Set the venues data to state
-            })
-            .catch(error => {
-                console.error('Error fetching venues:', error);
-            });
-    }, []); 
+  // State for total rooms and bookings
+  const [totalRooms, setTotalRooms] = useState<number | null>(null);
+  const [totalBookings, setTotalBookings] = useState<number | null>(null);
 
-    return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
-                
-            }
-        >
-            
-        <Box
-            sx={{
-            mt: 4,
-            //ml: 10,
-            display: 'flex', // Enables Flexbox
-            gap: '40px', // Space between boxes
-            flexWrap: 'wrap', // Allows wrapping to the next row
-            allignItems: 'center',
-            justifyContent: 'center'
+  // Fetch total room count, bookings count, and venues data
+  useEffect(() => {
+    // Fetch venues data
+    axios.get('/api/venues')
+      .then(response => {
+        setVenues(response.data); // Set the venues data to state
+      })
+      .catch(error => {
+        console.error('Error fetching venues:', error);
+      });
+
+    // Fetch total rooms count
+    axios.get('/api/rooms/count')  // Ensure this endpoint returns the total room count
+      .then(response => {
+        setTotalRooms(response.data.totalRooms);  // Set total rooms to state
+      })
+      .catch(error => {
+        console.error('Error fetching room count:', error);
+      });
+
+    // Fetch total bookings count
+    axios.get('/api/bookings/count')
+      .then(response => {
+        console.log('Total bookings:', response.data.totalBookings); // Debugging log
+        setTotalBookings(response.data.totalBookings); // Set total bookings to state
+      })
+      .catch(error => {
+        console.error('Error fetching bookings count:', error);
+      });
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
+
+  return (
+    <AuthenticatedLayout
+      header={
+        <h2 className="text-xl font-semibold leading-tight text-gray-800">
+          Dashboard
+        </h2>
+      }
+    >
+
+      <Box
+        sx={{
+          mt: 4,
+          display: 'flex', // Enables Flexbox
+          gap: '40px', // Space between boxes
+          flexWrap: 'wrap', // Allows wrapping to the next row
+          alignItems: 'center',
+          justifyContent: 'center',
         }}
+      >
+        {/* Box 1 - Total Rooms */}
+        <Box
+          sx={{
+            width: '270px',
+            height: '120px',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '10px',
+            gap: '10px',
+          }}
         >
-    {/* Box 1 */}
-            <Box
-                sx={{
-                width: '270px',
-                height: '120px',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '10px', 
-                gap: '10px',
-                }}
-            >
-            <Typography sx={{ fontSize: '20px', textAlign:'center'}}>
-                Total Rooms
-            </Typography>
-    
-            <Typography sx={{ fontSize: '20px', textAlign:'center'}}>
-                801
-            </Typography>
-            </Box>
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            Total Rooms
+          </Typography>
 
-    {/* Box 2 */}
-            <Box
-                sx={{
-                width: '270px',
-                height: '120px',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '10px',
-                gap: '10px',
-            }}
-            >
-            <Typography sx={{ fontSize: '20px', textAlign:'center'}}>
-                Total Bookings
-            </Typography>
-    
-            <Typography sx={{ fontSize: '20px', textAlign:'center'}}>
-                75
-            </Typography>
-            </Box>
-
-    {/* Box 3 */}
-            <Box
-                sx={{
-                width: '270px',
-                height: '120px',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '10px',
-                gap: '10px',
-                }}
-            >
-            <Typography sx={{ fontSize: '20px', textAlign:'center'}}>
-                Total Active Users
-            </Typography>
-    
-            <Typography sx={{ fontSize: '20px', textAlign:'center'}}>
-                20
-            </Typography>
-            </Box>
-
-    {/* Box 4 */}
-            <Box
-                sx={{
-                width: '270px',
-                height: '120px',
-                backgroundColor: 'white',
-                borderRadius: '8px',
-                boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: '10px',
-                gap: '10px',
-            }}
-            >
-            <Typography sx={{ fontSize: '20px', textAlign:'center'}}>
-                Total Registered Users
-            </Typography>
-    
-          <Typography sx={{ fontSize: '20px', textAlign:'center'}}>
-                190
-            </Typography>
-            </Box>
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            {totalRooms !== null ? totalRooms : 'Loading...'}
+          </Typography>
         </Box>
 
-            <Head title = "Dashboard"/>
-            <div className="py-10">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            Welcome Back, {user.name}
+        {/* Box 2 - Total Bookings */}
+        <Box
+          sx={{
+            width: '270px',
+            height: '120px',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '10px',
+            gap: '10px',
+          }}
+        >
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            Total Bookings
+          </Typography>
 
-                        </div>
-                    </div>
-                </div>
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            {totalBookings !== null ? totalBookings : 'Loading...'}
+          </Typography>
+        </Box>
+
+        {/* Box 3 - Total Active Users */}
+        <Box
+          sx={{
+            width: '270px',
+            height: '120px',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '10px',
+            gap: '10px',
+          }}
+        >
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            Total Active Users
+          </Typography>
+
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            20
+          </Typography>
+        </Box>
+
+        {/* Box 4 - Total Registered Users */}
+        <Box
+          sx={{
+            width: '270px',
+            height: '120px',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '10px',
+            gap: '10px',
+          }}
+        >
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            Total Registered Users
+          </Typography>
+
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            190
+          </Typography>
+        </Box>
+      </Box>
+
+      <Head title="Dashboard" />
+      <div className="py-10">
+        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
+            <div className="p-6 text-gray-900">
+              Welcome Back, {user.name}
             </div>
+          </div>
+        </div>
+      </div>
 
-        </AuthenticatedLayout>
-    );
+    </AuthenticatedLayout>
+  );
 }
