@@ -10,7 +10,10 @@ class VenueSeeder extends Seeder
 {
     public function run()
     {
+        DB::statement('PRAGMA foreign_keys = OFF'); // Disable foreign key constraints
         DB::table('venues')->truncate();
+        DB::statement('PRAGMA foreign_keys = ON');  // Re-enable foreign key constraints
+
 
         Venue::create(['name' => 'Bilik Kuliah', 'location' => 'N28', 'capacity' => 40, 'image' => '/images/bk.jpeg', 'info1' => 'Projector',
         'info1' => 'Air-Conditioner', 'info2' => 'White Board', 'info3' => 'Projector are provided ( on ceiling )', 'info4' => 'WiFi facility given']);
@@ -27,7 +30,7 @@ class VenueSeeder extends Seeder
         Venue::create(['name' => 'Discussion Room', 'location' => 'N28A, Level 2', 'capacity' => 10, 'image' => '/images/discussion.png', 
         'info1' => 'Air-Conditioner', 'info2' => 'Total of 3 discussion  room available', 'info3' => 'Projector are provided ( on ceiling )', 'info4' => 'WiFi facility given']);
         Venue::create(['name' => 'Computer Lab', 'location' => 'N28A, N28', 'capacity' => 60, 'image' => '/images/mpk.jpg', 
-        'info1' => 'WIPG Wireless system', 'info2' => 'Desktop PC provided', 'info3' => 'PWhite Board', 'info4' => 'Total of 12 Computer lab']);
+        'info1' => 'WIPG Wireless system', 'info2' => 'Desktop PC provided', 'info3' => 'White Board', 'info4' => 'Total of 12 Computer lab']);
         Venue::create(['name' => 'Tutorial Room', 'location' => 'N28A, Level 1', 'capacity' => 25, 'image' => '/images/tutor.png',
         'info1' => 'Air-Conditioner', 'info2' => 'Desktop PC provided', 'info3' => 'Projector are provided ( on ceiling )', 'info4' => 'Total of 6 tutorial room']);
         Venue::create(['name' => 'CCNP Network Lab', 'location' => 'N28A, Level 4', 'capacity' => 40, 'image' => '/images/ccnp.jpg',
