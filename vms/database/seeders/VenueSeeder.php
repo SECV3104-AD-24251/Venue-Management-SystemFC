@@ -14,7 +14,6 @@ class VenueSeeder extends Seeder
         DB::table('venues')->truncate();
         DB::statement('PRAGMA foreign_keys = ON');  // Re-enable foreign key constraints
 
-
         Venue::create(['name' => 'Bilik Kuliah', 'location' => 'N28', 'capacity' => 40, 'image' => '/images/bk.jpeg', 'info1' => 'Projector',
         'info1' => 'Air-Conditioner', 'info2' => 'White Board', 'info3' => 'Projector are provided ( on ceiling )', 'info4' => 'WiFi facility given']);
         Venue::create(['name' => 'Kejora Hall', 'location' => 'N28A', 'capacity' => 200, 'image' => '/images/kejora.jpg',
