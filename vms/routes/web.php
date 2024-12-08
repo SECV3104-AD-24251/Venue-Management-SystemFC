@@ -41,6 +41,12 @@ Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show'
 
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
+Route::get('/api/bookings', [BookingController::class, 'index']);
+
+Route::get('/viewbooking', [BookingController::class, 'index'])->name('viewbooking');
+
+
+
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

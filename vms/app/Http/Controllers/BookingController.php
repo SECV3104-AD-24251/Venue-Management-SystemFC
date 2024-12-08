@@ -9,39 +9,41 @@ use App\Models\Booking;
 
 class BookingController extends Controller
 {
-    
-    public function index(): Response
+    public function index()
     {
-        // Return the booking page with Inertia
-        return Inertia::render('Booking', [
-            // Pass any data here if needed
+        // Fetch all bookings from the database and eager load the 'venue' relationship
+        $bookings = Booking::with('venue')->get();  // Eager load the venue relationship
+
+        // Return the booking data to the view
+        return Inertia::render('ViewBooking', [
+            'bookings' => $bookings,  // Pass bookings data to the frontend
         ]);
     }
+
     public function store(Request $request)
-{
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email',
-        'capacity' => 'required|integer',
-        'venue_id' => 'required|exists:venues,id',
-        'date' => 'required|date',
-        'time' => 'required',
-        'comments' => 'nullable|string',
-    ]);
+    {
+        // Validate the incoming request
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'capacity' => 'required|integer',
+            'venue_id' => 'required|exists:venues,id',  // Ensure the venue_id exists in the venues table
+            'date' => 'required|date',
+            'time' => 'required',
+            'comments' => 'nullable|string',
+        ]);
 
-    Booking::create([
-        'name' => $request->name,
-        'email' => $request->email,
-        'capacity' => $request->capacity, 
-        'venue_id' => $request->venue_id,
-        'date' => $request->date,
-        'time' => $request->time,
-        'comments' => $request->comments,
-    ]);
+        // Create the booking entry in the database
+        Booking::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'capacity' => $request->capacity, 
+            'venue_id' => $request->venue_id,
+            'date' => $request->date,
+            'time' => $request->time,
+            'comments' => $request->comments,
+        ]);
 
-    Booking::create($validated);
-
-    return back()->with('success', 'Booking successful!');
-}
-
+        return back()->with('success', 'Booking successful!');
+    }
 }
