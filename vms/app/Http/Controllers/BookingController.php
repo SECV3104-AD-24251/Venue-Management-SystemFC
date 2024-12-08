@@ -59,6 +59,17 @@ class BookingController extends Controller
             'comments' => $request->comments,
         ]);
 
+        $conflictingBookings = Booking::where('date', $date)
+            ->where(function ($query) use ($start_time, $end_time) {
+                $query->whereBetween('start_time', [$start_time, $end_time])
+                    ->orWhereBetween('end_time', [$start_time, $end_time])
+                    ->orWhere(function ($query) use ($start_time, $end_time) {
+                        $query->where('start_time', '<=', $start_time)
+                            ->where('end_time', '>=', $end_time);
+                    });
+            })
+            ->exists();
+
         return back()->with('success', 'Booking successful!');
     }
 }

@@ -58,9 +58,33 @@ export default function Booking() {
         }
     };
 
+    // Check for time conflict
+    const checkTimeConflict = async () => {
+        try {
+            const response = await axios.post('/api/bookings/check-time', {
+                venue_id: data.venue_id,
+                date: data.date,
+                start_time: data.start_time,
+                end_time: data.end_time,
+            });
+            return response.data.success; // Return true if no conflict
+        } catch (error) {
+            return false; // If error, assume conflict
+        }
+    };
+
     // Handle form submission
-    const handleBookingSubmit = (e: React.FormEvent) => {
+    const handleBookingSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // Check for time conflict before submitting
+        const conflict = await checkTimeConflict();
+
+        if (!conflict) {
+            setPopupMessage('This venue is already booked during the selected time. Please choose a different time.');
+            setShowPopup(true);
+            return; // Stop form submission if there's a conflict
+        }
 
         post(route('bookings.store'), {
             preserveScroll: true,
@@ -189,7 +213,7 @@ export default function Booking() {
                                     <InputError message={errors.date} />
                                 </div>
 
-                                {/* Booking STart Time */}
+                                {/* Booking Start Time */}
                                 <div>
                                     <InputLabel htmlFor="start_time" value="Booking Start Time" />
                                     <TextInput
@@ -204,9 +228,9 @@ export default function Booking() {
 
                                 {/* Booking End Time */}
                                 <div>
-                                    <InputLabel htmlFor="end_atetime" value="Booking End Time" />
+                                    <InputLabel htmlFor="end_time" value="Booking End Time" />
                                     <TextInput
-                                        id="start_time"
+                                        id="end_time"
                                         type="time"
                                         value={data.end_time}
                                         onChange={(e) => setData('end_time', e.target.value)}
