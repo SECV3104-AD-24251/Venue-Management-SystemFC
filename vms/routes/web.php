@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Models\Venue;
 use App\Models\Booking;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ClassScheduleController;
 
 
 Route::get('/venue', function () {
@@ -40,6 +41,8 @@ Route::get('/api/bookings/count', function () {
     return response()->json(['totalBookings' => $totalBookings]);
 });
 
+//schedule
+Route::get('/schedule', [ClassScheduleController::class, 'index']);
 
 
 

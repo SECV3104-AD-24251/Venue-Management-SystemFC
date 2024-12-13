@@ -7,6 +7,8 @@ use Inertia\Response;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
+use App\Models\ClassSchedule;
+
 
 class BookingController extends Controller
 {
@@ -106,4 +108,14 @@ class BookingController extends Controller
         return redirect()->back()->with('error', 'Failed to delete booking.');
     }
 }
+
+public function showSchedule()
+{
+    $schedules = ClassSchedule::with('venue')->get();
+
+    return Inertia::render('Schedule', [
+        'schedules' => $schedules
+    ]);
+}
+
 }
