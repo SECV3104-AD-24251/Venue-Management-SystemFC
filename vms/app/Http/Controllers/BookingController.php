@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Inertia\Response;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
 
 class BookingController extends Controller
@@ -93,4 +94,16 @@ class BookingController extends Controller
         // Return success status
         return response()->json(['success' => !$conflictingBookings]);
     }
+
+    public function destroy($id): RedirectResponse
+{
+    $booking = Booking::findOrFail($id);
+
+    try {
+        $booking->delete();
+        return redirect()->back()->with('success', 'Booking deleted successfully!');
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Failed to delete booking.');
+    }
+}
 }

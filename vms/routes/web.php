@@ -3,8 +3,10 @@ use App\Http\Controllers\VenueController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
 use App\Models\Venue;
+use App\Models\Booking;
 use App\Http\Controllers\BookingController;
 
 
@@ -63,6 +65,8 @@ Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.ind
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
 Route::post('/api/bookings/check-time', [BookingController::class, 'checkTime']);
+
+Route::delete('/bookings/{id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
 
 
 
