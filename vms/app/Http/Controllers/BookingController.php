@@ -12,64 +12,85 @@ class BookingController extends Controller
     public function index()
     {
         // Fetch all bookings from the database and eager load the 'venue' relationship
-        $bookings = Booking::with('venue')->get();  // Eager load the venue relationship
+        $bookings = Booking::with('venue')->get();
 
-        // Return the booking data to the view
         return Inertia::render('ViewBooking', [
-            'bookings' => $bookings,  // Pass bookings data to the frontend
-            'errors' => ['error' => 'This venue is already booked!'],
+            'bookings' => $bookings,
         ]);
     }
 
     public function store(Request $request)
     {
-    // Validate the incoming request
-    $validated = $request->validate([
-        'name' => 'required|string|max:255',
-        'email' => 'required|email',
-        'capacity' => 'required|integer',
-        'venue_id' => 'required|exists:venues,id',
-        'date' => 'required|date',
-        'start_time' => 'required|date_format:H:i',
-        'end_time' => 'required|date_format:H:i|after:start_time', // Ensure end_time is after start_time
-        'comments' => 'nullable|string',
-    ]);
+        // Validate the incoming request
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'capacity' => 'required|integer',
+            'venue_id' => 'required|exists:venues,id',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time', // Ensure end_time is after start_time
+            'comments' => 'nullable|string',
+        ]);
 
-        // Check if the venue is already booked for the selected date and time
-        $existingBooking = Booking::where('venue_id', $request->venue_id)
-            ->where('date', $request->date)
-            ->where('start_time', $request->start_time)
-            ->where('end_time', $request->end_time)
+        $venue_id = $request->venue_id;
+        $date = $request->date;
+        $start_time = $request->start_time;
+        $end_time = $request->end_time;
+
+        // Check for time conflict
+        $conflictingBookings = Booking::where('venue_id', $venue_id)
+            ->where('date', $date)
+            ->where(function ($query) use ($start_time, $end_time) {
+                $query->whereBetween('start_time', [$start_time, $end_time])
+                      ->orWhereBetween('end_time', [$start_time, $end_time])
+                      ->orWhere(function ($query) use ($start_time, $end_time) {
+                          $query->where('start_time', '<=', $start_time)
+                                ->where('end_time', '>=', $end_time);
+                      });
+            })
             ->exists();
 
-        if ($existingBooking) {
+        if ($conflictingBookings) {
             // Return an error if the venue is already booked for the selected time
             return back()->withErrors(['error' => 'This venue is already booked for the selected time and date.']);
         }
 
         // Create the booking entry in the database
-        Booking::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'capacity' => $request->capacity,
-            'venue_id' => $request->venue_id,
-            'date' => $request->date,
-            'start_time' => $request->start_time, // Ensure this is passed
-            'end_time' => $request->end_time,     // Ensure this is passed
-            'comments' => $request->comments,
+        Booking::create($validated);
+
+        return back()->with('success', 'Booking successful!');
+    }
+
+    public function checkTime(Request $request)
+    {
+        // Validate the request
+        $request->validate([
+            'venue_id' => 'required|exists:venues,id',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        $conflictingBookings = Booking::where('date', $date)
+        $venue_id = $request->venue_id;
+        $date = $request->date;
+        $start_time = $request->start_time;
+        $end_time = $request->end_time;
+
+        // Check for conflicting bookings
+        $conflictingBookings = Booking::where('venue_id', $venue_id)
+            ->where('date', $date)
             ->where(function ($query) use ($start_time, $end_time) {
                 $query->whereBetween('start_time', [$start_time, $end_time])
-                    ->orWhereBetween('end_time', [$start_time, $end_time])
-                    ->orWhere(function ($query) use ($start_time, $end_time) {
-                        $query->where('start_time', '<=', $start_time)
-                            ->where('end_time', '>=', $end_time);
-                    });
+                      ->orWhereBetween('end_time', [$start_time, $end_time])
+                      ->orWhere(function ($query) use ($start_time, $end_time) {
+                          $query->where('start_time', '<=', $start_time)
+                                ->where('end_time', '>=', $end_time);
+                      });
             })
             ->exists();
 
-        return back()->with('success', 'Booking successful!');
+        // Return success status
+        return response()->json(['success' => !$conflictingBookings]);
     }
 }

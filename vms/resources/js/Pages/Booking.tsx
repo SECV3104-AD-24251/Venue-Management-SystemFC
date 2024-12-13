@@ -69,6 +69,7 @@ export default function Booking() {
             });
             return response.data.success; // Return true if no conflict
         } catch (error) {
+            console.error('Error checking time conflict:', error);
             return false; // If error, assume conflict
         }
     };

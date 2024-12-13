@@ -55,12 +55,14 @@ Route::get('/api/venues', [VenueController::class, 'index']);
 
 Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show');
 
-Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
-
-Route::get('/api/bookings', [BookingController::class, 'index']);
-
 Route::get('/viewbooking', [BookingController::class, 'index'])->name('viewbooking');
 
+// Routes for bookings
+Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+
+Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+
+Route::post('/api/bookings/check-time', [BookingController::class, 'checkTime']);
 
 
 
