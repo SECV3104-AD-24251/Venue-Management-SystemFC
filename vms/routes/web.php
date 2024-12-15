@@ -87,5 +87,4 @@ Route::middleware('auth')->group(function () {
 Route::get('/bookings/{id}/edit', [BookingController::class, 'edit'])->name('bookings.edit');
 Route::patch('/bookings/{id}', [BookingController::class, 'update'])->name('bookings.update');
 
-
 require __DIR__.'/auth.php';
