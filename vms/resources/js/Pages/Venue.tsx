@@ -49,34 +49,51 @@ export default function Dashboard() {
                                     <tr>
                                         <th className="px-4 py-2 border-b">Name</th>
                                         <th className="px-4 py-2 border-b">Location</th>
-                                        <th className="px-4 py-2 border-b">Capacity</th>;
+                                        <th className="px-4 py-2 border-b">Capacity</th>
                                         <th className="px-4 py-2 border-b">Details</th>
                                         <th className="px-4 py-2 border-b">Status</th>
 
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {venues.length === 0 ? (
-                                        <tr>
-                                            <td colSpan={3} className="text-center py-2">No venues available.</td>
-                                        </tr>
-                                    ) : (
-                                        venues.map((venue) => (
-                                            <tr key={venue.id}>
-                                                <td className="text-center py-2 px-4 py-2 border-b">{venue.name}</td>
-                                                <td className="text-center py-2 px-4 py-2 border-b">{venue.location}</td>
-                                                <td className="text-center py-2 px-4 py-2 border-b">{venue.capacity}</td>
-                                                <td className="text-center py-2 px-4 py-2 border-b">{venue.status}</td>
-                                                <td className="text-center py-2 px-4 py-2 border-b"> <Link
-                                                                                href={route('venues.show', { id: venue.id })}
-                                                                                className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-                                                                                >
-                                                                                See Details
-                                                                                </Link></td>
-                                            </tr>
-                                        ))
-                                    )}
-                                </tbody>
+    {venues.length === 0 ? (
+        <tr>
+            <td colSpan={5} className="text-center py-2">
+                No venues available.
+            </td>
+        </tr>
+    ) : (
+        venues.map((venue) => (
+            <tr key={venue.id}>
+                <td className="text-center px-4 py-2 border-b">{venue.name}</td>
+                <td className="text-center px-4 py-2 border-b">{venue.location}</td>
+                <td className="text-center px-4 py-2 border-b">{venue.capacity}</td>
+                <td className="text-center px-4 py-2 border-b">
+                    <Link
+                        href={route('venues.show', { id: venue.id })}
+                        className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                    >
+                        See Details
+                    </Link>
+                </td>
+                <td className="text-center px-4 py-2 border-b">
+                    <span
+                        className={`inline-block px-8 py-4 font-semibold text-white rounded ${
+                            venue.status === 'Available'
+                                ? 'bg-green-500'
+                                : venue.status === 'Maintenance'
+                                ? 'bg-orange-500'
+                                : 'bg-red-500'
+                        }`}
+                    >
+                        {venue.status}
+                    </span>
+                </td>
+            </tr>
+        ))
+    )}
+</tbody>
+
                             </table>
                         </div>
                     </div>
