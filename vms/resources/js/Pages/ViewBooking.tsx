@@ -85,7 +85,7 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings }) => {
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
-                                                                    router.get(`/bookings/${booking.id}/edit`); // Navigate to the edit page
+                                                                    router.visit(`/bookings/${booking.id}/edit`); // Navigate to the edit page
                                                                 }}
                                                                 className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-700"
                                                             >
