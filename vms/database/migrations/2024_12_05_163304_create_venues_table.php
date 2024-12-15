@@ -14,6 +14,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('location');
             $table->integer('capacity');
+            $table->string('status')->default('Available');
             $table->timestamps();
         });
         

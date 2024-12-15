@@ -9,5 +9,5 @@ class Venue extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'location', 'capacity'];
+    protected $fillable = ['name', 'location', 'capacity', 'status'];
 }

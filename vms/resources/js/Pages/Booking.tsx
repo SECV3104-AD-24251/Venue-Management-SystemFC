@@ -13,6 +13,7 @@ export default function Booking() {
         id: number;
         name: string;
         capacity: number;
+        status:string;
     }
 
     // State for venues and filtering

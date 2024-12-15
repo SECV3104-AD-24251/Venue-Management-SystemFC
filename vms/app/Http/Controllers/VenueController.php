@@ -9,7 +9,7 @@ class VenueController extends Controller
 {
     public function index()
 {
-    $venues = Venue::all();  // Fetch all venues from the database
+    $venues = Venue::all(); (['id', 'name', 'location', 'capacity', 'status']);// Fetch all venues from the database
     return response()->json($venues);
 }
     public function show($id)
