@@ -118,4 +118,34 @@ public function showSchedule()
     ]);
 }
 
+public function edit($id)
+{
+    $booking = Booking::with('venue')->findOrFail($id);
+
+    return Inertia::render('EditBooking', [
+        'booking' => $booking,
+    ]);
+}
+
+public function update(Request $request, $id): RedirectResponse
+{
+    $booking = Booking::findOrFail($id);
+
+    // Validate the incoming request
+    $validated = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email',
+        'capacity' => 'required|integer',
+        'venue_id' => 'required|exists:venues,id',
+        'date' => 'required|date',
+        'start_time' => 'required|date_format:H:i',
+        'end_time' => 'required|date_format:H:i|after:start_time',
+        'comments' => 'nullable|string',
+    ]);
+
+    $booking->update($validated);
+
+    return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
+}
+
 }
