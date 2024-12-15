@@ -13,12 +13,10 @@ interface Venue {
   capacity: number;
 }
 
-export default function Dashboard(
-  {
-    header,
-    children,
-  }: PropsWithChildren<{ header?: ReactNode }>
-) {
+export default function Dashboard({
+  header,
+  children,
+}: PropsWithChildren<{ header?: ReactNode }>) {
   const user = usePage().props.auth.user;
   const [showingNavigationDropdown, setShowingNavigationDropdown] =
     useState(false);
@@ -29,7 +27,10 @@ export default function Dashboard(
   const [totalRooms, setTotalRooms] = useState<number | null>(null);
   const [totalBookings, setTotalBookings] = useState<number | null>(null);
 
-  // Fetch total room count, bookings count, and venues data
+  // State for notifications
+  const [notifications, setNotifications] = useState<string[]>([]);
+
+  // Fetch total room count, bookings count, venues data, and notifications
   useEffect(() => {
     // Fetch venues data
     axios.get('/api/venues')
@@ -41,9 +42,9 @@ export default function Dashboard(
       });
 
     // Fetch total rooms count
-    axios.get('/api/rooms/count')  // Ensure this endpoint returns the total room count
+    axios.get('/api/rooms/count') // Ensure this endpoint returns the total room count
       .then(response => {
-        setTotalRooms(response.data.totalRooms);  // Set total rooms to state
+        setTotalRooms(response.data.totalRooms); // Set total rooms to state
       })
       .catch(error => {
         console.error('Error fetching room count:', error);
@@ -52,11 +53,19 @@ export default function Dashboard(
     // Fetch total bookings count
     axios.get('/api/bookings/count')
       .then(response => {
-        console.log('Total bookings:', response.data.totalBookings); // Debugging log
         setTotalBookings(response.data.totalBookings); // Set total bookings to state
       })
       .catch(error => {
         console.error('Error fetching bookings count:', error);
+      });
+
+    // Fetch notifications
+    axios.get('/api/notifications') // Ensure this endpoint returns a list of notifications
+      .then(response => {
+        setNotifications(response.data.notifications); // Set notifications to state
+      })
+      .catch(error => {
+        console.error('Error fetching notifications:', error);
       });
   }, []); // Empty dependency array ensures this runs only once when the component mounts
 
@@ -68,7 +77,31 @@ export default function Dashboard(
         </h2>
       }
     >
+      <Head title="Dashboard" />
 
+      {/* Notification Section */}
+      <div className="py-6">
+        <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
+          <div className="overflow-hidden bg-blue-100 shadow-sm sm:rounded-lg">
+            <div className="p-6 text-gray-900">
+              <h3 className="text-lg font-semibold mb-4">Notifications</h3>
+              {notifications.length > 0 ? (
+                <ul className="list-disc list-inside">
+                  {notifications.map((notification, index) => (
+                    <li key={index} className="mb-2">
+                      {notification}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No new notifications.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Dashboard Statistics */}
       <Box
         sx={{
           mt: 4,
@@ -128,59 +161,9 @@ export default function Dashboard(
             {totalBookings !== null ? totalBookings : 'Loading...'}
           </Typography>
         </Box>
-
-        {/* Box 3 - Total Active Users */}
-        <Box
-          sx={{
-            width: '270px',
-            height: '120px',
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '10px',
-            gap: '10px',
-          }}
-        >
-          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
-            Total Active Users
-          </Typography>
-
-          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
-            20
-          </Typography>
-        </Box>
-
-        {/* Box 4 - Total Registered Users */}
-        <Box
-          sx={{
-            width: '270px',
-            height: '120px',
-            backgroundColor: 'white',
-            borderRadius: '8px',
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '10px',
-            gap: '10px',
-          }}
-        >
-          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
-            Total Registered Users
-          </Typography>
-
-          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
-            190
-          </Typography>
-        </Box>
       </Box>
 
-      <Head title="Dashboard" />
+      {/* Welcome Back Section */}
       <div className="py-10">
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
@@ -190,7 +173,6 @@ export default function Dashboard(
           </div>
         </div>
       </div>
-
     </AuthenticatedLayout>
   );
 }
