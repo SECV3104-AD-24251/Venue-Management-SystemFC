@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
 use App\Models\ClassSchedule;
+use App\Models\Venue;
 
 class BookingController extends Controller
 {
@@ -111,9 +112,11 @@ class BookingController extends Controller
     public function edit($id)
     {
         $booking = Booking::with('venue')->findOrFail($id);
+        $venues = Venue::all(); // Get all venues
 
         return Inertia::render('EditBooking', [
             'booking' => $booking,
+            'venues' => $venues, 
         ]);
     }
 
@@ -136,4 +139,5 @@ class BookingController extends Controller
 
         return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
     }
+    
 }
