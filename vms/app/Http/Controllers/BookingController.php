@@ -3,18 +3,16 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use Inertia\Response;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
 use App\Models\ClassSchedule;
-
+use App\Models\Venue;
 
 class BookingController extends Controller
 {
     public function index()
     {
-        // Fetch all bookings from the database and eager load the 'venue' relationship
         $bookings = Booking::with('venue')->get();
 
         return Inertia::render('ViewBooking', [
@@ -24,7 +22,6 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming request
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -32,7 +29,7 @@ class BookingController extends Controller
             'venue_id' => 'required|exists:venues,id',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time', // Ensure end_time is after start_time
+            'end_time' => 'required|date_format:H:i|after:start_time',
             'comments' => 'nullable|string',
         ]);
 
@@ -41,7 +38,6 @@ class BookingController extends Controller
         $start_time = $request->start_time;
         $end_time = $request->end_time;
 
-        // Check for time conflict
         $conflictingBookings = Booking::where('venue_id', $venue_id)
             ->where('date', $date)
             ->where(function ($query) use ($start_time, $end_time) {
@@ -55,11 +51,9 @@ class BookingController extends Controller
             ->exists();
 
         if ($conflictingBookings) {
-            // Return an error if the venue is already booked for the selected time
             return back()->withErrors(['error' => 'This venue is already booked for the selected time and date.']);
         }
 
-        // Create the booking entry in the database
         Booking::create($validated);
 
         return back()->with('success', 'Booking successful!');
@@ -67,7 +61,6 @@ class BookingController extends Controller
 
     public function checkTime(Request $request)
     {
-        // Validate the request
         $request->validate([
             'venue_id' => 'required|exists:venues,id',
             'date' => 'required|date',
@@ -80,7 +73,6 @@ class BookingController extends Controller
         $start_time = $request->start_time;
         $end_time = $request->end_time;
 
-        // Check for conflicting bookings
         $conflictingBookings = Booking::where('venue_id', $venue_id)
             ->where('date', $date)
             ->where(function ($query) use ($start_time, $end_time) {
@@ -93,29 +85,59 @@ class BookingController extends Controller
             })
             ->exists();
 
-        // Return success status
         return response()->json(['success' => !$conflictingBookings]);
     }
 
     public function destroy($id): RedirectResponse
-{
-    $booking = Booking::findOrFail($id);
+    {
+        $booking = Booking::findOrFail($id);
 
-    try {
-        $booking->delete();
-        return redirect()->back()->with('success', 'Booking deleted successfully!');
-    } catch (\Exception $e) {
-        return redirect()->back()->with('error', 'Failed to delete booking.');
+        try {
+            $booking->delete();
+            return redirect()->back()->with('success', 'Booking deleted successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete booking.');
+        }
     }
-}
 
-public function showSchedule()
-{
-    $schedules = ClassSchedule::with('venue')->get();
+    public function showSchedule()
+    {
+        $schedules = ClassSchedule::with('venue')->get();
 
-    return Inertia::render('Schedule', [
-        'schedules' => $schedules
-    ]);
-}
+        return Inertia::render('Schedule', [
+            'schedules' => $schedules,
+        ]);
+    }
 
+    public function edit($id)
+    {
+        $booking = Booking::with('venue')->findOrFail($id);
+        $venues = Venue::all(); // Get all venues
+
+        return Inertia::render('EditBooking', [
+            'booking' => $booking,
+            'venues' => $venues, 
+        ]);
+    }
+
+    public function update(Request $request, $id): RedirectResponse
+    {
+        $booking = Booking::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email',
+            'capacity' => 'required|integer',
+            'venue_id' => 'required|exists:venues,id',
+            'date' => 'required|date',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'comments' => 'nullable|string',
+        ]);
+
+        $booking->update($validated);
+
+        return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
+    }
+    
 }
