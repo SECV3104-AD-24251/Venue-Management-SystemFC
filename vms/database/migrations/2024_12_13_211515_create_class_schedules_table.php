@@ -29,13 +29,5 @@ class CreateClassSchedulesTable extends Migration
     
 };
 
-ClassSchedule::create([
-    'venue_id' => 1,
-    'class_name' => 'Mathematics 101',
-    'lecturer_name' => 'John Doe',
-    'day' => 'Monday',
-    'start_time' => '09:00',
-    'end_time' => '11:00',
-]);
 
 
