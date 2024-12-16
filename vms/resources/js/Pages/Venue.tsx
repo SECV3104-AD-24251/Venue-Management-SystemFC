@@ -77,8 +77,8 @@ export default function Dashboard() {
                     </Link>
                 </td>
                 <td className="text-center px-4 py-2 border-b">
-                    <span
-                        className={`inline-block px-8 py-4 font-semibold text-white rounded ${
+                    <NormalButton
+                        className={`inline- font-semibold text-white rounded ${
                             venue.status === 'Available'
                                 ? 'bg-green-500'
                                 : venue.status === 'Maintenance'
@@ -87,7 +87,7 @@ export default function Dashboard() {
                         }`}
                     >
                         {venue.status}
-                    </span>
+                    </NormalButton>
                 </td>
             </tr>
         ))
