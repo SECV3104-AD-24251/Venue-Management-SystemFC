@@ -78,7 +78,7 @@ export default function Dashboard() {
                 </td>
                 <td className="text-center px-4 py-2 border-b">
                     <NormalButton
-                        className={`inline- font-semibold text-white rounded ${
+                        className={`inline-font-semibold text-white rounded ${
                             venue.status === 'Available'
                                 ? 'bg-green-500'
                                 : venue.status === 'Maintenance'

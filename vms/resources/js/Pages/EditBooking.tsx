@@ -54,7 +54,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
-                            <h3>Edit Booking</h3>
+                            
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-4">
                                     <label className="block text-sm font-semibold text-gray-700">Name</label>
@@ -63,7 +63,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
 
@@ -74,7 +74,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
 
@@ -85,7 +85,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="capacity"
                                         value={formData.capacity}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
 
@@ -95,7 +95,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="venue_id"
                                         value={formData.venue_id}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     >
                                         {venues.map((venue) => (
                                             <option key={venue.id} value={venue.id}>
@@ -112,7 +112,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="date"
                                         value={formData.date}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
 
@@ -123,7 +123,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="start_time"
                                         value={formData.start_time}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
 
@@ -134,7 +134,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="end_time"
                                         value={formData.end_time}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
 
@@ -144,7 +144,7 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="comments"
                                         value={formData.comments}
                                         onChange={handleChange}
-                                        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                                     />
                                 </div>
 
