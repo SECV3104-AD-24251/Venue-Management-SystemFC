@@ -57,16 +57,15 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings }) => {
                                 <div className="text-red-500">No bookings found.</div>
                             ) : (
                                 <div>
-                                    <h3>Your Bookings:</h3>
                                     <table className="min-w-full table-auto border-collapse">
                                         <thead>
                                             <tr>
-                                                <th className="border-b px-4 py-2 text-left">Venue</th>
-                                                <th className="border-b px-4 py-2 text-left">Date</th>
-                                                <th className="border-b px-4 py-2 text-left">Start Time</th>
-                                                <th className="border-b px-4 py-2 text-left">End Time</th>
-                                                <th className="border-b px-4 py-2 text-left">Capacity</th>
-                                                <th className="border-b px-4 py-2 text-left">Actions</th>
+                                                <th className="border-b px-4 py-2">Venue</th>
+                                                <th className="border-b px-4 py-2">Date</th>
+                                                <th className="border-b px-4 py-2">Start Time</th>
+                                                <th className="border-b px-4 py-2">End Time</th>
+                                                <th className="border-b px-4 py-2">Capacity</th>
+                                                <th className="border-b px-4 py-2">Actions</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -76,12 +75,12 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings }) => {
                                                         onClick={() => handleRowClick(booking.id)}
                                                         className="cursor-pointer hover:bg-gray-100"
                                                     >
-                                                        <td className="border-b px-4 py-2">{booking.venue?.name || 'No venue'}</td>
-                                                        <td className="border-b px-4 py-2">{booking.date}</td>
-                                                        <td className="border-b px-4 py-2">{booking.start_time}</td>
-                                                        <td className="border-b px-4 py-2">{booking.end_time}</td>
-                                                        <td className="border-b px-4 py-2">{booking.capacity}</td>
-                                                        <td className="border-b px-4 py-2">
+                                                        <td className="text-center border-b px-4 py-2">{booking.venue?.name || 'No venue'}</td>
+                                                        <td className="text-center border-b px-4 py-2">{booking.date}</td>
+                                                        <td className="text-center border-b px-4 py-2">{booking.start_time}</td>
+                                                        <td className="text-center border-b px-4 py-2">{booking.end_time}</td>
+                                                        <td className="text-center border-b px-4 py-2">{booking.capacity}</td>
+                                                        <td className="text-center border-b px-4 py-2">
                                                             <button
                                                                 onClick={(e) => {
                                                                     e.stopPropagation();
@@ -125,6 +124,5 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings }) => {
             </div>
         </AuthenticatedLayout>
     );
-};
-
+}
 export default ViewBooking;
