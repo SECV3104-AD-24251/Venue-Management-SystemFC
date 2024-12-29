@@ -13,7 +13,9 @@ class Venue extends Model
         'name', 
         'location', 
         'capacity', 
-        'status'
+        'status',
+        'lecture_type',
+        'equipment',
     ];
     protected $casts = [
         'equipment' => 'array',

@@ -165,7 +165,6 @@ export default function Booking() {
                                     <InputError message={errors.email} />
                                 </div>
 
-
                                 {/* Capacity */}
                                 <div>
                                     <InputLabel htmlFor="capacity" value="Capacity" />
