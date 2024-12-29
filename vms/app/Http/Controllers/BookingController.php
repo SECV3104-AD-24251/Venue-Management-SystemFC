@@ -20,6 +20,24 @@ class BookingController extends Controller
         ]);
     }
 
+    public function getFilteredVenues(Request $request)
+{
+    $lectureType = $request->input('lecture_type');
+    $requiredEquipment = $request->input('equipment');
+    $capacity = $request->input('capacity');
+
+    $venues = Venue::where('capacity', '>=', $capacity)
+        ->when($lectureType, function ($query, $lectureType) {
+            return $query->where('lecture_type', $lectureType);
+        })
+        ->when($requiredEquipment, function ($query, $requiredEquipment) {
+            return $query->whereJsonContains('equipment', $requiredEquipment);
+        })
+        ->get();
+
+    return response()->json($venues);
+}
+
     public function store(Request $request)
     {
         $validated = $request->validate([

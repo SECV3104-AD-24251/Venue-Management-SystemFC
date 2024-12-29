@@ -154,7 +154,7 @@ export default function Booking() {
 
                                 {/* Email */}
                                 <div>
-                                    <InputLabel htmlFor="email" value="Email (@graduate.utm.my)" />
+                                    <InputLabel htmlFor="email" value="Email (@.utm.my)" />
                                     <TextInput
                                         id="email"
                                         type="email"
@@ -164,6 +164,7 @@ export default function Booking() {
                                     />
                                     <InputError message={errors.email} />
                                 </div>
+
 
                                 {/* Capacity */}
                                 <div>

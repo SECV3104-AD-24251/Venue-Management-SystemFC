@@ -9,5 +9,13 @@ class Venue extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'location', 'capacity', 'status'];
+    protected $fillable = [
+        'name', 
+        'location', 
+        'capacity', 
+        'status'
+    ];
+    protected $casts = [
+        'equipment' => 'array',
+    ];
 }
