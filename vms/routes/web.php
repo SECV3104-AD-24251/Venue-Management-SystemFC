@@ -56,6 +56,8 @@ Route::get('/', function () {
     ]);
 });
 
+Route::post('/venues/status', [VenueController::class, 'checkVenueStatus']);
+
 Route::get('/api/venues', [VenueController::class, 'index']);
 
 Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show');

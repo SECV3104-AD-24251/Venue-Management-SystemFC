@@ -11,22 +11,54 @@ interface Venue {
     location: string;
     capacity: number;
     status: string;
+    is_booked: boolean; // New field to indicate booking status
 }
 
 export default function Dashboard() {
-    // Explicitly type the state as an array of Venue objects
     const [venues, setVenues] = useState<Venue[]>([]);
+    const [selectedDate, setSelectedDate] = useState('');
+    const [selectedStartTime, setSelectedStartTime] = useState('');
+    const [selectedEndTime, setSelectedEndTime] = useState('');
 
-    // Fetch venues data from API on component mount
     useEffect(() => {
-        axios.get('/api/venues')  // Ensure this endpoint is correct
+        axios.get('/api/venues') // Ensure the API includes `is_booked`
             .then(response => {
-                setVenues(response.data);  // Set the venues data to state
+                setVenues(response.data);
             })
             .catch(error => {
                 console.error('Error fetching venues:', error);
             });
-    }, []); // Empty dependency array makes this run only once
+    }, []);
+
+    useEffect(() => {
+        // Fetch venue statuses dynamically
+        const fetchVenueStatuses = async () => {
+            const updatedVenues = await Promise.all(
+                venues.map(async (venue) => {
+                    try {
+                        const response = await axios.post('/api/venues/status', {
+                            venue_id: venue.id,
+                            date: selectedDate, // Ensure you have this state
+                            start_time: selectedStartTime, // Ensure you have this state
+                            end_time: selectedEndTime, // Ensure you have this state
+                        });
+    
+                        return { ...venue, status: response.data.status };
+                    } catch (error) {
+                        console.error('Error fetching status for venue:', venue.id, error);
+                        return venue; // Keep original if there's an error
+                    }
+                })
+            );
+    
+            setVenues(updatedVenues); // Update state with the new statuses
+        };
+    
+        if (selectedDate && selectedStartTime && selectedEndTime) {
+            fetchVenueStatuses();
+        }
+    }, [venues, selectedDate, selectedStartTime, selectedEndTime]);
+
 
     return (
         <AuthenticatedLayout
@@ -42,8 +74,6 @@ export default function Dashboard() {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
-
-                            {/* Table to display venues */}
                             <table className="min-w-full mt-6 table-auto">
                                 <thead>
                                     <tr>
@@ -52,48 +82,47 @@ export default function Dashboard() {
                                         <th className="px-4 py-2 border-b">Capacity</th>
                                         <th className="px-4 py-2 border-b">Details</th>
                                         <th className="px-4 py-2 border-b">Status</th>
-
                                     </tr>
                                 </thead>
                                 <tbody>
-    {venues.length === 0 ? (
-        <tr>
-            <td colSpan={5} className="text-center py-2">
-                No venues available.
-            </td>
-        </tr>
-    ) : (
-        venues.map((venue) => (
-            <tr key={venue.id}>
-                <td className="text-center px-4 py-2 border-b">{venue.name}</td>
-                <td className="text-center px-4 py-2 border-b">{venue.location}</td>
-                <td className="text-center px-4 py-2 border-b">{venue.capacity}</td>
-                <td className="text-center px-4 py-2 border-b">
-                    <Link
-                        href={route('venues.show', { id: venue.id })}
-                        className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-                    >
-                        See Details
-                    </Link>
-                </td>
-                <td className="text-center px-4 py-2 border-b">
-                    <NormalButton
-                        className={`inline-font-semibold text-white rounded ${
-                            venue.status === 'Available'
-                                ? 'bg-green-500'
-                                : venue.status === 'Maintenance'
-                                ? 'bg-orange-500'
-                                : 'bg-red-500'
-                        }`}
-                    >
-                        {venue.status}
-                    </NormalButton>
-                </td>
-            </tr>
-        ))
-    )}
-</tbody>
+                                    {venues.length === 0 ? (
+                                        <tr>
+                                            <td colSpan={5} className="text-center py-2">
+                                                No venues available.
+                                            </td>
+                                        </tr>
+                                    ) : (
+                                        venues.map((venue) => (
+                                            <tr key={venue.id}>
+                                                <td className="text-center px-4 py-2 border-b">{venue.name}</td>
+                                                <td className="text-center px-4 py-2 border-b">{venue.location}</td>
+                                                <td className="text-center px-4 py-2 border-b">{venue.capacity}</td>
+                                                <td className="text-center px-4 py-2 border-b">
+                                                    <Link
+                                                        href={route('venues.show', { id: venue.id })}
+                                                        className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                                                    >
+                                                        See Details
+                                                    </Link>
+                                                </td>
+                                                <td className="text-center px-4 py-2 border-b">
+                                                <NormalButton
+                                                    className={`inline-font-semibold text-white rounded ${
+                                                        venue.status === 'Available'
+                                                        ? 'bg-green-500'
+                                                        : venue.status === 'Maintenance'
+                                                        ? 'bg-orange-500'
+                                                        : 'bg-red-500'
+                                                            }`}
+                                                        >
+                                                        {venue.status}
+                                                </NormalButton>
 
+                                                </td>
+                                            </tr>
+                                        ))
+                                    )}
+                                </tbody>
                             </table>
                         </div>
                     </div>
