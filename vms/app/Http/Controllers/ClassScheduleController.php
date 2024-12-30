@@ -6,6 +6,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ClassSchedule;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ClassScheduleController extends Controller
 {
