@@ -51,12 +51,23 @@ export default function Authenticated({
                                 >
                                     View Booking                               
                                 </NavLink>
+                                {user.role == 'lecturer' && (
                                 <NavLink
                                     href={route('schedule')}
                                     active={route().current('schedule')}
                                 >
                                     Class Schedule                              
                                 </NavLink>
+                                )}
+
+                                {user.role == 'staff' && (
+                                <NavLink
+                                    href={route('schedules.add')}
+                                    active={route().current('schedules.add')}
+                                >
+                                    Class Schedule                              
+                                </NavLink>
+                                )}
 
                             </div>
                         </div>
