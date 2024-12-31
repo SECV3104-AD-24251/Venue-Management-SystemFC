@@ -11,6 +11,11 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ClassScheduleController;
 
 
+Route::get('/schedules/add', function () {
+    return Inertia::render('AddSchedule');
+})->name('schedules.add');
+
+
 Route::get('/venue', function () {
     return Inertia::render('Venue');
 })->name('venue');
@@ -85,6 +90,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
+
+
 
 //editing bookings
 Route::get('/bookings/{id}/edit', [BookingController::class, 'edit'])->name('bookings.edit');
