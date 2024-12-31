@@ -40,38 +40,49 @@ class BookingController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
+        $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
-            'capacity' => 'required|integer',
+            'capacity' => 'required|integer|min:1',
             'venue_id' => 'required|exists:venues,id',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'comments' => 'nullable|string',
+            'equipment' => 'nullable|array',
+            'equipment.*' => 'string|in:projector,soundSystem,whiteboard', // Add all allowed equipment types
         ]);
+        $booking = Booking::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'capacity' => $request->capacity,
+            'venue_id' => $request->venue_id,
+            'date' => $request->date,
+            'start_time' => $request->start_time,
+            'end_time' => $request->end_time,
+            'equipment' => $request->equipment, // Save equipment as JSON
+            'comments' => $request->comments,
+        ]); 
 
         $venue_id = $request->venue_id;
         $date = $request->date;
         $start_time = $request->start_time;
         $end_time = $request->end_time;
 
-        $conflictingBookings = Booking::where('venue_id', $venue_id)
-            ->where('date', $date)
-            ->where(function ($query) use ($start_time, $end_time) {
-                $query->whereBetween('start_time', [$start_time, $end_time])
-                      ->orWhereBetween('end_time', [$start_time, $end_time])
-                      ->orWhere(function ($query) use ($start_time, $end_time) {
-                          $query->where('start_time', '<=', $start_time)
-                                ->where('end_time', '>=', $end_time);
-                      });
-            })
-            ->exists();
+        $conflictingBookings = Booking::where('venue_id', $request->venue_id)
+            ->where('date', $request->date)
+            ->where(function ($query) use ($request) {
+            $query->whereBetween('start_time', [$request->start_time, $request->end_time])
+            ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
+        })
+            ->get();
 
-        if ($conflictingBookings) {
-            return back()->withErrors(['error' => 'This venue is already booked for the selected time and date.']);
-        }
-
+                // Check for equipment conflicts
+                foreach ($conflictingBookings as $booking) {
+                    if (array_intersect($booking->equipment ?? [], $request->equipment ?? [])) {
+                    return response()->json(['success' => false, 'message' => 'Equipment conflict detected']);
+                }
+            }
+               return response()->json(['success' => true]);
         Booking::create($validated);
 
         return back()->with('success', 'Booking successful!');
@@ -157,5 +168,29 @@ class BookingController extends Controller
 
         return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');
     }
+    public function getSuggestions(Request $request) {
+    $validated = $request->validate([
+        'date' => 'required|date',
+        'startTime' => 'required',
+        'endTime' => 'required',
+        'classSize' => 'required|integer',
+        'equipment' => 'array',
+        'specialRequirements' => 'string|nullable',
+    ]);
+
+    $availableClassrooms = Classroom::where('capacity', '>=', $validated['classSize'])
+        ->whereDoesntHave('bookings', function ($query) use ($validated) {
+            $query->where('date', $validated['date'])
+                  ->whereBetween('time', [$validated['startTime'], $validated['endTime']]);
+        })
+        ->where(function ($query) use ($validated) {
+            foreach ($validated['equipment'] as $equipment) {
+                $query->whereJsonContains('equipment', $equipment);
+            }
+        })
+        ->get();
+
+    return response()->json($availableClassrooms);
+}
     
 }

@@ -16,5 +16,10 @@ class Venue extends Model
         'status',
 
     ];
+    protected $casts = [
+        'info' => 'array',
+        'equipment' => 'array',
+    ];
+    
 
 }
