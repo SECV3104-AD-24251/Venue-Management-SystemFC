@@ -46,6 +46,17 @@ public function checkVenueStatus(Request $request)
         'status' => $status,
     ]);
 }
+public function checkAvailability(Request $request)
+{
+    $available = Venue::whereDoesntHave('bookings', function ($query) use ($request) {
+        $query->where('date', $request->date)
+              ->where('start_time', '<', $request->end_time)
+              ->where('end_time', '>', $request->start_time);
+    })->get();
+
+    return response()->json($available);
+}
+
 
 
 }

@@ -11,7 +11,7 @@ interface Venue {
     location: string;
     capacity: number;
     status: string;
-    is_booked: boolean; // New field to indicate booking status
+
 }
 
 export default function Dashboard() {
@@ -58,7 +58,29 @@ export default function Dashboard() {
             fetchVenueStatuses();
         }
     }, [venues, selectedDate, selectedStartTime, selectedEndTime]);
-
+    const checkAvailability = async (venueId: number, date: string, startTime: string, endTime: string) => {
+        try {
+            const response = await axios.post('/api/venues/check-availability', {
+                venue_id: venueId,
+                date,
+                start_time: startTime,
+                end_time: endTime,
+            });
+            return response.data.available; // Boolean indicating availability
+        } catch (error) {
+            console.error('Error checking availability:', error);
+            return false;
+        }
+    };
+    const handleCheckAvailability = async (venue: Venue) => {
+        const isAvailable = await checkAvailability(venue.id, selectedDate, selectedStartTime, selectedEndTime);
+        if (isAvailable) {
+            alert(`${venue.name} is available!`);
+        } else {
+            alert(`${venue.name} is not available for the selected time.`);
+        }
+    };
+        
 
     return (
         <AuthenticatedLayout
@@ -106,19 +128,16 @@ export default function Dashboard() {
                                                     </Link>
                                                 </td>
                                                 <td className="text-center px-4 py-2 border-b">
-                                                <NormalButton
-                                                    className={`inline-font-semibold text-white rounded ${
-                                                        venue.status === 'Available'
-                                                        ? 'bg-green-500'
-                                                        : venue.status === 'Maintenance'
-                                                        ? 'bg-orange-500'
-                                                        : 'bg-red-500'
-                                                            }`}
-                                                        >
-                                                        {venue.status}
-                                                </NormalButton>
 
+                                                <button
+                                                onClick={() => handleCheckAvailability(venue)}
+                                                className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                                                >
+                                                    Check Availability
+                                                </button>
+                                                
                                                 </td>
+
                                             </tr>
                                         ))
                                     )}

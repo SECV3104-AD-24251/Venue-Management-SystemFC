@@ -28,6 +28,10 @@ Route::get('/viewbooking', function () {
     return Inertia::render('ViewBooking');
 })->name('viewbooking');
 
+Route::get('/form', function () {
+    return Inertia::render('Form');
+})->name('form');
+
 Route::get('/class', function () {
     return Inertia::render('ClassSchedule');
 })->name('schedule');
@@ -49,8 +53,7 @@ Route::get('/api/bookings/count', function () {
 //schedule
 Route::get('/schedule', [ClassScheduleController::class, 'index']);
 
-
-
+Route::post('/classroom-suggestions', [BookingController::class, 'getSuggestions']);
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -78,7 +81,7 @@ Route::post('/api/bookings/check-time', [BookingController::class, 'checkTime'])
 
 Route::delete('/bookings/{id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
 
-
+Route::post('/api/venues/check-availability', [VenueController::class, 'checkAvailability']);
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');

@@ -24,6 +24,9 @@ class Booking extends Model
         'comments',
     ];
 
+    protected $casts = [
+        'equipment' => 'array',
+    ];
     // Define the relationship with the Venue model
     public function venue()
     {

@@ -58,6 +58,14 @@ export default function Authenticated({
                                 >
                                     Class Schedule                              
                                 </NavLink>
+
+                                <NavLink
+                                    href={route('form')}
+                                    active={route().current('Form')}
+                                >
+                                    Form                             
+                                </NavLink>
+
                                 )}
 
                                 {user.role == 'staff' && (
@@ -68,6 +76,7 @@ export default function Authenticated({
                                     Class Schedule                              
                                 </NavLink>
                                 )}
+
 
                             </div>
                         </div>

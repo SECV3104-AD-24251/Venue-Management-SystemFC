@@ -9,8 +9,7 @@ return new class extends Migration
     public function up()
 {
     Schema::table('venues', function (Blueprint $table) {
-        $table->json('equipment')->nullable(); // Storing equipment info
-        $table->string('lecture_type')->nullable(); // E.g., 'Seminar', 'Workshop'
+        $table->json('equipment')->change(); // Storing equipment info
     });
 }
 
@@ -18,7 +17,6 @@ return new class extends Migration
 {
     Schema::table('venues', function (Blueprint $table) {
         $table->dropColumn('equipment');
-        $table->dropColumn('lecture_type');
     });
 }
 
