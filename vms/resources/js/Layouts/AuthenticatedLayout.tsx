@@ -70,6 +70,13 @@ export default function Authenticated({
                                 </NavLink>
                                 )}
 
+                                <NavLink
+                                    href={route('maintenance-tasks')}
+                                    active={route().current('maintenance-tasks')}
+                                >
+                                    Maintenance                               
+                                </NavLink>
+
 
                             </div>
                         </div>

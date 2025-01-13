@@ -9,7 +9,9 @@ use App\Models\Venue;
 use App\Models\Booking;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ClassScheduleController;
+use App\Http\Controllers\MaintenanceTaskController;
 
+Route::get('/maintenance-tasks', [MaintenanceTaskController::class, 'index'])->name('maintenance-tasks');
 
 Route::get('/schedules/add', function () {
     return Inertia::render('AddSchedule');
