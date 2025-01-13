@@ -8,58 +8,42 @@ import TextInput from '@/Components/TextInput';
 import NormalButton from '@/Components/NormalButton';
 
 export default function Booking() {
-    // Define Venue type
+    // Venue type definition
     interface Venue {
         id: number;
         name: string;
         capacity: number;
-        status:string;
+        status: string;
     }
 
-    // State for venues and filtering
-    const [venues, setVenues] = useState<Venue[]>([]); // All venues
-    const [filteredVenues, setFilteredVenues] = useState<Venue[]>([]); // Filtered venues
+    // State for venues and suggestion
+    const [venues, setVenues] = useState<Venue[]>([]);
+    const [suggestedVenue, setSuggestedVenue] = useState<Venue | null>(null);
+    const [conflictErrors, setConflictErrors] = useState({
+        date: '',
+        start_time: '',
+        end_time: '',
+    });
 
-    // State for error popup
-    const [showPopup, setShowPopup] = useState(false);
-    const [popupMessage, setPopupMessage] = useState('');
-
-    // Form handling
     const { data, setData, errors, post, processing, reset } = useForm({
         name: '',
         email: '',
         capacity: '',
-        venue_id: '',
         date: '',
         start_time: '',
         end_time: '',
         comments: '',
+        venue_id: '', // Selected venue
     });
 
-    // Fetch venues on mount
+    // Fetch venues on component mount
     useEffect(() => {
-        axios.get('/api/venues') // Replace with your actual API endpoint
-            .then(response => {
-                setVenues(response.data);
-                setFilteredVenues(response.data); // Initially display all venues
-            })
+        axios
+            .get('/api/venues')
+            .then(response => setVenues(response.data))
             .catch(error => console.error('Error fetching venues:', error));
     }, []);
 
-    // Filter venues based on capacity input
-    const handleCapacityChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const enteredCapacity = e.target.value;
-        setData('capacity', enteredCapacity);
-
-        if (enteredCapacity === '') {
-            setFilteredVenues(venues); // Reset to all venues if input is cleared
-        } else {
-            const filtered = venues.filter(venue => venue.capacity >= Number(enteredCapacity));
-            setFilteredVenues(filtered);
-        }
-    };
-
-    // Check for time conflict
     const checkTimeConflict = async () => {
         try {
             const response = await axios.post('/api/bookings/check-time', {
@@ -68,85 +52,102 @@ export default function Booking() {
                 start_time: data.start_time,
                 end_time: data.end_time,
             });
-            return response.data.success; // Return true if no conflict
+    
+            if (!response.data.success) {
+                alert('This venue is already booked for the selected time. Please choose a different time.');
+                return false; // Conflict exists
+            }
+            return true; // No conflict
         } catch (error) {
             console.error('Error checking time conflict:', error);
-            return false; // If error, assume conflict
+            alert('An error occurred while checking availability. Please try again.');
+            return false;
+        }
+    };    
+
+    // Suggest a venue based on user input
+    const suggestVenue = async () => {
+        const { capacity, date, start_time, end_time } = data;
+
+        if (!capacity || !date || !start_time || !end_time) {
+            setSuggestedVenue(null);
+            return;
+        }
+
+        const matchingVenues = venues.filter(venue => venue.capacity >= Number(capacity));
+
+        for (const venue of matchingVenues) {
+            const isAvailable = await checkVenueAvailability(venue.id, date, start_time, end_time);
+            if (isAvailable) {
+                setSuggestedVenue(venue);
+                return;
+            }
+        }
+
+        setSuggestedVenue(null); // No suitable venue found
+    };
+
+    // Check venue availability
+    const checkVenueAvailability = async (venue_id: number, date: string, start_time: string, end_time: string) => {
+        try {
+            const response = await axios.post('/api/bookings/check-time', {
+                venue_id,
+                date,
+                start_time,
+                end_time,
+            });
+            return response.data.success;
+        } catch (error) {
+            console.error('Error checking venue availability:', error);
+            return false;
         }
     };
 
+    // Update data and suggest a venue dynamically
+    const handleInputChange = (field: keyof typeof data, value: string) => {
+        setData(field, value);
+        if (['capacity', 'date', 'start_time', 'end_time'].includes(field)) {
+            suggestVenue(); // Recalculate suggestion on relevant input changes
+        }
+    };
+    
     // Handle form submission
     const handleBookingSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-
-        // Check for time conflict before submitting
-        const conflict = await checkTimeConflict();
-
-        if (!conflict) {
-            setPopupMessage('This venue is already booked during the selected time. Please choose a different time.');
-            setShowPopup(true);
-            return; // Stop form submission if there's a conflict
+    
+        try {
+            const response = await axios.post('/bookings', data);
+    
+            if (response.data.success) {
+                alert('Booking submitted successfully!');
+                reset(); // Reset form after successful submission
+            } else {
+                alert(response.data.message || 'An error occurred during booking.');
+            }
+        } catch (error) {
+            console.error('Error submitting booking:', error);
+            alert('An unexpected error occurred. Please try again.');
         }
-
-        post(route('bookings.store'), {
-            preserveScroll: true,
-            onSuccess: () => {
-                alert('Booking submitted successfully!'); // Show success alert box
-                reset(); // Reset the form
-            },
-            onError: (errors) => {
-                console.error('Error submitting form:', errors); // Log errors if needed
-
-                // Check for specific errors and trigger the popup with the message
-                const errorMessage = errors?.error || 'An error occurred. Please try again.';
-                setPopupMessage(errorMessage);
-                setShowPopup(true);
-            },
-        });
     };
-
-    const handleClosePopup = () => {
-        setShowPopup(false);
-        setPopupMessage('');
-    };
-
+        
     return (
         <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Book a Venue
-                </h2>
-            }
+            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Book a Venue</h2>}
         >
             <Head title="Booking" />
-
-            {/* Error Popup */}
-            {showPopup && (
-                <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg">
-                        <h3 className="text-red-600 text-lg font-semibold">{popupMessage}</h3>
-                        <button
-                            className="mt-4 bg-blue-500 text-white py-2 px-4 rounded"
-                            onClick={handleClosePopup}
-                        >
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             <form onSubmit={handleBookingSubmit} className="space-y-6">
-                                {/* Full Name */}
+                                {/* Name */}
                                 <div>
                                     <InputLabel htmlFor="name" value="Full Name" />
                                     <TextInput
                                         id="name"
                                         value={data.name}
-                                        onChange={(e) => setData('name', e.target.value)}
+                                        onChange={(e) => handleInputChange('name', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
                                     <InputError message={errors.name} />
@@ -159,7 +160,7 @@ export default function Booking() {
                                         id="email"
                                         type="email"
                                         value={data.email}
-                                        onChange={(e) => setData('email', e.target.value)}
+                                        onChange={(e) => handleInputChange('email', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
                                     <InputError message={errors.email} />
@@ -172,35 +173,28 @@ export default function Booking() {
                                         id="capacity"
                                         type="number"
                                         value={data.capacity}
-                                        onChange={handleCapacityChange}
+                                        onChange={(e) => handleInputChange('capacity', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                         placeholder="Enter capacity"
                                     />
                                     <InputError message={errors.capacity} />
                                 </div>
 
-                                {/* Venue Dropdown */}
-                                <div>
-                                    <InputLabel htmlFor="venue_id" value="Select Venue" />
-                                    <select
-                                        id="venue_id"
-                                        value={data.venue_id}
-                                        onChange={(e) => setData('venue_id', e.target.value)}
-                                        className="block w-1/2 border-gray-300 rounded-md shadow-sm"
-                                    >
-                                        <option value="">-- Choose a Venue --</option>
-                                        {filteredVenues.length > 0 ? (
-                                            filteredVenues.map((venue) => (
-                                                <option key={venue.id} value={venue.id}>
-                                                    {venue.name} (Capacity: {venue.capacity})
-                                                </option>
-                                            ))
-                                        ) : (
-                                            <option disabled>No suitable venues found</option>
-                                        )}
-                                    </select>
-                                    <InputError message={errors.venue_id} />
-                                </div>
+                                {/* Suggested Venue */}
+                                {suggestedVenue && (
+                                    <div className="p-4 bg-green-100 border border-green-400 rounded-md">
+                                        <p>
+                                            Suggested Venue: <strong>{suggestedVenue.name}</strong> (Capacity: {suggestedVenue.capacity})
+                                        </p>
+                                        <button
+                                            type="button"
+                                            className="mt-2 bg-blue-500 text-white py-1 px-3 rounded"
+                                            onClick={() => setData('venue_id', suggestedVenue.id.toString())}
+                                        >
+                                            Select Suggested Venue
+                                        </button>
+                                    </div>
+                                )}
 
                                 {/* Booking Date */}
                                 <div>
@@ -209,7 +203,7 @@ export default function Booking() {
                                         id="date"
                                         type="date"
                                         value={data.date}
-                                        onChange={(e) => setData('date', e.target.value)}
+                                        onChange={(e) => handleInputChange('date', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
                                     <InputError message={errors.date} />
@@ -217,12 +211,12 @@ export default function Booking() {
 
                                 {/* Booking Start Time */}
                                 <div>
-                                    <InputLabel htmlFor="start_time" value="Booking Start Time" />
+                                    <InputLabel htmlFor="start_time" value="Start Time" />
                                     <TextInput
                                         id="start_time"
                                         type="time"
                                         value={data.start_time}
-                                        onChange={(e) => setData('start_time', e.target.value)}
+                                        onChange={(e) => handleInputChange('start_time', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
                                     <InputError message={errors.start_time} />
@@ -230,12 +224,12 @@ export default function Booking() {
 
                                 {/* Booking End Time */}
                                 <div>
-                                    <InputLabel htmlFor="end_time" value="Booking End Time" />
+                                    <InputLabel htmlFor="end_time" value="End Time" />
                                     <TextInput
                                         id="end_time"
                                         type="time"
                                         value={data.end_time}
-                                        onChange={(e) => setData('end_time', e.target.value)}
+                                        onChange={(e) => handleInputChange('end_time', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
                                     <InputError message={errors.end_time} />
@@ -243,20 +237,18 @@ export default function Booking() {
 
                                 {/* Comments */}
                                 <div>
-                                    <InputLabel htmlFor="comments" value="Additional Comments" />
+                                    <InputLabel htmlFor="comments" value="Comments" />
                                     <textarea
                                         id="comments"
                                         value={data.comments}
-                                        onChange={(e) => setData('comments', e.target.value)}
+                                        onChange={(e) => handleInputChange('comments', e.target.value)}
                                         className="block w-1/2 mt-1 border-gray-300 rounded-md shadow-sm"
                                     />
                                 </div>
 
-                                {/* Submit Button */}
+                                {/* Submit */}
                                 <div>
-                                    <NormalButton disabled={processing}>
-                                        Submit Booking
-                                    </NormalButton>
+                                    <NormalButton disabled={processing}>Submit Booking</NormalButton>
                                 </div>
                             </form>
                         </div>

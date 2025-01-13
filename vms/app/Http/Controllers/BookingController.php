@@ -38,85 +38,95 @@ class BookingController extends Controller
     return response()->json($venues);
 }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email',
-            'capacity' => 'required|integer|min:1',
-            'venue_id' => 'required|exists:venues,id',
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-            'equipment' => 'nullable|array',
-            'equipment.*' => 'string|in:projector,soundSystem,whiteboard', // Add all allowed equipment types
-        ]);
-        $booking = Booking::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'capacity' => $request->capacity,
-            'venue_id' => $request->venue_id,
-            'date' => $request->date,
-            'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'equipment' => $request->equipment, // Save equipment as JSON
-            'comments' => $request->comments,
-        ]); 
+public function store(Request $request)
+{
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email',
+        'capacity' => 'required|integer|min:1',
+        'venue_id' => 'required|exists:venues,id',
+        'date' => 'required|date',
+        'start_time' => 'required|date_format:H:i',
+        'end_time' => 'required|date_format:H:i|after:start_time',
+        'equipment' => 'nullable|array',
+        'equipment.*' => 'string|in:projector,soundSystem,whiteboard',
+    ]);
 
-        $venue_id = $request->venue_id;
-        $date = $request->date;
-        $start_time = $request->start_time;
-        $end_time = $request->end_time;
-
-        $conflictingBookings = Booking::where('venue_id', $request->venue_id)
-            ->where('date', $request->date)
-            ->where(function ($query) use ($request) {
+    // Check for booking conflicts
+    $conflictingBookings = Booking::where('venue_id', $request->venue_id)
+        ->where('date', $request->date)
+        ->where(function ($query) use ($request) {
             $query->whereBetween('start_time', [$request->start_time, $request->end_time])
-            ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
+                ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
         })
-            ->get();
+        ->get();
 
-                // Check for equipment conflicts
-                foreach ($conflictingBookings as $booking) {
-                    if (array_intersect($booking->equipment ?? [], $request->equipment ?? [])) {
-                    return response()->json(['success' => false, 'message' => 'Equipment conflict detected']);
-                }
+    // Check for equipment conflicts
+    foreach ($conflictingBookings as $booking) {
+        if (array_intersect($booking->equipment ?? [], $request->equipment ?? [])) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Equipment conflict detected']);
             }
-               return response()->json(['success' => true]);
-        Booking::create($validated);
-
-        return back()->with('success', 'Booking successful!');
+            return redirect()->back()->withErrors(['equipment' => 'Equipment conflict detected.']);
+        }
     }
+
+    // Create the booking
+    Booking::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'capacity' => $request->capacity,
+        'venue_id' => $request->venue_id,
+        'date' => $request->date,
+        'start_time' => $request->start_time,
+        'end_time' => $request->end_time,
+        'equipment' => $request->equipment,
+        'comments' => $request->comments,
+    ]);
+
+    // Return JSON for API requests
+    if ($request->wantsJson()) {
+        return response()->json(['success' => true, 'message' => 'Booking successful!']);
+    }
+
+    // Redirect for Inertia requests
+    return redirect()->back()->with('success', 'Booking successful!');
+}
+
 
     public function checkTime(Request $request)
-    {
-        $request->validate([
-            'venue_id' => 'required|exists:venues,id',
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
-        ]);
+{
+    $request->validate([
+        'venue_id' => 'required|exists:venues,id',
+        'date' => 'required|date',
+        'start_time' => 'required|date_format:H:i',
+        'end_time' => 'required|date_format:H:i|after:start_time',
+    ]);
 
-        $venue_id = $request->venue_id;
-        $date = $request->date;
-        $start_time = $request->start_time;
-        $end_time = $request->end_time;
+    $venue_id = $request->venue_id;
+    $date = $request->date;
+    $start_time = $request->start_time;
+    $end_time = $request->end_time;
 
-        $conflictingBookings = Booking::where('venue_id', $venue_id)
-            ->where('date', $date)
-            ->where(function ($query) use ($start_time, $end_time) {
-                $query->whereBetween('start_time', [$start_time, $end_time])
-                      ->orWhereBetween('end_time', [$start_time, $end_time])
-                      ->orWhere(function ($query) use ($start_time, $end_time) {
-                          $query->where('start_time', '<=', $start_time)
-                                ->where('end_time', '>=', $end_time);
-                      });
-            })
-            ->exists();
+    $conflictingBookings = Booking::where('venue_id', $venue_id)
+        ->where('date', $date)
+        ->where(function ($query) use ($start_time, $end_time) {
+            $query->whereBetween('start_time', [$start_time, $end_time])
+                  ->orWhereBetween('end_time', [$start_time, $end_time])
+                  ->orWhere(function ($query) use ($start_time, $end_time) {
+                      $query->where('start_time', '<=', $start_time)
+                            ->where('end_time', '>=', $end_time);
+                  });
+        })
+        ->exists();
 
+    // Return JSON for API requests
+    if ($request->wantsJson()) {
         return response()->json(['success' => !$conflictingBookings]);
     }
-
+    // Handle Inertia requests gracefully (optional if Inertia isn't needed here)
+    return redirect()->back()->with('conflict', $conflictingBookings ? 'Conflict exists!' : 'No conflict');
+}
     public function destroy($id): RedirectResponse
     {
         $booking = Booking::findOrFail($id);
@@ -178,7 +188,7 @@ class BookingController extends Controller
         'specialRequirements' => 'string|nullable',
     ]);
 
-    $availableClassrooms = Classroom::where('capacity', '>=', $validated['classSize'])
+    $availableClassrooms = Venue::where('capacity', '>=', $validated['classSize'])
         ->whereDoesntHave('bookings', function ($query) use ($validated) {
             $query->where('date', $validated['date'])
                   ->whereBetween('time', [$validated['startTime'], $validated['endTime']]);
