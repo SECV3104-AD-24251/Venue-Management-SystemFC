@@ -74,12 +74,21 @@ export default function Dashboard() {
     };
     const handleCheckAvailability = async (venue: Venue) => {
         const isAvailable = await checkAvailability(venue.id, selectedDate, selectedStartTime, selectedEndTime);
+    
         if (isAvailable) {
             alert(`${venue.name} is available!`);
         } else {
-            alert(`${venue.name} is not available for the selected time.`);
+            alert(`${venue.name} is not available.`);
+    
+            // Update the venue's status to "Not Available" in the venues list
+            setVenues((prevVenues) =>
+                prevVenues.map((v) =>
+                    v.id === venue.id ? { ...v, status: 'Not Available' } : v
+                )
+            );
         }
     };
+    
         
 
     return (
@@ -130,10 +139,15 @@ export default function Dashboard() {
                                                 <td className="text-center px-4 py-2 border-b">
 
                                                 <button
-                                                onClick={() => handleCheckAvailability(venue)}
-                                                className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                                                    onClick={() => handleCheckAvailability(venue)}
+                                                    disabled={venue.status === 'Not Available'}
+                                                    className={`rounded-md px-4 py-2 text-white ${
+                                                    venue.status === 'Not Available'
+                                                    ? 'bg-gray-400 cursor-not-allowed'
+                                                    : 'bg-blue-500 hover:bg-blue-700'
+                                                    }`}
                                                 >
-                                                    Check Availability
+                                                {venue.status === 'Not Available' ? 'Not Available' : 'Check Availability'}
                                                 </button>
                                                 
                                                 </td>
