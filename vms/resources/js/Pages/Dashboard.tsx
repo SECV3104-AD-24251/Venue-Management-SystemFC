@@ -9,13 +9,14 @@ import { LineChart } from '@mui/x-charts/LineChart';
 const Dashboard = () => {
   // State to hold notifications
   const [notifications, setNotifications] = useState<{ message: string }[]>([]);
-
+  const [venues, setVenues] = useState<{ name: string }[]>([]);
   // State to hold total number of rooms
   const [totalRooms, setTotalRooms] = useState<number | null>(null);
   // State to hold total number of bookings
   const [totalBookings, setTotalBookings] = useState<number | null>(null);
   const [availableVenues, setAvailableVenues] = useState<number | null>(null);
-
+  const { props } = usePage();
+    const user = props.auth.user;
   // Fetch data when the component mounts
   useEffect(() => {
     // Fetch notifications from the backend
