@@ -68,8 +68,7 @@ export default function Dashboard({
         console.error('Error fetching notifications:', error);
       });
   }, []); // Empty dependency array ensures this runs only once when the component mounts
-<<<<<<< Updated upstream
-=======
+
   useEffect(() => {
     axios
         .get('/api/venues')
@@ -102,9 +101,6 @@ export default function Dashboard({
         console.error('Error fetching available venues:', error);
     }
 };
-  
- 
->>>>>>> Stashed changes
 
   return (
     <AuthenticatedLayout
