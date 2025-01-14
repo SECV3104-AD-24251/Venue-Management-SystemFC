@@ -1,82 +1,57 @@
 import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import axios from 'axios';
-import { Link, usePage } from '@inertiajs/react';
-import { PropsWithChildren, ReactNode } from 'react';
 import { Box, Typography } from '@mui/material';
 
-interface Venue {
-  id: number;
-  name: string;
-  location: string;
-  capacity: number;
-}
+// Main Dashboard Component
+const Dashboard = () => {
+  // State to hold notifications
+  const [notifications, setNotifications] = useState<{ message: string }[]>([]);
 
-export default function Dashboard({
-  header,
-  children,
-}: PropsWithChildren<{ header?: ReactNode }>) {
-  const user = usePage().props.auth.user;
-  const [showingNavigationDropdown, setShowingNavigationDropdown] =
-    useState(false);
-
-  const [venues, setVenues] = useState<Venue[]>([]);
-
-  // State for total rooms and bookings
+  // State to hold total number of rooms
   const [totalRooms, setTotalRooms] = useState<number | null>(null);
+  // State to hold total number of bookings
   const [totalBookings, setTotalBookings] = useState<number | null>(null);
 
-  // State for notifications
-  const [notifications, setNotifications] = useState<string[]>([]);
-
-  // Fetch total room count, bookings count, venues data, and notifications
+  // Fetch data when the component mounts
   useEffect(() => {
-    // Fetch venues data
-    axios.get('/api/venues')
-      .then(response => {
-        setVenues(response.data); // Set the venues data to state
+    // Fetch notifications from the backend
+    axios
+      .get('/api/notifications')
+      .then((response) => {
+        setNotifications(response.data.notifications);
       })
-      .catch(error => {
-        console.error('Error fetching venues:', error);
+      .catch((error) => {
+        console.error('Error fetching notifications:', error);
       });
 
     // Fetch total rooms count
-    axios.get('/api/rooms/count') // Ensure this endpoint returns the total room count
-      .then(response => {
-        setTotalRooms(response.data.totalRooms); // Set total rooms to state
+    axios
+      .get('/api/rooms/count')
+      .then((response) => {
+        setTotalRooms(response.data.totalRooms); // Update state with total rooms count
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching room count:', error);
       });
 
     // Fetch total bookings count
-    axios.get('/api/bookings/count')
-      .then(response => {
-        setTotalBookings(response.data.totalBookings); // Set total bookings to state
+    axios
+      .get('/api/bookings/count')
+      .then((response) => {
+        setTotalBookings(response.data.totalBookings); // Update state with total bookings count
       })
-      .catch(error => {
+      .catch((error) => {
         console.error('Error fetching bookings count:', error);
       });
-
-    // Fetch notifications
-    axios.get('/api/notifications') // Ensure this endpoint returns a list of notifications
-      .then(response => {
-        setNotifications(response.data.notifications); // Set notifications to state
-      })
-      .catch(error => {
-        console.error('Error fetching notifications:', error);
-      });
-  }, []); // Empty dependency array ensures this runs only once when the component mounts
+  }, []);
 
   return (
     <AuthenticatedLayout
-      header={
-        <h2 className="text-xl font-semibold leading-tight text-gray-800">
-          Dashboard
-        </h2>
-      }
+      header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Dashboard</h2>}
     >
+      {/* Set the page title */}
       <Head title="Dashboard" />
 
       {/* Notification Section */}
@@ -85,29 +60,29 @@ export default function Dashboard({
           <div className="overflow-hidden bg-blue-100 shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900">
               <h3 className="text-lg font-semibold mb-4">Notifications</h3>
-              {notifications.length > 0 ? (
-                <ul className="list-disc list-inside">
-                  {notifications.map((notification, index) => (
+              <ul className="list-disc list-inside">
+                {notifications.length > 0 ? (
+                  notifications.map((notification, index) => (
                     <li key={index} className="mb-2">
-                      {notification}
+                      {notification.message}
                     </li>
-                  ))}
-                </ul>
-              ) : (
-                <p>No new notifications.</p>
-              )}
+                  ))
+                ) : (
+                  <p>No new notifications.</p>
+                )}
+              </ul>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Dashboard Statistics */}
+      {/* Dashboard Statistics Section */}
       <Box
         sx={{
           mt: 4,
-          display: 'flex', // Enables Flexbox
-          gap: '40px', // Space between boxes
-          flexWrap: 'wrap', // Allows wrapping to the next row
+          display: 'flex',
+          gap: '40px',
+          flexWrap: 'wrap',
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -128,10 +103,7 @@ export default function Dashboard({
             gap: '10px',
           }}
         >
-          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
-            Total Rooms
-          </Typography>
-
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>Total Rooms</Typography>
           <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
             {totalRooms !== null ? totalRooms : 'Loading...'}
           </Typography>
@@ -153,10 +125,7 @@ export default function Dashboard({
             gap: '10px',
           }}
         >
-          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
-            Total Bookings
-          </Typography>
-
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>Total Bookings</Typography>
           <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
             {totalBookings !== null ? totalBookings : 'Loading...'}
           </Typography>
@@ -168,11 +137,14 @@ export default function Dashboard({
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900">
-              Welcome Back, {user.name}
+              {/* Welcome message for the authenticated user */}
+              Welcome Back, {usePage().props.auth.user.name}
             </div>
           </div>
         </div>
       </div>
     </AuthenticatedLayout>
   );
-}
+};
+
+export default Dashboard;

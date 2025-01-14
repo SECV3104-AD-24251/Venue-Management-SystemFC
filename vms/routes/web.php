@@ -103,5 +103,6 @@ Route::get('/bookings/{id}/edit', [BookingController::class, 'edit'])->name('boo
 Route::patch('/bookings/{id}', [BookingController::class, 'update'])->name('bookings.update');
 
 
+Route::get('/api/notifications', [BookingController::class, 'getNotifications']);
 
 require __DIR__.'/auth.php';
