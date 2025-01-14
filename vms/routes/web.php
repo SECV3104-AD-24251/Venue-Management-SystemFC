@@ -15,8 +15,11 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('maintenance', MaintenanceController::class);
 });
 
+<<<<<<< Updated upstream
 
 Route::get('/maintenance-tasks', [MaintenanceTaskController::class, 'index'])->name('maintenance-tasks');
+=======
+>>>>>>> Stashed changes
 
 Route::get('/schedules/add', function () {
     return Inertia::render('AddSchedule');
