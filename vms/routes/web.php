@@ -17,8 +17,11 @@ Route::middleware(['auth'])->group(function () {
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 
 Route::get('/maintenance-tasks', [MaintenanceTaskController::class, 'index'])->name('maintenance-tasks');
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======

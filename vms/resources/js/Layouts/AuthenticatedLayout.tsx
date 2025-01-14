@@ -74,6 +74,7 @@ export default function Authenticated({
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                                     href={route('maintenance-tasks')}
                                     active={route().current('maintenance-tasks')}
                                 >
@@ -81,6 +82,8 @@ export default function Authenticated({
                                 </NavLink>
 
 =======
+=======
+>>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
 =======
@@ -94,6 +97,9 @@ export default function Authenticated({
 
 <<<<<<< Updated upstream
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
 =======
 >>>>>>> Stashed changes
