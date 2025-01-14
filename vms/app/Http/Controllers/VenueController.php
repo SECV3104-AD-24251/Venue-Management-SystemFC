@@ -57,6 +57,21 @@ public function checkAvailability(Request $request)
     return response()->json($available);
 }
 
+public function getAvailableVenues()
+{
+    try {
+        // Fetch the count of available venues
+        $availableVenuesCount = Venue::where('status', 'available')->count();
+
+        // Return the count as JSON
+        return response()->json(['availableVenues' => $availableVenuesCount]);
+    } catch (\Exception $e) {
+        // Handle any errors
+        return response()->json(['error' => 'Failed to fetch available venues'], 500);
+    }
+}
+
+
 
 
 }

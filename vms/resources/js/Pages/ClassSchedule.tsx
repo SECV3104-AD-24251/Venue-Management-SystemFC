@@ -16,7 +16,7 @@ const Schedule = ({ schedules }: ScheduleProps) => {
                     <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                         <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                             <div className="p-6 text-gray-900">
-                                <h3 className="font-bold text-xl">Class Schedule</h3>
+                                <h3 className="font-bold text-xl"></h3>
                                 <p>No schedules available.</p>
                             </div>
                         </div>

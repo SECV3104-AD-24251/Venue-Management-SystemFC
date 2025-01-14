@@ -3,6 +3,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { Box, Typography } from '@mui/material';
+import { LineChart } from '@mui/x-charts/LineChart';
 
 // Main Dashboard Component
 const Dashboard = () => {
@@ -13,6 +14,7 @@ const Dashboard = () => {
   const [totalRooms, setTotalRooms] = useState<number | null>(null);
   // State to hold total number of bookings
   const [totalBookings, setTotalBookings] = useState<number | null>(null);
+  const [availableVenues, setAvailableVenues] = useState<number | null>(null);
 
   // Fetch data when the component mounts
   useEffect(() => {
@@ -45,7 +47,16 @@ const Dashboard = () => {
       .catch((error) => {
         console.error('Error fetching bookings count:', error);
       });
-  }, []);
+
+    // Fetch notifications
+    axios.get('/api/notifications') // Ensure this endpoint returns a list of notifications
+      .then(response => {
+        setNotifications(response.data.notifications); // Set notifications to state
+      })
+      .catch(error => {
+        console.error('Error fetching notifications:', error);
+      });
+  }, []); // Empty dependency array ensures this runs only once when the component mounts
 
   return (
     <AuthenticatedLayout
@@ -130,6 +141,54 @@ const Dashboard = () => {
             {totalBookings !== null ? totalBookings : 'Loading...'}
           </Typography>
         </Box>
+
+        <Box
+          sx={{
+            width: '270px',
+            height: '120px',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '10px',
+            gap: '10px',
+          }}
+        >
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            Most Booked Venue
+          </Typography>
+
+          <Typography sx={{ fontWeight: 'bold', fontSize: '20px', textAlign: 'center' }}>
+            {venues.length > 0 ? venues[0].name : 'Loading...'}
+          </Typography>
+        </Box>
+        
+        <Box
+          sx={{
+            width: '270px',
+            height: '120px',
+            backgroundColor: 'white',
+            borderRadius: '8px',
+            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '10px',
+            gap: '10px',
+          }}
+        >
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+            Available Venues
+          </Typography>
+
+          <Typography sx={{ fontSize: '20px', textAlign: 'center' }}>
+          {availableVenues !== null ? availableVenues : 'Loading...'}
+          </Typography>
+        </Box>
       </Box>
 
       {/* Welcome Back Section */}
@@ -137,8 +196,7 @@ const Dashboard = () => {
         <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
           <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
             <div className="p-6 text-gray-900">
-              {/* Welcome message for the authenticated user */}
-              Welcome Back, {usePage().props.auth.user.name}
+              Welcome Back, {user.name}
             </div>
           </div>
         </div>

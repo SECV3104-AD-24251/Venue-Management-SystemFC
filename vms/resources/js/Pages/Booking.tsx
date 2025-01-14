@@ -19,6 +19,7 @@ export default function Booking() {
     // State for venues and suggestion
     const [venues, setVenues] = useState<Venue[]>([]);
     const [suggestedVenue, setSuggestedVenue] = useState<Venue | null>(null);
+    const [buttonClicked, setButtonClicked] = useState(false);
     const [conflictErrors, setConflictErrors] = useState({
         date: '',
         start_time: '',
@@ -33,7 +34,7 @@ export default function Booking() {
         start_time: '',
         end_time: '',
         comments: '',
-        venue_id: '', // Selected venue
+        venue_id: '', 
     });
 
     // Fetch venues on component mount
@@ -68,27 +69,45 @@ export default function Booking() {
     // Suggest a venue based on user input
     const suggestVenue = async () => {
         const { capacity, date, start_time, end_time } = data;
-
+    
+        // Reset suggestedVenue if required fields are missing
         if (!capacity || !date || !start_time || !end_time) {
             setSuggestedVenue(null);
             return;
         }
-
-        const matchingVenues = venues.filter(venue => venue.capacity >= Number(capacity));
-
+    
+        // Filter venues based on capacity
+        const matchingVenues = venues.filter(
+            (venue) => venue.capacity >= Number(capacity)
+        );
+    
+        // Check availability for each matching venue
         for (const venue of matchingVenues) {
-            const isAvailable = await checkVenueAvailability(venue.id, date, start_time, end_time);
+            const isAvailable = await checkVenueAvailability(
+                venue.id,
+                date,
+                start_time,
+                end_time
+            );
+    
             if (isAvailable) {
-                setSuggestedVenue(venue);
+                setSuggestedVenue(venue); // Suggest the first available venue
                 return;
             }
         }
-
-        setSuggestedVenue(null); // No suitable venue found
+    
+        // No suitable venue found
+        setSuggestedVenue(null);
     };
+    
 
     // Check venue availability
-    const checkVenueAvailability = async (venue_id: number, date: string, start_time: string, end_time: string) => {
+    const checkVenueAvailability = async (
+        venue_id: number,
+        date: string,
+        start_time: string,
+        end_time: string
+    ) => {
         try {
             const response = await axios.post('/api/bookings/check-time', {
                 venue_id,
@@ -96,20 +115,23 @@ export default function Booking() {
                 start_time,
                 end_time,
             });
-            return response.data.success;
+            return response.data.success; // true if available, false if not
         } catch (error) {
             console.error('Error checking venue availability:', error);
-            return false;
+            return false; // Assume unavailable on error
         }
     };
+    
 
     // Update data and suggest a venue dynamically
     const handleInputChange = (field: keyof typeof data, value: string) => {
         setData(field, value);
+    
         if (['capacity', 'date', 'start_time', 'end_time'].includes(field)) {
-            suggestVenue(); // Recalculate suggestion on relevant input changes
+            suggestVenue(); // Re-suggest venue dynamically
         }
     };
+    
     
     // Handle form submission
     const handleBookingSubmit = async (e: React.FormEvent) => {
@@ -186,6 +208,7 @@ export default function Booking() {
                                         <p>
                                             Suggested Venue: <strong>{suggestedVenue.name}</strong> (Capacity: {suggestedVenue.capacity})
                                         </p>
+                                    
                                         <button
                                             type="button"
                                             className="mt-2 bg-blue-500 text-white py-1 px-3 rounded"
