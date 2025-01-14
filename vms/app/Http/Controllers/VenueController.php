@@ -56,6 +56,17 @@ public function checkAvailability(Request $request)
 
     return response()->json($available);
 }
+public function getVenues()
+{
+    $venues = DB::table('venues')
+        ->leftJoin('bookings', 'venues.id', '=', 'bookings.venue_id')
+        ->select('venues.name', DB::raw('COUNT(bookings.id) as bookings'))
+        ->groupBy('venues.id', 'venues.name')
+        ->orderBy('bookings', 'desc')
+        ->get();
+
+    return response()->json($venues);
+}
 
 public function getAvailableVenues()
 {
@@ -70,8 +81,6 @@ public function getAvailableVenues()
         return response()->json(['error' => 'Failed to fetch available venues'], 500);
     }
 }
-
-
 
 
 }
