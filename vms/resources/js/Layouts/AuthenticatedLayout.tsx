@@ -11,8 +11,7 @@ export default function Authenticated({
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const user = usePage().props.auth.user;
 
-    const [showingNavigationDropdown, setShowingNavigationDropdown] =
-        useState(false);
+    const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
 
     return (
         <div className="min-h-screen bg-gray-100">
@@ -37,44 +36,59 @@ export default function Authenticated({
                                     href={route('venue')}
                                     active={route().current('venue')}
                                 >
-                                    Venue                                
+                                    Venue
                                 </NavLink>
                                 <NavLink
                                     href={route('booking')}
                                     active={route().current('booking')}
                                 >
-                                    Booking                                
+                                    Booking
                                 </NavLink>
                                 <NavLink
                                     href={route('viewbooking')}
                                     active={route().current('viewbooking')}
                                 >
-                                    View Booking                               
+                                    View Booking
                                 </NavLink>
-                                {user.role == 'lecturer' && (
+                                
+                                {/* Maintenance Link for all users */}
                                 <NavLink
-                                    href={route('schedule')}
-                                    active={route().current('schedule')}
+                                    href={route('maintenance.index')}
+                                    active={route().current('maintenance.index')}
                                 >
-                                    Class Schedule                              
+                                    Maintenance
                                 </NavLink>
 
+                                {/* Create Maintenance link for staff users */}
+                                {user.role === 'staff' && (
+                                    <NavLink
+                                        href={route('maintenance.create')}
+                                        active={route().current('maintenance.create')}
+                                    >
+                                        Create Maintenance
+                                    </NavLink>
                                 )}
 
-                                {user.role == 'staff' && (
-                                <NavLink
-                                    href={route('schedules.add')}
-                                    active={route().current('schedules.add')}
-                                >
-                                    Class Schedule                              
-                                </NavLink>
+                                {/* Role-based Class Schedule links */}
+                                {user.role === 'lecturer' && (
+                                    <NavLink
+                                        href={route('schedule')}
+                                        active={route().current('schedule')}
+                                    >
+                                        Class Schedule
+                                    </NavLink>
                                 )}
 
-
+                                {user.role === 'staff' && (
+                                    <NavLink
+                                        href={route('schedules.add')}
+                                        active={route().current('schedules.add')}
+                                    >
+                                        Class Schedule
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
-
-    
 
                         <div className="hidden sm:ms-6 sm:flex sm:items-center">
                             <div className="relative ms-3">
@@ -104,18 +118,8 @@ export default function Authenticated({
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href={route('profile.edit')}
-                                        >
-                                            Profile
-                                        </Dropdown.Link>
-                                        <Dropdown.Link
-                                            href={route('logout')}
-                                            method="post"
-                                            as="button"
-                                        >
-                                            Log Out
-                                        </Dropdown.Link>
+                                        <Dropdown.Link href={route('profile.edit')}>Profile</Dropdown.Link>
+                                        <Dropdown.Link href={route('logout')} method="post" as="button">Log Out</Dropdown.Link>
                                     </Dropdown.Content>
                                 </Dropdown>
                             </div>
@@ -123,11 +127,7 @@ export default function Authenticated({
 
                         <div className="-me-2 flex items-center sm:hidden">
                             <button
-                                onClick={() =>
-                                    setShowingNavigationDropdown(
-                                        (previousState) => !previousState,
-                                    )
-                                }
+                                onClick={() => setShowingNavigationDropdown((previousState) => !previousState)}
                                 className="inline-flex items-center justify-center rounded-md p-2 text-gray-400 transition duration-150 ease-in-out hover:bg-gray-100 hover:text-gray-500 focus:bg-gray-100 focus:text-gray-500 focus:outline-none"
                             >
                                 <svg
@@ -137,22 +137,14 @@ export default function Authenticated({
                                     viewBox="0 0 24 24"
                                 >
                                     <path
-                                        className={
-                                            !showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
+                                        className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
                                         d="M4 6h16M4 12h16M4 18h16"
                                     />
                                     <path
-                                        className={
-                                            showingNavigationDropdown
-                                                ? 'inline-flex'
-                                                : 'hidden'
-                                        }
+                                        className={showingNavigationDropdown ? 'inline-flex' : 'hidden'}
                                         strokeLinecap="round"
                                         strokeLinejoin="round"
                                         strokeWidth="2"
@@ -164,42 +156,32 @@ export default function Authenticated({
                     </div>
                 </div>
 
-                <div
-                    className={
-                        (showingNavigationDropdown ? 'block' : 'hidden') +
-                        ' sm:hidden'
-                    }
-                >
+                <div className={(showingNavigationDropdown ? 'block' : 'hidden') + ' sm:hidden'}>
                     <div className="space-y-1 pb-3 pt-2">
-                        <ResponsiveNavLink
-                            href={route('dashboard')}
-                            active={route().current('dashboard')}
-                        >
+                        <ResponsiveNavLink href={route('dashboard')} active={route().current('dashboard')}>
                             Dashboard
                         </ResponsiveNavLink>
+                        <ResponsiveNavLink href={route('maintenance.index')} active={route().current('maintenance.index')}>
+                            Maintenance
+                        </ResponsiveNavLink>
+
+                        {/* Only show for staff users */}
+                        {user.role === 'staff' && (
+                            <ResponsiveNavLink href={route('maintenance.create')} active={route().current('maintenance.create')}>
+                                Create Maintenance
+                            </ResponsiveNavLink>
+                        )}
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">
                         <div className="px-4">
-                            <div className="text-base font-medium text-gray-800">
-                                {user.name}
-                            </div>
-                            <div className="text-sm font-medium text-gray-500">
-                                {user.email}
-                            </div>
+                            <div className="text-base font-medium text-gray-800">{user.name}</div>
+                            <div className="text-sm font-medium text-gray-500">{user.email}</div>
                         </div>
 
                         <div className="mt-3 space-y-1">
-                            <ResponsiveNavLink href={route('profile.edit')}>
-                                Profile
-                            </ResponsiveNavLink>
-                            <ResponsiveNavLink
-                                method="post"
-                                href={route('logout')}
-                                as="button"
-                            >
-                                Log Out
-                            </ResponsiveNavLink>
+                            <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
+                            <ResponsiveNavLink method="post" href={route('logout')} as="button">Log Out</ResponsiveNavLink>
                         </div>
                     </div>
                 </div>

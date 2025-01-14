@@ -9,7 +9,16 @@ use App\Models\Venue;
 use App\Models\Booking;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ClassScheduleController;
-use App\Http\Controllers\MaintenanceTaskController;
+use App\Http\Controllers\MaintenanceController;
+
+Route::middleware('auth')->group(function () {
+    Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
+    Route::get('/maintenance/create', [MaintenanceController::class, 'create'])->name('maintenance.create');
+    Route::post('/maintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
+    Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('maintenance.show');
+    Route::post('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus'])->name('maintenance.updateStatus');
+});
+
 
 Route::get('/schedules/add', function () {
     return Inertia::render('AddSchedule');
