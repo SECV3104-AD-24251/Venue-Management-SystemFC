@@ -87,14 +87,19 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+Route::middleware(['auth', 'role:1'])->group(function () {
+    Route::get('/admin-dashboard', [AdminController::class, 'index']);
+});
+
+Route::middleware(['auth', 'role:2'])->group(function () {
+    Route::get('/lecturer-dashboard', [LecturerController::class, 'index']);
+});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-
 
 //editing bookings
 Route::get('/bookings/{id}/edit', [BookingController::class, 'edit'])->name('bookings.edit');

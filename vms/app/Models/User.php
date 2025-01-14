@@ -46,4 +46,20 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    // app/Models/User.php
+public function isAdmin()
+{
+    return $this->level == 1;
+}
+
+public function isLecturer()
+{
+    return $this->level == 2;
+}
+
+public function isStaff()
+{
+    return $this->level == 3;
+}
+
 }

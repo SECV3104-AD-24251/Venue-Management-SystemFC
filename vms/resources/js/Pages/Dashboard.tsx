@@ -7,19 +7,19 @@ import { LineChart } from '@mui/x-charts/LineChart';
 
 // Main Dashboard Component
 const Dashboard = () => {
-  // State to hold notifications
+ 
   const [notifications, setNotifications] = useState<{ message: string }[]>([]);
   const [venues, setVenues] = useState<{ name: string }[]>([]);
-  // State to hold total number of rooms
+ 
   const [totalRooms, setTotalRooms] = useState<number | null>(null);
-  // State to hold total number of bookings
+  
   const [totalBookings, setTotalBookings] = useState<number | null>(null);
   const [availableVenues, setAvailableVenues] = useState<number | null>(null);
   const { props } = usePage();
-    const user = props.auth.user;
-  // Fetch data when the component mounts
+  const user = props.auth.user;
+  
+
   useEffect(() => {
-    // Fetch notifications from the backend
     axios
       .get('/api/notifications')
       .then((response) => {
@@ -28,12 +28,12 @@ const Dashboard = () => {
       .catch((error) => {
         console.error('Error fetching notifications:', error);
       });
-
+    
     // Fetch total rooms count
     axios
       .get('/api/rooms/count')
       .then((response) => {
-        setTotalRooms(response.data.totalRooms); // Update state with total rooms count
+        setTotalRooms(response.data.totalRooms); 
       })
       .catch((error) => {
         console.error('Error fetching room count:', error);
@@ -84,21 +84,7 @@ const Dashboard = () => {
             console.error('Error fetching venues:', error);
         });
 }, []);
-
-  const bookingTrendsData = {
-    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-    datasets: [
-      {
-        label: 'Bookings',
-        data: [3, 2, 6, 4, 5], // Replace with dynamic data
-        borderColor: 'rgba(75,192,192,1)',
-        borderWidth: 2,
-      },
-    ],
-  };
   
- 
-
   return (
     <AuthenticatedLayout
       header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Dashboard</h2>}
@@ -148,16 +134,18 @@ const Dashboard = () => {
     >
       <div className="p-6 text-gray-900">
         <h3 className="text-lg font-semibold mb-4">Statistics</h3>
+        
         <LineChart
-              xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
-              series={[
-              {
-              data: [2, 5.5, 2, 8.5, 1.5, 5],
-              },
-            ]}
-                width={500}
-                height={300}
-            />
+        xAxis={[{ data: [1, 2, 3, 5, 8, 10] }]}
+          series={[
+          {
+          data: [5, 10, 7, 15, 9, 4], // Bookings on respective days
+          },
+  ]}
+  width={500}
+  height={300}
+/>
+
       </div>
     </div>
   </div>
