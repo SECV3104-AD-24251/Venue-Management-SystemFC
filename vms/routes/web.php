@@ -17,7 +17,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/maintenance', [MaintenanceController::class, 'store'])->name('maintenance.store');
     Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('maintenance.show');
     Route::post('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus'])->name('maintenance.updateStatus');
-    Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy']);
+    Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
+
 
     
 });

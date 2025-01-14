@@ -18,9 +18,11 @@ interface Props {
 }
 
 export default function MaintenanceList({ maintenances }: Props) {
-    const checkMaintenanceAvailability = (maintenanceId: number) => {
-        // Your availability check logic goes here
-        console.log(`Check availability for maintenance ID: ${maintenanceId}`);
+    const viewMaintenanceDetails = (maintenanceId: number) => {
+        const maintenance = maintenances.find(m => m.id === maintenanceId);
+        if (maintenance) {
+            alert(`Maintenance scheduled for ${maintenance.scheduled_for_date} at ${maintenance.scheduled_for_time}.`);
+        }
     };
 
     return (
@@ -54,14 +56,13 @@ export default function MaintenanceList({ maintenances }: Props) {
                                         <th className="px-4 py-2 border-b">Description</th>
                                         <th className="px-4 py-2 border-b">Scheduled Date</th>
                                         <th className="px-4 py-2 border-b">Status</th>
-                                        <th className="px-4 py-2 border-b">Details</th>
-                                        <th className="px-4 py-2 border-b">Availability</th>
+                                        <th className="px-4 py-2 border-b">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {maintenances.length === 0 ? (
                                         <tr>
-                                            <td colSpan={6} className="text-center py-2">
+                                            <td colSpan={5} className="text-center py-2">
                                                 No maintenance records available.
                                             </td>
                                         </tr>
@@ -73,23 +74,15 @@ export default function MaintenanceList({ maintenances }: Props) {
                                                 <td className="text-center px-4 py-2 border-b">{maintenance.scheduled_for_date}</td>
                                                 <td className="text-center px-4 py-2 border-b">{maintenance.status}</td>
                                                 <td className="text-center px-4 py-2 border-b">
-                                                    <Link
-                                                        href={route('maintenance.show', { id: maintenance.id })}
-                                                        className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-                                                    >
-                                                        See Details
-                                                    </Link>
-                                                </td>
-                                                <td className="text-center px-4 py-2 border-b">
                                                     <button
-                                                        onClick={() => checkMaintenanceAvailability(maintenance.id)}
+                                                        onClick={() => viewMaintenanceDetails(maintenance.id)}
                                                         className={`rounded-md px-4 py-2 text-white ${
                                                             maintenance.status === 'Not Available'
                                                                 ? 'bg-gray-400 cursor-not-allowed'
                                                                 : 'bg-blue-500 hover:bg-blue-700'
                                                         }`}
                                                     >
-                                                        {maintenance.status === 'Not Available' ? 'Not Available' : 'Check Availability'}
+                                                        {maintenance.status === 'Not Available' ? 'Available' : 'View Details'}
                                                     </button>
                                                 </td>
                                             </tr>

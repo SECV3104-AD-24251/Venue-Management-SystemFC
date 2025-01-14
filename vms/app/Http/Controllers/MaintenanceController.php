@@ -60,11 +60,18 @@ class MaintenanceController extends Controller
         return redirect()->route('maintenance.index');
     }
 
-    public function destroy(Maintenance $maintenance)
+    public function destroy($id)
 {
+    $maintenance = Maintenance::find($id);
+
+    if (!$maintenance) {
+        return response()->json(['success' => false, 'message' => 'Maintenance not found'], 404);
+    }
+
     $maintenance->delete();
     return response()->json(['success' => true]);
 }
-    
+
+
 }
 
