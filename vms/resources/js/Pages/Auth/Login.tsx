@@ -18,7 +18,7 @@ export default function Login({
         email: '',
         password: '',
         remember: false,
-        role: 'lecturer',
+        level: '3',
     });
 
     const submit: FormEventHandler = (e) => {
@@ -75,19 +75,19 @@ export default function Login({
                 </div>
 
                 <div className="mt-4">
-                    <InputLabel htmlFor="role" value="Role" />
+                    <InputLabel htmlFor="level" value="Level" />
                     <select
-                        id="role"
-                        name="role"
-                        value={data.role}
-                        onChange={(e) => setData('role', e.target.value)}
+                        id="level"
+                        name="level"
+                        value={data.level}
+                        onChange={(e) => setData('level', e.target.value)}
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         required
                         >
-                            <option value="lecturer">Lecturer</option>
-                            <option value="staff">Staff</option>
+                            <option value="3">Lecturer</option>
+                            <option value="2">Staff</option>
                         </select>
-                        <InputError message={errors.role} className="mt-2" />
+                        <InputError message={errors.level} className="mt-2" />
                 </div>
 
                 <div className="mt-4 block">
