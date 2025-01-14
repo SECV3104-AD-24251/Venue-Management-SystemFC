@@ -5,13 +5,16 @@ namespace App\Http\Controllers;
 use App\Models\Maintenance;
 use App\Models\Venue;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class MaintenanceController extends Controller
 {
     public function index()
     {
         $maintenances = Maintenance::with('venue')->get();
-        return inertia('Maintenance/Index', ['maintenances' => $maintenances]);
+        return Inertia::render('Maintenance/Index', [
+            'maintenances' => $maintenances
+        ]);
     }
 
     public function create()
@@ -56,5 +59,12 @@ class MaintenanceController extends Controller
         $maintenance->update(['status' => $request->status]);
         return redirect()->route('maintenance.index');
     }
+
+    public function destroy(Maintenance $maintenance)
+{
+    $maintenance->delete();
+    return response()->json(['success' => true]);
+}
+    
 }
 

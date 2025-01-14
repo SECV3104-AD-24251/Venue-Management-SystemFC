@@ -20,6 +20,8 @@ class Venue extends Model
         'info' => 'array',
         'equipment' => 'array',
     ];
+
+    
     
 
 }

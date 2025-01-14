@@ -1,44 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import axios from 'axios';
 import { Link } from '@inertiajs/react';
 import NormalButton from '@/Components/NormalButton';
 
 interface Maintenance {
     id: number;
-    name: string;
     description: string;
+    scheduled_for_date: string;
+    scheduled_for_time: string;
     status: string;
+    venue: { name: string };
 }
 
-export default function MaintenanceList() {
-    const [maintenances, setMaintenances] = useState<Maintenance[]>([]);
+interface Props {
+    maintenances: Maintenance[];
+}
 
-    useEffect(() => {
-        axios.get('/api/maintenances') // Ensure you have an endpoint to fetch maintenance data
-            .then(response => {
-                setMaintenances(response.data);
-            })
-            .catch(error => {
-                console.error('Error fetching maintenance:', error);
-            });
-    }, []);
-
-    const checkMaintenanceAvailability = async (maintenanceId: number) => {
-        try {
-            const response = await axios.post('/api/maintenances/check-availability', {
-                maintenance_id: maintenanceId,
-            });
-
-            if (response.data.available) {
-                alert(`Maintenance ${maintenanceId} is available!`);
-            } else {
-                alert(`Maintenance ${maintenanceId} is not available.`);
-            }
-        } catch (error) {
-            console.error('Error checking availability:', error);
-        }
+export default function MaintenanceList({ maintenances }: Props) {
+    const checkMaintenanceAvailability = (maintenanceId: number) => {
+        // Your availability check logic goes here
+        console.log(`Check availability for maintenance ID: ${maintenanceId}`);
     };
 
     return (
@@ -57,16 +39,12 @@ export default function MaintenanceList() {
                         <div className="p-6 text-gray-900">
                             <div className="flex justify-between mb-4">
                                 <h3 className="text-lg font-semibold">Manage Maintenance</h3>
-                                
-                                {/* Add button only for staff */}
-                                
-                                    <Link
-                                        href={route('maintenance.create')}
-                                        className="inline-flex items-center rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
-                                    >
-                                        Add Maintenance
-                                    </Link>
-                                
+                                <Link
+                                    href={route('maintenance.create')}
+                                    className="inline-flex items-center rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                                >
+                                    Add Maintenance
+                                </Link>
                             </div>
 
                             <table className="min-w-full mt-6 table-auto">
@@ -74,6 +52,7 @@ export default function MaintenanceList() {
                                     <tr>
                                         <th className="px-4 py-2 border-b">Name</th>
                                         <th className="px-4 py-2 border-b">Description</th>
+                                        <th className="px-4 py-2 border-b">Scheduled Date</th>
                                         <th className="px-4 py-2 border-b">Status</th>
                                         <th className="px-4 py-2 border-b">Details</th>
                                         <th className="px-4 py-2 border-b">Availability</th>
@@ -82,15 +61,16 @@ export default function MaintenanceList() {
                                 <tbody>
                                     {maintenances.length === 0 ? (
                                         <tr>
-                                            <td colSpan={5} className="text-center py-2">
+                                            <td colSpan={6} className="text-center py-2">
                                                 No maintenance records available.
                                             </td>
                                         </tr>
                                     ) : (
                                         maintenances.map((maintenance) => (
                                             <tr key={maintenance.id}>
-                                                <td className="text-center px-4 py-2 border-b">{maintenance.name}</td>
+                                                <td className="text-center px-4 py-2 border-b">{maintenance.venue.name}</td>
                                                 <td className="text-center px-4 py-2 border-b">{maintenance.description}</td>
+                                                <td className="text-center px-4 py-2 border-b">{maintenance.scheduled_for_date}</td>
                                                 <td className="text-center px-4 py-2 border-b">{maintenance.status}</td>
                                                 <td className="text-center px-4 py-2 border-b">
                                                     <Link
