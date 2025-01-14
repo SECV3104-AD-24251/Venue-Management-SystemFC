@@ -9,7 +9,12 @@ use App\Models\Venue;
 use App\Models\Booking;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ClassScheduleController;
-use App\Http\Controllers\MaintenanceTaskController;
+use App\Http\Controllers\MaintenanceController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::resource('maintenance', MaintenanceController::class);
+});
+
 
 Route::get('/maintenance-tasks', [MaintenanceTaskController::class, 'index'])->name('maintenance-tasks');
 

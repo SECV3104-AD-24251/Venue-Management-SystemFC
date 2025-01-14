@@ -68,6 +68,43 @@ export default function Dashboard({
         console.error('Error fetching notifications:', error);
       });
   }, []); // Empty dependency array ensures this runs only once when the component mounts
+<<<<<<< Updated upstream
+=======
+  useEffect(() => {
+    axios
+        .get('/api/venues')
+        .then((response) => {
+            console.log('API Response:', response.data); // Debugging
+            setVenues(response.data);
+        })
+        .catch((error) => {
+            console.error('Error fetching venues:', error);
+        });
+}, []);
+
+  const bookingTrendsData = {
+    labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+    datasets: [
+      {
+        label: 'Bookings',
+        data: [3, 2, 6, 4, 5], // Replace with dynamic data
+        borderColor: 'rgba(75,192,192,1)',
+        borderWidth: 2,
+      },
+    ],
+  };
+
+  const fetchVenues = async () => {
+    try {
+        const response = await axios.get('/venues'); // Ensure this matches your route
+        console.log(response.data);
+    } catch (error) {
+        console.error('Error fetching available venues:', error);
+    }
+};
+  
+ 
+>>>>>>> Stashed changes
 
   return (
     <AuthenticatedLayout

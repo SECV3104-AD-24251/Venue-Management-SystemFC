@@ -20,6 +20,12 @@ class Venue extends Model
         'info' => 'array',
         'equipment' => 'array',
     ];
+
+public function maintenances()
+{
+    return $this->hasMany(Maintenance::class);
+}
+
     
 
 }
