@@ -18,7 +18,6 @@ export default function MaintenanceCreate() {
 
     // State for venues
     const [venues, setVenues] = useState<Venue[]>([]);
-    const [suggestedVenue, setSuggestedVenue] = useState<Venue | null>(null);
 
     const { data, setData, errors, post, processing, reset } = useForm({
         venue_id: '',
@@ -35,53 +34,6 @@ export default function MaintenanceCreate() {
             .catch((error) => console.error('Error fetching venues:', error));
     }, []);
 
-    // Suggest a venue based on user input
-    const suggestVenue = async () => {
-        const { scheduled_for_date, scheduled_for_time } = data;
-
-        // Reset suggestedVenue if required fields are missing
-        if (!scheduled_for_date || !scheduled_for_time) {
-            setSuggestedVenue(null);
-            return;
-        }
-
-        // Check availability for each venue
-        for (const venue of venues) {
-            const isAvailable = await checkVenueAvailability(
-                venue.id,
-                scheduled_for_date,
-                scheduled_for_time
-            );
-
-            if (isAvailable) {
-                setSuggestedVenue(venue); // Suggest the first available venue
-                return;
-            }
-        }
-
-        // No suitable venue found
-        setSuggestedVenue(null);
-    };
-
-    // Check venue availability
-    const checkVenueAvailability = async (
-        venue_id: number,
-        date: string,
-        time: string
-    ) => {
-        try {
-            const response = await axios.post('/api/maintenance/check-time', {
-                venue_id,
-                scheduled_for_date: date,
-                scheduled_for_time: time,
-            });
-            return response.data.success; // true if available, false if not
-        } catch (error) {
-            console.error('Error checking venue availability:', error);
-            return false; // Assume unavailable on error
-        }
-    };
-
     // Handle form submission
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -93,7 +45,8 @@ export default function MaintenanceCreate() {
                 alert('Maintenance job created successfully!');
                 reset(); // Reset form after successful submission
             } else {
-                alert(response.data.message || 'An error occurred during maintenance job creation.');
+                alert(response.data.message || 'Maintenance job created successfully!');
+                reset();
             }
         } catch (error) {
             console.error('Error submitting maintenance job:', error);
@@ -168,22 +121,6 @@ export default function MaintenanceCreate() {
                                     />
                                     <InputError message={errors.scheduled_for_time} />
                                 </div>
-
-                                {/* Suggested Venue */}
-                                {suggestedVenue && (
-                                    <div className="p-4 bg-green-100 border border-green-400 rounded-md">
-                                        <p>
-                                            Suggested Venue: <strong>{suggestedVenue.name}</strong> (Capacity: {suggestedVenue.capacity})
-                                        </p>
-                                        <button
-                                            type="button"
-                                            className="mt-2 bg-blue-500 text-white py-1 px-3 rounded"
-                                            onClick={() => setData('venue_id', suggestedVenue.id.toString())}
-                                        >
-                                            Select Suggested Venue
-                                        </button>
-                                    </div>
-                                )}
 
                                 {/* Submit */}
                                 <div>

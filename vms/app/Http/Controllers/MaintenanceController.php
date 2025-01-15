@@ -10,12 +10,13 @@ use Inertia\Inertia;
 class MaintenanceController extends Controller
 {
     public function index()
-    {
-        $maintenances = Maintenance::with('venue')->get();
-        return Inertia::render('Maintenance/Index', [
-            'maintenances' => $maintenances
-        ]);
-    }
+{
+    $maintenances = Maintenance::with('venue')->latest()->get(); // Fetch latest records
+    return Inertia::render('Maintenance/Index', [
+        'maintenances' => $maintenances,
+    ]);
+}
+
 
     public function create()
     {
@@ -54,11 +55,22 @@ class MaintenanceController extends Controller
     }
 
     public function updateStatus(Request $request, $id)
-    {
-        $maintenance = Maintenance::findOrFail($id);
-        $maintenance->update(['status' => $request->status]);
-        return redirect()->route('maintenance.index');
-    }
+{
+    $request->validate([
+        'status' => 'required|string|in:Not Started,Ongoing,Done', // Validate the allowed statuses
+    ]);
+
+    $maintenance = Maintenance::findOrFail($id);
+    $maintenance->update(['status' => $request->status]);
+
+    // Return the updated maintenance record
+    return response()->json([
+        'success' => true,
+        'message' => 'Status updated successfully.',
+        'maintenance' => $maintenance->load('venue'), // Include venue data for the updated maintenance
+    ]);
+}
+
 
     public function destroy($id)
 {
