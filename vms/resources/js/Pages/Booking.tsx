@@ -36,12 +36,16 @@ export default function Booking() {
         comments: '',
         venue_id: '', 
     });
+    
 
     // Fetch venues on component mount
     useEffect(() => {
         axios
             .get('/api/venues')
-            .then(response => setVenues(response.data))
+            .then((response) => {
+                console.log('Fetched Venues:', response.data); // Debugging
+                setVenues(response.data);
+            })
             .catch(error => console.error('Error fetching venues:', error));
     }, []);
 
@@ -78,27 +82,36 @@ export default function Booking() {
     
         // Filter venues based on capacity
         const matchingVenues = venues.filter(
-            (venue) => venue.capacity >= Number(capacity)
+            (venue) => Number(venue.capacity) >= Number(capacity)
         );
     
-        // Check availability for each matching venue
-        for (const venue of matchingVenues) {
-            const isAvailable = await checkVenueAvailability(
-                venue.id,
-                date,
-                start_time,
-                end_time
-            );
+        console.log('Matching Venues:', matchingVenues); // Debugging
     
-            if (isAvailable) {
-                setSuggestedVenue(venue); // Suggest the first available venue
-                return;
-            }
+        if (matchingVenues.length === 0) {
+            setSuggestedVenue(null);
+            alert('No venues available for the specified capacity. Please adjust your input.');
+            return;
         }
     
-        // No suitable venue found
-        setSuggestedVenue(null);
+        // Randomize or prioritize venue selection
+        const randomVenue = matchingVenues[Math.floor(Math.random() * matchingVenues.length)];
+    
+        // Check availability for the prioritized venue
+        const isAvailable = await checkVenueAvailability(
+            randomVenue.id,
+            date,
+            start_time,
+            end_time
+        );
+    
+        if (isAvailable) {
+            setSuggestedVenue(randomVenue);
+        } else {
+            setSuggestedVenue(null);
+            alert('No available venues for the selected time and date.');
+        }
     };
+    
     
 
     // Check venue availability
@@ -115,6 +128,7 @@ export default function Booking() {
                 start_time,
                 end_time,
             });
+            console.log('Availability for Venue ${venue.id}', response.data);
             return response.data.success; // true if available, false if not
         } catch (error) {
             console.error('Error checking venue availability:', error);
@@ -188,36 +202,7 @@ export default function Booking() {
                                     <InputError message={errors.email} />
                                 </div>
 
-                                {/* Capacity */}
-                                <div>
-                                    <InputLabel htmlFor="capacity" value="Capacity" />
-                                    <TextInput
-                                        id="capacity"
-                                        type="number"
-                                        value={data.capacity}
-                                        onChange={(e) => handleInputChange('capacity', e.target.value)}
-                                        className="block w-1/2 border-gray-300 rounded-md shadow-sm"
-                                        placeholder="Enter capacity"
-                                    />
-                                    <InputError message={errors.capacity} />
-                                </div>
-
-                                {/* Suggested Venue */}
-                                {suggestedVenue && (
-                                    <div className="p-4 bg-green-100 border border-green-400 rounded-md">
-                                        <p>
-                                            Suggested Venue: <strong>{suggestedVenue.name}</strong> (Capacity: {suggestedVenue.capacity})
-                                        </p>
-                                    
-                                        <button
-                                            type="button"
-                                            className="mt-2 bg-blue-500 text-white py-1 px-3 rounded"
-                                            onClick={() => setData('venue_id', suggestedVenue.id.toString())}
-                                        >
-                                            Select Suggested Venue
-                                        </button>
-                                    </div>
-                                )}
+                                
 
                                 {/* Booking Date */}
                                 <div>
@@ -257,6 +242,36 @@ export default function Booking() {
                                     />
                                     <InputError message={errors.end_time} />
                                 </div>
+                                {/* Capacity */}
+                                <div>
+                                    <InputLabel htmlFor="capacity" value="Capacity" />
+                                    <TextInput
+                                        id="capacity"
+                                        type="number"
+                                        value={data.capacity}
+                                        onChange={(e) => handleInputChange('capacity', e.target.value)}
+                                        className="block w-1/2 border-gray-300 rounded-md shadow-sm"
+                                        placeholder="Enter capacity"
+                                    />
+                                    <InputError message={errors.capacity} />
+                                </div>
+
+                                {/* Suggested Venue */}
+                                {suggestedVenue && (
+                                    <div className="block w-1/2 p-4 bg-green-100 border border-green-400 rounded-md">
+                                        <p>
+                                            Suggested Venue: <strong>{suggestedVenue.name}</strong> (Capacity: {suggestedVenue.capacity})
+                                        </p>
+                                    
+                                        <button
+                                            type="button"
+                                            className="mt-2 bg-blue-500 text-white py-1 px-3 rounded"
+                                            onClick={() => setData('venue_id', suggestedVenue.id.toString())}
+                                        >
+                                            Select Suggested Venue
+                                        </button>
+                                    </div>
+                                )}
 
                                 {/* Comments */}
                                 <div>

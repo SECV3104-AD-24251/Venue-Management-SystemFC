@@ -84,7 +84,7 @@ const Dashboard = () => {
             console.error('Error fetching venues:', error);
         });
 }, []);
-  
+
   return (
     <AuthenticatedLayout
       header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Dashboard</h2>}
@@ -271,5 +271,6 @@ const Dashboard = () => {
     </AuthenticatedLayout>
   );
 };
+
 
 export default Dashboard;

@@ -18,12 +18,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('maintenance.show');
     Route::post('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus'])->name('maintenance.updateStatus');
     Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
-
-
     
 });
-
-
 Route::get('/schedules/add', function () {
     return Inertia::render('AddSchedule');
 })->name('schedules.add');
