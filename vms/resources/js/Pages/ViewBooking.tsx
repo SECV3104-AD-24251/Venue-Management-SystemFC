@@ -43,7 +43,7 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings }) => {
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    View My Booking
+                    View Booking
                 </h2>
             }
         >

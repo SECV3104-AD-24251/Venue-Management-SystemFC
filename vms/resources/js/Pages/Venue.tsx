@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import axios from 'axios';
-import { Link } from '@inertiajs/react';
-import NormalButton from '@/Components/NormalButton';
 
 interface Venue {
     id: number;
@@ -11,7 +9,6 @@ interface Venue {
     location: string;
     capacity: number;
     status: string;
-
 }
 
 export default function Dashboard() {
@@ -19,92 +16,109 @@ export default function Dashboard() {
     const [selectedDate, setSelectedDate] = useState('');
     const [selectedStartTime, setSelectedStartTime] = useState('');
     const [selectedEndTime, setSelectedEndTime] = useState('');
+    const [loading, setLoading] = useState(false);
 
+    // Fetch initial list of venues
     useEffect(() => {
-        axios.get('/api/venues') // Ensure the API includes `is_booked`
-            .then(response => {
+        axios
+            .get('/api/venues')
+            .then((response) => {
                 setVenues(response.data);
             })
-            .catch(error => {
+            .catch((error) => {
                 console.error('Error fetching venues:', error);
             });
     }, []);
 
+    // Automatically check availability when date/time changes
     useEffect(() => {
-        // Fetch venue statuses dynamically
-        const fetchVenueStatuses = async () => {
-            const updatedVenues = await Promise.all(
-                venues.map(async (venue) => {
-                    try {
-                        const response = await axios.post('/api/venues/status', {
-                            venue_id: venue.id,
-                            date: selectedDate, // Ensure you have this state
-                            start_time: selectedStartTime, // Ensure you have this state
-                            end_time: selectedEndTime, // Ensure you have this state
-                        });
-    
-                        return { ...venue, status: response.data.status };
-                    } catch (error) {
-                        console.error('Error fetching status for venue:', venue.id, error);
-                        return venue; // Keep original if there's an error
-                    }
-                })
-            );
-    
-            setVenues(updatedVenues); // Update state with the new statuses
-        };
-    
         if (selectedDate && selectedStartTime && selectedEndTime) {
-            fetchVenueStatuses();
+            setLoading(true);
+
+            const fetchAvailability = async () => {
+                const updatedVenues = await Promise.all(
+                    venues.map(async (venue) => {
+                        try {
+                            const response = await axios.post('/api/venues/check-availability', {
+                                venue_id: venue.id,
+                                date: selectedDate,
+                                start_time: selectedStartTime,
+                                end_time: selectedEndTime,
+                            });
+                            return { ...venue, status: response.data.available ? 'Available' : 'Not Available' };
+                        } catch (error) {
+                            console.error('Error checking availability for venue:', venue.id, error);
+                            return venue; // Keep original venue data on error
+                        }
+                    })
+                );
+
+                setVenues(updatedVenues);
+                setLoading(false);
+            };
+
+            fetchAvailability();
         }
-    }, [venues, selectedDate, selectedStartTime, selectedEndTime]);
-    const checkAvailability = async (venueId: number, date: string, startTime: string, endTime: string) => {
-        try {
-            const response = await axios.post('/api/venues/check-availability', {
-                venue_id: venueId,
-                date,
-                start_time: startTime,
-                end_time: endTime,
-            });
-            return response.data.available; // Boolean indicating availability
-        } catch (error) {
-            console.error('Error checking availability:', error);
-            return false;
-        }
-    };
-    const handleCheckAvailability = async (venue: Venue) => {
-        const isAvailable = await checkAvailability(venue.id, selectedDate, selectedStartTime, selectedEndTime);
-    
-        if (isAvailable) {
-            alert(`${venue.name} is available!`);
-        } else {
-            alert(`${venue.name} is not available.`);
-    
-            // Update the venue's status to "Not Available" in the venues list
-            setVenues((prevVenues) =>
-                prevVenues.map((v) =>
-                    v.id === venue.id ? { ...v, status: 'Not Available' } : v
-                )
-            );
-        }
-    };
-    
-        
+    }, [selectedDate, selectedStartTime, selectedEndTime]);
 
     return (
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Venue List
+                    Venue 
                 </h2>
             }
         >
-            <Head title="Venue List" />
+            <Head title="Venue Availability" />
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
+                        <div className="p-6 text-gray-900 space-y-4">
+                            {/* Date and Time Inputs */}
+                            <div className="flex space-x-4">
+                                <div>
+                                    <label htmlFor="selectedDate" className="block text-sm font-medium text-gray-700">
+                                        Select Date
+                                    </label>
+                                    <input
+                                        type="date"
+                                        id="selectedDate"
+                                        value={selectedDate}
+                                        onChange={(e) => setSelectedDate(e.target.value)}
+                                        className="block w-full mt-1 border-gray-300 rounded-md shadow-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="selectedStartTime" className="block text-sm font-medium text-gray-700">
+                                        Start Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        id="selectedStartTime"
+                                        value={selectedStartTime}
+                                        onChange={(e) => setSelectedStartTime(e.target.value)}
+                                        className="block w-full mt-1 border-gray-300 rounded-md shadow-sm"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="selectedEndTime" className="block text-sm font-medium text-gray-700">
+                                        End Time
+                                    </label>
+                                    <input
+                                        type="time"
+                                        id="selectedEndTime"
+                                        value={selectedEndTime}
+                                        onChange={(e) => setSelectedEndTime(e.target.value)}
+                                        className="block w-full mt-1 border-gray-300 rounded-md shadow-sm"
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Loading Indicator */}
+                            {loading && <p className="text-blue-500">Checking availability...</p>}
+
+                            {/* Venue Table */}
                             <table className="min-w-full mt-6 table-auto">
                                 <thead>
                                     <tr>
@@ -136,22 +150,15 @@ export default function Dashboard() {
                                                         See Details
                                                     </Link>
                                                 </td>
-                                                <td className="text-center px-4 py-2 border-b">
-
-                                                <button
-                                                    onClick={() => handleCheckAvailability(venue)}
-                                                    disabled={venue.status === 'Not Available'}
-                                                    className={`rounded-md px-4 py-2 text-white ${
-                                                    venue.status === 'Not Available'
-                                                    ? 'bg-gray-400 cursor-not-allowed'
-                                                    : 'bg-blue-500 hover:bg-blue-700'
+                                                <td
+                                                    className={`text-center px-4 py-2 border-b ${
+                                                        venue.status === 'Available'
+                                                            ? 'text-green-500'
+                                                            : 'text-red-500'
                                                     }`}
                                                 >
-                                                {venue.status === 'Not Available' ? 'Not Available' : 'Check Availability'}
-                                                </button>
-                                                
+                                                    {venue.status || 'Unknown'}
                                                 </td>
-
                                             </tr>
                                         ))
                                     )}

@@ -6,20 +6,20 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import NormalButton from '@/Components/NormalButton';
+import CircularProgress from '@mui/material/CircularProgress';
 
 export default function MaintenanceCreate() {
-    // Venue type definition
     interface Venue {
         id: number;
         name: string;
         capacity: number;
         status: string;
     }
-
-    // State for venues
+    const [localErrors, setLocalErrors] = useState<Record<string, string>>({});
     const [venues, setVenues] = useState<Venue[]>([]);
+    const [loadingVenues, setLoadingVenues] = useState<boolean>(true);
 
-    const { data, setData, errors, post, processing, reset } = useForm({
+    const { data, setData, errors, processing, reset } = useForm({
         venue_id: '',
         description: '',
         scheduled_for_date: '',
@@ -30,29 +30,61 @@ export default function MaintenanceCreate() {
     useEffect(() => {
         axios
             .get('/api/venues')
-            .then((response) => setVenues(response.data))
-            .catch((error) => console.error('Error fetching venues:', error));
+            .then((response) => {
+                setVenues(response.data);
+                setLoadingVenues(false);
+            })
+            .catch((error) => {
+                console.error('Error fetching venues:', error);
+                alert('Failed to load venues. Please refresh the page.');
+                setLoadingVenues(false);
+            });
     }, []);
 
-    // Handle form submission
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+    // Client-side validation
+    
 
-        try {
-            const response = await axios.post('/maintenance', data);
+const validateForm = () => {
+    const validationErrors: Record<string, string> = {};
 
-            if (response.data.success) {
-                alert('Maintenance job created successfully!');
-                reset(); // Reset form after successful submission
-            } else {
-                alert(response.data.message || 'Maintenance job created successfully!');
-                reset();
-            }
-        } catch (error) {
-            console.error('Error submitting maintenance job:', error);
-            alert('An unexpected error occurred. Please try again.');
+    if (!data.venue_id) validationErrors.venue_id = 'Venue is required.';
+    if (!data.description) validationErrors.description = 'Description is required.';
+    if (!data.scheduled_for_date) validationErrors.scheduled_for_date = 'Scheduled date is required.';
+    if (!data.scheduled_for_time) validationErrors.scheduled_for_time = 'Scheduled time is required.';
+
+    setLocalErrors(validationErrors);
+
+    return Object.keys(validationErrors).length === 0;
+};
+
+const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validate the form
+    if (!validateForm()) {
+        return;
+    }
+
+    const confirmed = window.confirm('Are you sure you want to create this maintenance job?');
+    if (!confirmed) return;
+
+    try {
+        const response = await axios.post('/maintenance', data);
+
+        if (response.data.success) {
+            alert('Maintenance job created successfully!');
+            reset();
+            setLocalErrors({}); // Clear local errors on success
+        } else {
+            reset();
+            alert(response.data.message || 'Maintenance job created successfully!');
         }
-    };
+    } catch (error: any) {
+        console.error('Error submitting maintenance job:', error.response || error.message);
+        alert('An unexpected error occurred. Please try again.');
+    }
+};
+
 
     return (
         <AuthenticatedLayout
@@ -68,20 +100,24 @@ export default function MaintenanceCreate() {
                                 {/* Venue Selection */}
                                 <div>
                                     <InputLabel htmlFor="venue_id" value="Venue" />
-                                    <select
-                                        id="venue_id"
-                                        value={data.venue_id}
-                                        onChange={(e) => setData('venue_id', e.target.value)}
-                                        className="block w-1/2 border-gray-300 rounded-md shadow-sm"
-                                    >
-                                        <option value="">Select Venue</option>
-                                        {venues.map((venue) => (
-                                            <option key={venue.id} value={venue.id}>
-                                                {venue.name}
-                                            </option>
-                                        ))}
-                                    </select>
-                                    <InputError message={errors.venue_id} />
+                                    {loadingVenues ? (
+                                        <CircularProgress /> // Loading indicator while fetching venues
+                                    ) : (
+                                        <select
+                                            id="venue_id"
+                                            value={data.venue_id}
+                                            onChange={(e) => setData('venue_id', e.target.value)}
+                                            className="block w-1/2 border-gray-300 rounded-md shadow-sm"
+                                        >
+                                            <option value="">Select Venue</option>
+                                            {venues.map((venue) => (
+                                                <option key={venue.id} value={venue.id}>
+                                                    {venue.name}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
+                                    <InputError message={localErrors.venue_id} />
                                 </div>
 
                                 {/* Description */}
@@ -93,7 +129,7 @@ export default function MaintenanceCreate() {
                                         onChange={(e) => setData('description', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
-                                    <InputError message={errors.description} />
+                                    <InputError message={localErrors.description} />
                                 </div>
 
                                 {/* Scheduled Date */}
@@ -106,7 +142,7 @@ export default function MaintenanceCreate() {
                                         onChange={(e) => setData('scheduled_for_date', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
-                                    <InputError message={errors.scheduled_for_date} />
+                                    <InputError message={localErrors.scheduled_for_date} />
                                 </div>
 
                                 {/* Scheduled Time */}
@@ -119,12 +155,14 @@ export default function MaintenanceCreate() {
                                         onChange={(e) => setData('scheduled_for_time', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
-                                    <InputError message={errors.scheduled_for_time} />
+                                    <InputError message={localErrors.scheduled_for_time} />
                                 </div>
 
                                 {/* Submit */}
                                 <div>
-                                    <NormalButton disabled={processing}>Submit Maintenance Job</NormalButton>
+                                    <NormalButton disabled={processing || loadingVenues}>
+                                        {processing ? 'Submitting...' : 'Submit Maintenance Job'}
+                                    </NormalButton>
                                 </div>
                             </form>
                         </div>

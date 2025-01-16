@@ -22,11 +22,9 @@ class Booking extends Model
         'start_time',
         'end_time',
         'comments',
+        'user_id',
     ];
 
-    protected $casts = [
-        'equipment' => 'array',
-    ];
     // Define the relationship with the Venue model
     public function venue()
     {

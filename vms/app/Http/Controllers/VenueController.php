@@ -48,14 +48,50 @@ public function checkVenueStatus(Request $request)
 }
 public function checkAvailability(Request $request)
 {
-    $available = Venue::whereDoesntHave('bookings', function ($query) use ($request) {
-        $query->where('date', $request->date)
-              ->where('start_time', '<', $request->end_time)
-              ->where('end_time', '>', $request->start_time);
-    })->get();
+    $request->validate([
+        'venue_id' => 'nullable|exists:venues,id', // Optional: Specific venue check
+        'date' => 'required|date', // Date of interest
+        'start_time' => 'required|date_format:H:i', // Start time
+        'end_time' => 'required|date_format:H:i|after:start_time', // End time (must be after start time)
+    ]);
 
-    return response()->json($available);
+    $venueId = $request->input('venue_id');
+    $date = $request->input('date');
+    $startTime = $request->input('start_time');
+    $endTime = $request->input('end_time');
+
+    // Query for venues without conflicting bookings or maintenance
+    $availableVenues = Venue::when($venueId, function ($query) use ($venueId) {
+        $query->where('id', $venueId); // Check for a specific venue if ID is provided
+    })
+    ->whereDoesntHave('bookings', function ($query) use ($date, $startTime, $endTime) {
+        $query->where('date', $date)
+              ->where('start_time', '<', $endTime)
+              ->where('end_time', '>', $startTime);
+    })
+    ->whereDoesntHave('maintenances', function ($query) use ($date, $startTime, $endTime) {
+        $query->where('scheduled_for_date', $date)
+              ->where(function ($query) use ($startTime, $endTime) {
+                  $query->whereNull('scheduled_for_time') // All-day maintenance
+                        ->orWhere(function ($query) use ($startTime, $endTime) {
+                            $query->where('scheduled_for_time', '<', $endTime)
+                                  ->where('scheduled_for_time', '>', $startTime);
+                        });
+              });
+    })
+    ->get();
+
+    // Response format: single venue availability or list of available venues
+    if ($venueId) {
+        return response()->json([
+            'venue_id' => $venueId,
+            'available' => $availableVenues->isNotEmpty(),
+        ]);
+    }
+
+    return response()->json($availableVenues);
 }
+
 public function getVenues()
 {
     $venues = DB::table('venues')

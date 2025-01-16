@@ -24,21 +24,6 @@ export default function MaintenanceList({ maintenances }: Props) {
             return acc;
         }, {} as Record<number, string>)
     ); 
-    const updateStatus = async (maintenanceId: number, newStatus: string): Promise<void> => {
-        try {
-            const response = await axios.put(`/api/maintenance/${maintenanceId}/status`, {
-                status: newStatus,
-            });
-    
-            if (response.data.success) {
-                console.log('Status updated successfully:', response.data.maintenance);
-                // Update local state or handle the updated maintenance data as needed
-            }
-        } catch (error:any) {
-            console.error('Error updating status:', error.response?.data?.message || error.message);
-            alert('Failed to update the status. Please try again.');
-        }
-    };
 
     const handleStatusChange = async (maintenanceId: number, newStatus: string) => {
         if (newStatus === 'completed') {
@@ -102,7 +87,7 @@ export default function MaintenanceList({ maintenances }: Props) {
                             <table className="min-w-full mt-6 table-auto">
                                 <thead>
                                     <tr>
-                                        <th className="px-4 py-2 border-b">Name</th>
+                                        <th className="px-4 py-2 border-b">Venue Name</th>
                                         <th className="px-4 py-2 border-b">Description</th>
                                         <th className="px-4 py-2 border-b">Scheduled Date</th>
                                         <th className="px-4 py-2 border-b">Status</th>
