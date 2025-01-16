@@ -110,7 +110,7 @@ const Dashboard = () => {
       }}
     >
       <div className="p-6 text-gray-900">
-        <h3 className="text-lg font-semibold mb-4">Latest Activity</h3>
+        <h3 className="text-lg font-semibold mb-4">Latest Activity </h3>
         <ul className="list-disc list-inside">
           {notifications.length > 0 ? (
             notifications.map((notification, index) => (
