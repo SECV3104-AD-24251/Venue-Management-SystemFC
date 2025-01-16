@@ -17,7 +17,9 @@ const Dashboard = () => {
   const [availableVenues, setAvailableVenues] = useState<number | null>(null);
   const { props } = usePage();
   const user = props.auth.user;
-  
+  const [maintenanceNotifications, setMaintenanceNotifications] = useState<
+  { id: number; venue: { name: string }; description: string; scheduled_for_date: string }[]
+>([]);
 
   useEffect(() => {
     axios
@@ -72,6 +74,8 @@ const Dashboard = () => {
           console.error('Error fetching available venues:', error);
           setAvailableVenues(0); // Default to 0 if there's an error
       });
+
+      
   }, []); // Empty dependency array ensures this runs only once when the component mounts
   useEffect(() => {
     axios
@@ -207,6 +211,7 @@ const Dashboard = () => {
           </Typography>
         </Box>
 
+        {/* Box 3 - most booked venues */}
         <Box
           sx={{
             width: '270px',
@@ -230,7 +235,8 @@ const Dashboard = () => {
             {venues.length > 0 ? venues[0].name : 'Loading...'}
           </Typography>
         </Box>
-        
+
+        {/* Box 4 - available venues */}
         <Box
           sx={{
             width: '270px',
@@ -254,7 +260,75 @@ const Dashboard = () => {
           {availableVenues !== null ? availableVenues : 'Loading...'}
           </Typography>
         </Box>
+
+                {/* Box 4 - venues under maintenance */}
+                <Box
+  sx={{
+    width: '600px',
+    height: '300px',
+    backgroundColor: 'white',
+    borderRadius: '8px',
+    boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'flex-start', // Align content at the top
+    padding: '20px',
+    gap: '10px',
+    position: 'relative',
+    overflowY: 'auto', // Scrollable if content exceeds box height
+  }}
+>
+  <Typography
+    sx={{
+      fontSize: '20px',
+      fontWeight: 'bold',
+      textAlign: 'center',
+      position: 'absolute',
+      top: '10px', // Move text closer to the top
+    }}
+  >
+    Venues Under Maintenance
+  </Typography>
+
+  {/* List of venues */}
+  <Box
+    sx={{
+      marginTop: '40px', // Adjust spacing below the title
+      width: '100%', // Take full width of the container
+      padding: '10px',
+    }}
+  >
+    {maintenanceNotifications.length > 0 ? (
+      <ul
+        style={{
+          listStyleType: 'none',
+          padding: 0,
+          margin: 0,
+        }}
+      >
+        {maintenanceNotifications.map((item) => (
+          <li
+            key={item.id}
+            style={{
+              marginBottom: '10px',
+              borderBottom: '1px solid #ccc',
+              paddingBottom: '5px',
+            }}
+          >
+            <strong>{item.venue.name}</strong>: {item.description} <br />
+            Scheduled for: {item.scheduled_for_date}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <Typography>No venues are under maintenance at the moment.</Typography>
+    )}
+  </Box>
+</Box>
       </Box>
+      
+      
 
       {/* Welcome Back Section */}
       <div className="py-10">
