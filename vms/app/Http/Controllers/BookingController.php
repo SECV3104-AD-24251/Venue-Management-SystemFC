@@ -8,13 +8,17 @@ use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
 use App\Models\ClassSchedule;
 use App\Models\Venue;
+use Illuminate\Support\Facades\Auth;
+
 
 class BookingController extends Controller
 {
     // Display all bookings with venue details
     public function index()
     {
-        $bookings = Booking::with('venue')->get();
+        $bookings = Booking::with('venue')
+        ->where('user_id', Auth::id()) // Filter by authenticated user
+        ->get();
 
         return Inertia::render('ViewBooking', [
             'bookings' => $bookings,
@@ -85,6 +89,7 @@ class BookingController extends Controller
             'end_time' => $request->end_time,
             'equipment' => $request->equipment,
             'comments' => $request->comments,
+            'user_id' => Auth::id(),
         ]);
 
         // Return JSON for API requests

@@ -38,7 +38,69 @@ export default function Authenticated({
                                 >
                                     Venue
                                 </NavLink>
+                                
+
+                                {/* Create Maintenance link for staff users */}
+                                {user.level === '3' && (
+                                    <>
+                                    {/* Maintenance Link for all users */}
+                                    <NavLink
+                                        href={route('maintenance.index')}
+                                        active={route().current('maintenance.index')}
+                                    >
+                                        Maintenance
+                                    </NavLink>
+                                    <NavLink
+                                        href={route('maintenance.create')}
+                                        active={route().current('maintenance.create')}
+                                    >
+                                        Create Maintenance
+                                    </NavLink>
+                                    <NavLink
+                                        href={route('venue.reports')}
+                                        active={route().current('venue.reports')}
+                                    >
+                                        Venue Reports
+                                    </NavLink>
+                                    </>
+                                    
+                                )}
+                                {user.level === '1' && (
+                                    <>
+                                    
+                                    
                                 <NavLink
+                                    href={route('viewbooking')}
+                                    active={route().current('viewbooking')}
+                                >
+                                    View Booking
+                                </NavLink>
+
+                                    <NavLink
+                                    href={route('schedule')}
+                                    active={route().current('schedule')}
+                                >
+                                    Class Schedule
+                                </NavLink>
+                                <NavLink
+        href={route('admin.maintenance.monitor')}
+        active={route().current('admin.maintenance.monitor')}
+    >
+        Maintenance Monitor
+    </NavLink>
+                                <NavLink
+                                        href={route('venue.reports')}
+                                        active={route().current('venue.reports')}
+                                    >
+                                        Venue Reports
+                                    </NavLink></>
+                                    
+                                )}
+
+                                {/* Role-based Class Schedule links */}
+                                {user.level === '2' && (
+                                    <>
+                                    <NavLink
                                     href={route('booking')}
                                     active={route().current('booking')}
                                 >
@@ -50,51 +112,14 @@ export default function Authenticated({
                                 >
                                     View Booking
                                 </NavLink>
-                                
-                                {/* Maintenance Link for all users */}
-                                <NavLink
-                                    href={route('maintenance.index')}
-                                    active={route().current('maintenance.index')}
+
+                                    <NavLink
+                                    href={route('schedule')}
+                                    active={route().current('schedule')}
                                 >
-                                    Maintenance
-                                </NavLink>
-
-                                
-                                    <NavLink
-                                        href={route('venue.reports')}
-                                        active={route().current('venue.reports')}
-                                    >
-                                        Venue Reports
-                                    </NavLink>
-                                
-
-                                {/* Create Maintenance link for staff users */}
-                                {user.role === 'staff' && (
-                                    <NavLink
-                                        href={route('maintenance.create')}
-                                        active={route().current('maintenance.create')}
-                                    >
-                                        Create Maintenance
-                                    </NavLink>
-                                )}
-
-                                {/* Role-based Class Schedule links */}
-                                {user.role === 'lecturer' && (
-                                    <NavLink
-                                        href={route('schedule')}
-                                        active={route().current('schedule')}
-                                    >
-                                        Class Schedule
-                                    </NavLink>
-                                )}
-
-                                {user.role === 'staff' && (
-                                    <NavLink
-                                        href={route('schedules.add')}
-                                        active={route().current('schedules.add')}
-                                    >
-                                        Class Schedule
-                                    </NavLink>
+                                    Class Schedule
+                                </NavLink></>
+                                    
                                 )}
                             </div>
                         </div>

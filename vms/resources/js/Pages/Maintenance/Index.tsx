@@ -18,12 +18,15 @@ interface Props {
 }
 
 export default function MaintenanceList({ maintenances }: Props) {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+
     const [statuses, setStatuses] = useState(
         maintenances.reduce((acc, maintenance) => {
             acc[maintenance.id] = maintenance.status;
             return acc;
         }, {} as Record<number, string>)
     ); 
+    
 
     const handleStatusChange = async (maintenanceId: number, newStatus: string) => {
         if (newStatus === 'completed') {
@@ -35,29 +38,65 @@ export default function MaintenanceList({ maintenances }: Props) {
             }
         }
     
-        // Call the API to update the status
         try {
-            await fetch(`/api/maintenance/${maintenanceId}`, {
+            const response = await fetch(`/api/maintenance/${maintenanceId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken || '',
                 },
                 body: JSON.stringify({ status: newStatus }),
             });
-            // Update the local state only if the API call succeeds
-            setStatuses((prev) => ({
-                ...prev,
-                [maintenanceId]: newStatus,
-            }));
+    
+            if (response.ok) {
+                // Update local state only on success
+                setStatuses((prev) => ({
+                    ...prev,
+                    [maintenanceId]: newStatus,
+                }));
+                alert('Status updated successfully!');
+            } else {
+                const errorData = await response.json();
+                console.error('Error updating status:', errorData);
+                alert('Failed to update the status. Please try again.');
+            }
         } catch (error) {
             console.error('Failed to update status:', error);
             alert('Failed to update the status. Please try again.');
         }
     };
+    
 
-    const generateReport = (maintenanceId: number) => {
-        console.log(`Generating report for maintenance ID ${maintenanceId}`);
-        alert(`Report generated for maintenance ID ${maintenanceId}.`);
+    const generateReport = async (maintenanceId: number) => {
+        try {
+            const response = await fetch(`/maintenance/${maintenanceId}/report`, {
+                method: 'GET',
+            });
+    
+            if (!response.ok) {
+                throw new Error('Failed to generate the report.');
+            }
+    
+            // Convert the response to a blob
+            const blob = await response.blob();
+    
+            // Create a download link for the blob
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Maintenance_Report_${maintenanceId}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+    
+            // Clean up
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+    
+            alert('Report generated successfully!');
+        } catch (error) {
+            console.error('Error generating report:', error);
+            alert('Failed to generate the report. Please try again.');
+        }
     };
 
     return (

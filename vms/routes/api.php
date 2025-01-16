@@ -9,6 +9,10 @@ use App\Models\User;
 
 Route::get('/reports/venue', [VenueReportController::class, 'index']);
 
+Route::put('/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
+Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
+Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');
+
 Route::post('/schedules', [ScheduleController::class, 'store']);
 
 Route::get('/lecturers', [UserController::class, 'getLecturers']);

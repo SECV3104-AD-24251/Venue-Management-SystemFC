@@ -30,4 +30,8 @@ class Booking extends Model
     {
         return $this->belongsTo(Venue::class, 'venue_id');
     }
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

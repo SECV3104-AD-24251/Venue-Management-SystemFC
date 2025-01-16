@@ -15,6 +15,18 @@ Route::get('/venue-reports', function () {
     return Inertia::render('VenueReports'); // Match this with your React component name
 })->name('venue.reports');
 
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+});
+
+Route::middleware(['auth', 'role:lecturer'])->group(function () {
+    Route::get('/lecturer', [LecturerController::class, 'index'])->name('lecturer.index');
+});
+
+Route::middleware(['auth', 'role:staff'])->group(function () {
+    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+});
+
 Route::middleware('auth')->group(function () {
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
     Route::get('/maintenance/create', [MaintenanceController::class, 'create'])->name('maintenance.create');
@@ -91,7 +103,10 @@ Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show'
 Route::get('/viewbooking', [BookingController::class, 'index'])->name('viewbooking');
 
 // Routes for bookings
-Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+Route::middleware('auth')->group(function () {
+    Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+});
+
 
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
@@ -121,5 +136,7 @@ Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus
 Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
 
 Route::get('/api/notifications', [BookingController::class, 'getNotifications']);
+Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
+Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');
 
 require __DIR__.'/auth.php';

@@ -17,6 +17,10 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
     protected $fillable = [
         'name',
         'email',
@@ -47,19 +51,25 @@ class User extends Authenticatable
         ];
     }
     // app/Models/User.php
-public function isAdmin()
-{
-    return $this->level == 1;
-}
+    public function getRoleAttribute(): string
+    {
+        return match ($this->level) {
+            1 => 'admin',
+            2 => 'lecturer',
+            default => 'staff',
+        };
+    }
 
-public function isLecturer()
-{
-    return $this->level == 2;
-}
+    // Method to check if a user has a specific role
+    public function hasRole($role): bool
+    {
+        $roles = [
+            'admin' => 1,
+            'lecturer' => 2,
+            'staff' => 3,
+        ];
 
-public function isStaff()
-{
-    return $this->level == 3;
-}
+        return isset($roles[$role]) && $this->level <= $roles[$role];
+    }
 
 }

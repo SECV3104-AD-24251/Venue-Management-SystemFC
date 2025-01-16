@@ -74,21 +74,6 @@ export default function Login({
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="level" value="Level" />
-                    <select
-                        id="level"
-                        name="level"
-                        value={data.level}
-                        onChange={(e) => setData('level', e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                        required
-                        >
-                            <option value="3">Lecturer</option>
-                            <option value="2">Staff</option>
-                        </select>
-                        <InputError message={errors.level} className="mt-2" />
-                </div>
 
                 <div className="mt-4 block">
                     <label className="flex items-center">

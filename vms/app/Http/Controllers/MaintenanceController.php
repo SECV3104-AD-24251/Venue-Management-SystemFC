@@ -57,22 +57,42 @@ class MaintenanceController extends Controller
     public function updateStatus(Request $request, $id)
 {
     $request->validate([
-        'status' => 'required|string|in:scheduled,in-progress,completed', // Validate the allowed statuses
+        'status' => 'required|in:scheduled,in-progress,completed',
     ]);
 
     $maintenance = Maintenance::findOrFail($id);
-    $maintenance->update(['status' => $request->status]);
 
-    // Return the updated maintenance record
-    return response()->json([
-        'success' => true,
-        'message' => 'Status updated successfully.',
-        'maintenance' => $maintenance->load('venue'), // Include venue data for the updated maintenance
-    ]);
+    if ($request->status === 'completed') {
+        $maintenance->completed_at = now(); // Set the completion date
+    } else {
+        $maintenance->completed_at = null; // Reset the completion date if not completed
+    }
+
+    $maintenance->status = $request->status;
+    $maintenance->save();
+
+    return response()->json(['success' => true, 'message' => 'Status updated successfully']);
 }
 
+public function generateReport($id)
+{
+    try {
+        $maintenance = Maintenance::with('venue')->findOrFail($id);
 
-    public function destroy($id)
+        // Example PDF generation
+        $pdf = \PDF::loadView('reports.maintenance', ['maintenance' => $maintenance]);
+
+        $fileName = "Maintenance_Report_{$maintenance->id}.pdf";
+
+        // Return the generated PDF for download
+        return $pdf->download($fileName);
+    } catch (\Exception $e) {
+        // Log the error for debugging
+        \Log::error('Failed to generate report: ', ['error' => $e->getMessage()]);
+        return response()->json(['success' => false, 'message' => 'Report generation failed.'], 500);
+    }
+}
+   public function destroy($id)
 {
     $maintenance = Maintenance::find($id);
 
@@ -83,6 +103,18 @@ class MaintenanceController extends Controller
     $maintenance->delete();
     return response()->json(['success' => true]);
 }
+public function monitor()
+{
+    $maintenances = Maintenance::with('venue')
+    ->orderBy('scheduled_for_date', 'asc')
+    ->get(['id', 'description', 'scheduled_for_date', 'status', 'completed_at', 'venue_id']);
+
+
+    return Inertia::render('Admin/MaintenanceMonitor', [
+        'maintenances' => $maintenances,
+    ]);
+}
+
 
 
 }

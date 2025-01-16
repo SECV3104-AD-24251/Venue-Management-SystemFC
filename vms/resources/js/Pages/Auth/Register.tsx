@@ -116,8 +116,9 @@ export default function Register() {
                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         required
                         >
-                            <option value="3">Lecturer</option>
-                            <option value="2">Staff</option>
+                            <option value="1">Admin</option>
+                            <option value="2">Lecturer</option>
+                            <option value="3">Staff</option>
                         </select>
                         <InputError message={errors.level} className="mt-2" />
                 </div>
