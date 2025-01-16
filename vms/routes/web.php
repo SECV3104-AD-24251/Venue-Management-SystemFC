@@ -18,7 +18,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('maintenance.show');
     Route::post('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus'])->name('maintenance.updateStatus');
     Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
-    
+    Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'show']);
+    Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
+    Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
+    Route::put('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus']);
+    Route::get('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus']);
+
 });
 Route::get('/schedules/add', function () {
     return Inertia::render('AddSchedule');
@@ -96,13 +101,6 @@ Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth', 'role:1'])->group(function () {
-    Route::get('/admin-dashboard', [AdminController::class, 'index']);
-});
-
-Route::middleware(['auth', 'role:2'])->group(function () {
-    Route::get('/lecturer-dashboard', [LecturerController::class, 'index']);
-});
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -114,6 +112,9 @@ Route::middleware('auth')->group(function () {
 Route::get('/bookings/{id}/edit', [BookingController::class, 'edit'])->name('bookings.edit');
 Route::patch('/bookings/{id}', [BookingController::class, 'update'])->name('bookings.update');
 
+Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'show']);
+Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
+Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
 
 Route::get('/api/notifications', [BookingController::class, 'getNotifications']);
 

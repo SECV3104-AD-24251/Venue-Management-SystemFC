@@ -39,12 +39,11 @@ export default function MaintenanceList({ maintenances }: Props) {
             alert('Failed to update the status. Please try again.');
         }
     };
-    
 
     const handleStatusChange = async (maintenanceId: number, newStatus: string) => {
-        if (newStatus === 'Done') {
+        if (newStatus === 'completed') {
             const confirmed = window.confirm(
-                'Are you sure you want to mark this task as "Done"? Once marked, it cannot be changed.'
+                'Are you sure you want to mark this task as "completed"? Once marked, it cannot be changed.'
             );
             if (!confirmed) {
                 return;
@@ -128,7 +127,7 @@ export default function MaintenanceList({ maintenances }: Props) {
                                                 <td className="text-center px-4 py-2 border-b">
                                                     <div
                                                         className={`relative inline-block ${
-                                                            statuses[maintenance.id] === 'Done' ? 'group' : ''
+                                                            statuses[maintenance.id] === 'completed' ? 'group' : ''
                                                         }`}
                                                     >
                                                         <select
@@ -136,18 +135,18 @@ export default function MaintenanceList({ maintenances }: Props) {
                                                             onChange={(e) =>
                                                                 handleStatusChange(maintenance.id, e.target.value)
                                                             }
-                                                            disabled={statuses[maintenance.id] === 'Done'}
+                                                            disabled={statuses[maintenance.id] === 'completed'}
                                                             className={`rounded-md border border-gray-300 px-2 py-1 ${
-                                                                statuses[maintenance.id] === 'Done'
+                                                                statuses[maintenance.id] === 'completed'
                                                                     ? 'bg-gray-200 cursor-not-allowed'
                                                                     : ''
                                                             }`}
                                                         >
-                                                            <option value="Not Started">Not Started</option>
-                                                            <option value="Ongoing">Ongoing</option>
-                                                            <option value="Done">Done</option>
+                                                            <option value="scheduled">scheduled</option>
+                                                            <option value="in-progress">in-progress</option>
+                                                            <option value="completed">completed</option>
                                                         </select>
-                                                        {statuses[maintenance.id] === 'Done' && (
+                                                        {statuses[maintenance.id] === 'completed' && (
                                                             <span className="absolute left-0 top-full mt-1 hidden w-48 rounded-md bg-gray-700 p-2 text-xs text-white shadow-lg group-hover:block">
                                                                 Task is already completed.
                                                             </span>
@@ -157,9 +156,9 @@ export default function MaintenanceList({ maintenances }: Props) {
                                                 <td className="text-center px-4 py-2 border-b">
                                                     <button
                                                         onClick={() => generateReport(maintenance.id)}
-                                                        disabled={statuses[maintenance.id] !== 'Done'}
+                                                        disabled={statuses[maintenance.id] !== 'completed'}
                                                         className={`rounded-md px-4 py-2 text-white ${
-                                                            statuses[maintenance.id] === 'Done'
+                                                            statuses[maintenance.id] === 'completed'
                                                                 ? 'bg-green-500 hover:bg-green-700'
                                                                 : 'bg-gray-400 cursor-not-allowed'
                                                         }`}

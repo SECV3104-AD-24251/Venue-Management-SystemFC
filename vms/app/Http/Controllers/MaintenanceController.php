@@ -57,7 +57,7 @@ class MaintenanceController extends Controller
     public function updateStatus(Request $request, $id)
 {
     $request->validate([
-        'status' => 'required|string|in:Not Started,Ongoing,Done', // Validate the allowed statuses
+        'status' => 'required|string|in:scheduled,in-progress,completed', // Validate the allowed statuses
     ]);
 
     $maintenance = Maintenance::findOrFail($id);
