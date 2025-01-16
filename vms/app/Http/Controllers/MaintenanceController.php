@@ -84,6 +84,18 @@ class MaintenanceController extends Controller
     return response()->json(['success' => true]);
 }
 
+public function fetchMaintenanceNotifications()
+{
+    // Fetch venues that are under maintenance, make sure to replace this query according to your DB schema
+    $maintenanceNotifications = Venue::where('is_under_maintenance', true)
+                                      ->with('name') // Assuming there's a 'name' field in the Venue model
+                                      ->get();
+
+    return response()->json([
+        'maintenanceNotifications' => $maintenanceNotifications
+    ]);
+}
+
 
 }
 
