@@ -4,7 +4,10 @@ use App\Http\Controllers\VenueController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\VenueReportController;
 use App\Models\User;
+
+Route::get('/reports/venue', [VenueReportController::class, 'index']);
 
 Route::post('/schedules', [ScheduleController::class, 'store']);
 

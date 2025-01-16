@@ -59,6 +59,15 @@ export default function Authenticated({
                                     Maintenance
                                 </NavLink>
 
+                                
+                                    <NavLink
+                                        href={route('venue.reports')}
+                                        active={route().current('venue.reports')}
+                                    >
+                                        Venue Reports
+                                    </NavLink>
+                                
+
                                 {/* Create Maintenance link for staff users */}
                                 {user.role === 'staff' && (
                                     <NavLink

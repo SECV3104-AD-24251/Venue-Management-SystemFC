@@ -11,6 +11,10 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ClassScheduleController;
 use App\Http\Controllers\MaintenanceController;
 
+Route::get('/venue-reports', function () {
+    return Inertia::render('VenueReports'); // Match this with your React component name
+})->name('venue.reports');
+
 Route::middleware('auth')->group(function () {
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
     Route::get('/maintenance/create', [MaintenanceController::class, 'create'])->name('maintenance.create');
