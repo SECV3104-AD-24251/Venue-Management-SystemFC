@@ -6,6 +6,8 @@ import InputError from '@/Components/InputError';
 import InputLabel from '@/Components/InputLabel';
 import TextInput from '@/Components/TextInput';
 import NormalButton from '@/Components/NormalButton';
+import Alert from '@mui/material/Alert';
+import AlertTitle from '@mui/material/AlertTitle';
 
 export default function Booking() {
     // Venue type definition
@@ -19,8 +21,9 @@ export default function Booking() {
     // State for venues and suggestion
     const [venues, setVenues] = useState<Venue[]>([]);
     const [suggestedVenue, setSuggestedVenue] = useState<Venue | null>(null);
-    const [buttonClicked, setButtonClicked] = useState(false);
+    const [isButtonClicked, setIsButtonClicked] = useState(false);
     const [conflictErrors, setConflictErrors] = useState({
+        
         date: '',
         start_time: '',
         end_time: '',
@@ -48,27 +51,6 @@ export default function Booking() {
             })
             .catch(error => console.error('Error fetching venues:', error));
     }, []);
-
-    const checkTimeConflict = async () => {
-        try {
-            const response = await axios.post('/api/bookings/check-time', {
-                venue_id: data.venue_id,
-                date: data.date,
-                start_time: data.start_time,
-                end_time: data.end_time,
-            });
-    
-            if (!response.data.success) {
-                alert('This venue is already booked for the selected time. Please choose a different time.');
-                return false; // Conflict exists
-            }
-            return true; // No conflict
-        } catch (error) {
-            console.error('Error checking time conflict:', error);
-            alert('An error occurred while checking availability. Please try again.');
-            return false;
-        }
-    };    
 
     // Suggest a venue based on user input
     const suggestVenue = async () => {
@@ -111,9 +93,7 @@ export default function Booking() {
             alert('No available venues for the selected time and date.');
         }
     };
-    
-    
-
+ 
     // Check venue availability
     const checkVenueAvailability = async (
         venue_id: number,
@@ -157,6 +137,8 @@ export default function Booking() {
             if (response.data.success) {
                 alert('Booking submitted successfully!');
                 reset(); // Reset form after successful submission
+                setIsButtonClicked(false);
+                setSuggestedVenue(null);
             } else {
                 alert(response.data.message || 'An error occurred during booking.');
             }
@@ -227,6 +209,7 @@ export default function Booking() {
                                         onChange={(e) => handleInputChange('start_time', e.target.value)}
                                         className="block w-1/2 border-gray-300 rounded-md shadow-sm"
                                     />
+                                    
                                     <InputError message={errors.start_time} />
                                 </div>
 
@@ -265,10 +248,15 @@ export default function Booking() {
                                     
                                         <button
                                             type="button"
-                                            className="mt-2 bg-blue-500 text-white py-1 px-3 rounded"
-                                            onClick={() => setData('venue_id', suggestedVenue.id.toString())}
-                                        >
-                                            Select Suggested Venue
+                                            className={`mt-2 py-1 px-3 rounded ${
+                                            isButtonClicked ? 'bg-green-500' : 'bg-blue-500'
+                                        } text-white`}
+                                            onClick={() => {
+                                            setData('venue_id', suggestedVenue.id.toString());
+                                            setIsButtonClicked(true); // Update the state to indicate the button was clicked
+                                        }}
+                                    >
+                                        {isButtonClicked ? 'Venue Selected' : 'Select Suggested Venue'}
                                         </button>
                                     </div>
                                 )}
