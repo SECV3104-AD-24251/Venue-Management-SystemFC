@@ -146,4 +146,6 @@ Route::get('/api/notifications', [BookingController::class, 'getNotifications'])
 Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
 Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');
 
+
+
 require __DIR__.'/auth.php';
