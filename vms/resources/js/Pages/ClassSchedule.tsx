@@ -1,6 +1,6 @@
 import React from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 interface ScheduleProps {
     schedules: any[]; // It seems like schedules should be an array
@@ -18,6 +18,15 @@ const Schedule = ({ schedules }: ScheduleProps) => {
                             <div className="p-6 text-gray-900">
                                 <h3 className="font-bold text-xl"></h3>
                                 <p>No schedules available.</p>
+                                {/* Create Schedule Button */}
+                                <div className="mt-4">
+                                    <Link
+                                        href={route('schedules.create')}
+                                        className="inline-flex items-center rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                                    >
+                                        Create Schedule
+                                    </Link>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -34,6 +43,15 @@ const Schedule = ({ schedules }: ScheduleProps) => {
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
                             <h3 className="font-bold text-xl">Class Schedule</h3>
+                            {/* Create Schedule Button */}
+                            <div className="mb-4">
+                                <Link
+                                    href={route('schedules.create')}
+                                    className="inline-flex items-center rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-700"
+                                >
+                                    Create Schedule
+                                </Link>
+                            </div>
                             <table className="min-w-full mt-4">
                                 <thead>
                                     <tr>

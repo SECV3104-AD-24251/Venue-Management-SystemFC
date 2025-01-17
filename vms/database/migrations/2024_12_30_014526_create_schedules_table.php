@@ -19,8 +19,6 @@ return new class extends Migration
             $table->time('time');
             $table->integer('duration'); // Duration in minutes
             $table->integer('capacity');
-            $table->foreignId('classroom_id')->constrained('classrooms')->onDelete('cascade'); // Link to classrooms
-            $table->foreignId('lecturer_id')->constrained('users')->onDelete('cascade'); // Link to lecturers
             $table->timestamps();
         });
     }

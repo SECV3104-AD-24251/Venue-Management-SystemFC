@@ -4,24 +4,31 @@ namespace App\Http\Controllers;
 
 use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class ScheduleController extends Controller
 {
-    public function store(Request $request)
-    {
-        $request->validate([
-            'subject' => 'required|string|max:255',
-            'section' => 'required|integer|min:1',
-            'day' => 'required|string|max:50',
-            'time' => 'required',
-            'duration' => 'required|integer|min:1',
-            'capacity' => 'required|integer|min:1',
-            'classroom_id' => 'required|exists:classrooms,id',
-            'lecturer_id' => 'required|exists:users,id',
-        ]);
+    public function create()
+{
+    return Inertia::render('Schedules/Create');
+}
 
-        Schedule::create($request->all());
+public function store(Request $request)
+{
+    $request->validate([
+        'class_name' => 'required|string|max:255',
+        'section' => 'required|string|max:50', // Validate section
+        'lecturer_name' => 'required|string|max:255',
+        'day' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday',
+        'start_time' => 'required|date_format:H:i',
+        'end_time' => 'required|date_format:H:i|after:start_time',
+        'venue_id' => 'required|exists:venues,id',
+    ]);
 
-        return response()->json(['message' => 'Schedule added successfully!'], 201);
-    }
+    $user = auth()->user();
+
+    Schedule::create($request->all());
+
+    return redirect()->route('schedules.index')->with('success', 'Schedule created successfully.');
+}
 }

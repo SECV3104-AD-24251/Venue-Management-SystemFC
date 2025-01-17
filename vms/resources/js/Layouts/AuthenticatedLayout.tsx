@@ -68,7 +68,7 @@ export default function Authenticated({
                                 {user.level === '1' && (
                                     <>
                                     
-                                    
+        
                                 <NavLink
                                     href={route('viewbooking')}
                                     active={route().current('viewbooking')}
@@ -83,11 +83,11 @@ export default function Authenticated({
                                     Class Schedule
                                 </NavLink>
                                 <NavLink
-        href={route('admin.maintenance.monitor')}
-        active={route().current('admin.maintenance.monitor')}
-    >
-        Maintenance Monitor
-    </NavLink>
+                                    href={route('admin.maintenance.monitor')}
+                                    active={route().current('admin.maintenance.monitor')}
+                                >
+                                Maintenance Monitor
+                                </NavLink>
                                 <NavLink
                                         href={route('venue.reports')}
                                         active={route().current('venue.reports')}
@@ -100,6 +100,7 @@ export default function Authenticated({
                                 {/* Role-based Class Schedule links */}
                                 {user.level === '2' && (
                                     <>
+                                    
                                     <NavLink
                                     href={route('booking')}
                                     active={route().current('booking')}

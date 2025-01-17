@@ -19,6 +19,26 @@ interface Props {
 
 export default function MaintenanceList({ maintenances }: Props) {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    
+    fetch('/refresh-csrf', {
+        method: 'GET',
+        credentials: 'include',
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
+            if (csrfMetaTag) {
+                csrfMetaTag.setAttribute('content', data.csrf_token);
+                console.log('CSRF token refreshed:', data.csrf_token);
+            } else {
+                console.error('CSRF token meta tag not found.');
+            }
+        })
+        .catch((error) => {
+            console.error('Failed to refresh CSRF token:', error);
+        });
+    
+    
 
     const [statuses, setStatuses] = useState(
         maintenances.reduce((acc, maintenance) => {
@@ -28,7 +48,7 @@ export default function MaintenanceList({ maintenances }: Props) {
     ); 
     
 
-    const handleStatusChange = async (maintenanceId: number, newStatus: string) => {
+    const handleStatusChange = async (maintenanceId: number, newStatus: string) => {       
         if (newStatus === 'completed') {
             const confirmed = window.confirm(
                 'Are you sure you want to mark this task as "completed"? Once marked, it cannot be changed.'
@@ -39,7 +59,7 @@ export default function MaintenanceList({ maintenances }: Props) {
         }
     
         try {
-            const response = await fetch(`/api/maintenance/${maintenanceId}`, {
+            const response = await fetch(`/api/maintenance/${maintenanceId}`, {              
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',

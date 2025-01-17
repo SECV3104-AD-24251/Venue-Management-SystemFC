@@ -8,7 +8,7 @@ use Inertia\Inertia;
 use App\Models\Venue;
 use App\Models\Booking;
 use App\Http\Controllers\BookingController;
-use App\Http\Controllers\ClassScheduleController;
+use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\MaintenanceController;
 
 Route::get('/venue-reports', function () {
@@ -44,6 +44,10 @@ Route::middleware('auth')->group(function () {
 Route::get('/schedules/add', function () {
     return Inertia::render('AddSchedule');
 })->name('schedules.add');
+
+Route::get('/refresh-csrf', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
 
 
 Route::get('/venue', function () {
@@ -106,6 +110,9 @@ Route::get('/viewbooking', [BookingController::class, 'index'])->name('viewbooki
 Route::middleware('auth')->group(function () {
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
 });
+
+Route::post('/schedules', [ScheduleController::class, 'store'])->name('schedules.store');
+Route::get('/schedules/create', [ScheduleController::class, 'create'])->name('schedules.create');
 
 
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
