@@ -10,10 +10,16 @@ use App\Models\Booking;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\MaintenanceController;
+use App\Http\Controllers\VenueReportController;
 
-Route::get('/venue-reports', function () {
+//Route::get('/venue-reports', [VenueReportController::class, 'index'])->name('venue-reports');
+
+Route::get('/venue-reports', [VenueReportController::class, 'index'])
+    ->name('venue-reports');
+
+/*Route::get('/venue-reports', function () {
     return Inertia::render('VenueReports'); // Match this with your React component name
-})->name('venue.reports');
+})->name('venue.reports');*/
 
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');

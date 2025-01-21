@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 import { Link } from '@inertiajs/react';
@@ -18,28 +18,27 @@ interface Props {
 }
 
 export default function MaintenanceList({ maintenances }: Props) {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    const [csrfToken, setCsrfToken] = useState<string | null>(document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || null);
     
-    fetch('/refresh-csrf', {
-        method: 'GET',
-        credentials: 'include',
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
-            if (csrfMetaTag) {
-                csrfMetaTag.setAttribute('content', data.csrf_token);
-                console.log('CSRF token refreshed:', data.csrf_token);
-            } else {
-                console.error('CSRF token meta tag not found.');
-            }
-        })
-        .catch((error) => {
-            console.error('Failed to refresh CSRF token:', error);
+    const refreshCsrfToken = async () => {
+        const response = await fetch('/refresh-csrf', {
+            method: 'GET',
+            credentials: 'include',
         });
-    
-    
+        const data = await response.json();
+        const csrfMetaTag = document.querySelector('meta[name="csrf-token"]');
+        if (csrfMetaTag) {
+            csrfMetaTag.setAttribute('content', data.csrf_token);
+            setCsrfToken(data.csrf_token); // Update state
+        }
+    };   
+    useEffect(() => {
+        refreshCsrfToken(); // Initial refresh on component mount
+        const interval = setInterval(refreshCsrfToken, 30 * 60 * 1000); // Refresh every 30 minutes
 
+        return () => clearInterval(interval); // Cleanup interval on component unmount
+    }, []);
+    
     const [statuses, setStatuses] = useState(
         maintenances.reduce((acc, maintenance) => {
             acc[maintenance.id] = maintenance.status;
@@ -48,7 +47,9 @@ export default function MaintenanceList({ maintenances }: Props) {
     ); 
     
 
-    const handleStatusChange = async (maintenanceId: number, newStatus: string) => {       
+    const handleStatusChange = async (maintenanceId: number, newStatus: string) => {  
+        await refreshCsrfToken();     
+        
         if (newStatus === 'completed') {
             const confirmed = window.confirm(
                 'Are you sure you want to mark this task as "completed"? Once marked, it cannot be changed.'
