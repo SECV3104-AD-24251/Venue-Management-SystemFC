@@ -1,17 +1,13 @@
-import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, router } from '@inertiajs/react';
-
-interface Venue {
-    name: string;
-}
+import { Head, Link, router } from '@inertiajs/react';
+import React, { useMemo, useState } from 'react';
 
 interface Booking {
     id: number;
     name: string;
     email: string;
     capacity: number;
-    venue: Venue | null;
+    venue: { name: string; location?: string; capacity?: number } | null;
     date: string;
     start_time: string;
     end_time: string;
@@ -22,107 +18,440 @@ interface ViewBookingProps {
     bookings: Booking[];
 }
 
-const ViewBooking: React.FC<ViewBookingProps> = ({ bookings }) => {
-    const [expandedRow, setExpandedRow] = useState<number | null>(null);
+type BookingFilter = 'all' | 'upcoming' | 'past';
 
-    const handleRowClick = (id: number) => {
-        setExpandedRow(expandedRow === id ? null : id);
+function Icon({
+    name,
+    className = 'h-5 w-5',
+}: {
+    name: 'booking' | 'check' | 'clock' | 'search' | 'calendar' | 'pin' | 'users' | 'edit' | 'delete' | 'download' | 'arrow' | 'info';
+    className?: string;
+}) {
+    const shared = {
+        className,
+        viewBox: '0 0 24 24',
+        fill: 'none',
+        stroke: 'currentColor',
+        strokeWidth: 1.8,
+        strokeLinecap: 'round' as const,
+        strokeLinejoin: 'round' as const,
+        'aria-hidden': true as const,
     };
 
-    // Delete Booking
+    switch (name) {
+        case 'booking':
+            return <svg {...shared}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18M8 15l2 2 5-5" /></svg>;
+        case 'check':
+            return <svg {...shared}><circle cx="12" cy="12" r="9" /><path d="m8 12 2.5 2.5L16 9" /></svg>;
+        case 'clock':
+            return <svg {...shared}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>;
+        case 'search':
+            return <svg {...shared}><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>;
+        case 'calendar':
+            return <svg {...shared}><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M16 3v4M8 3v4M3 10h18" /></svg>;
+        case 'pin':
+            return <svg {...shared}><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>;
+        case 'users':
+            return <svg {...shared}><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M10 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM20 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
+        case 'edit':
+            return <svg {...shared}><path d="M12 20h9" /><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z" /></svg>;
+        case 'delete':
+            return <svg {...shared}><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6M10 11v5M14 11v5" /></svg>;
+        case 'download':
+            return <svg {...shared}><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" /></svg>;
+        case 'arrow':
+            return <svg {...shared}><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
+        case 'info':
+            return <svg {...shared}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>;
+    }
+}
+
+function getBookingEnd(booking: Booking): Date {
+    return new Date(`${booking.date}T${booking.end_time}`);
+}
+
+function isUpcoming(booking: Booking, now: Date): boolean {
+    const end = getBookingEnd(booking);
+    return !Number.isNaN(end.getTime()) && end >= now;
+}
+
+function formatDate(date: string): string {
+    const parsed = new Date(`${date}T00:00:00`);
+    return Number.isNaN(parsed.getTime())
+        ? date
+        : new Intl.DateTimeFormat('en', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+          }).format(parsed);
+}
+
+function formatTime(time: string): string {
+    const [hour, minute] = time.split(':').map(Number);
+    if (!Number.isFinite(hour) || !Number.isFinite(minute)) return time;
+    const parsed = new Date();
+    parsed.setHours(hour, minute, 0, 0);
+    return new Intl.DateTimeFormat('en', { hour: 'numeric', minute: '2-digit' }).format(parsed);
+}
+
+function durationMinutes(booking: Booking): number {
+    const [startHour, startMinute] = booking.start_time.split(':').map(Number);
+    const [endHour, endMinute] = booking.end_time.split(':').map(Number);
+    if (![startHour, startMinute, endHour, endMinute].every(Number.isFinite)) return 0;
+    return Math.max(0, endHour * 60 + endMinute - (startHour * 60 + startMinute));
+}
+
+function SummaryCard({
+    label,
+    value,
+    detail,
+    icon,
+    tone,
+}: {
+    label: string;
+    value: string | number;
+    detail: string;
+    icon: 'booking' | 'check' | 'clock';
+    tone: string;
+}) {
+    return (
+        <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+            <div className="flex items-center justify-between gap-3">
+                <p className="text-xs font-semibold uppercase tracking-[0.1em] text-slate-500">{label}</p>
+                <span className={`flex h-9 w-9 items-center justify-center rounded-xl ${tone}`}>
+                    <Icon name={icon} className="h-[18px] w-[18px]" />
+                </span>
+            </div>
+            <p className="mt-3 text-2xl font-bold tracking-tight text-slate-900">{value}</p>
+            <p className="mt-1 text-xs text-slate-500">{detail}</p>
+        </section>
+    );
+}
+
+const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
+    const [expandedBooking, setExpandedBooking] = useState<number | null>(null);
+    const [filter, setFilter] = useState<BookingFilter>('all');
+    const [search, setSearch] = useState('');
+    const now = new Date();
+
+    const upcomingCount = bookings.filter((booking) => isUpcoming(booking, now)).length;
+    const pastCount = bookings.length - upcomingCount;
+    const totalHours = bookings.reduce((total, booking) => total + durationMinutes(booking), 0) / 60;
+
+    const filteredBookings = useMemo(() => {
+        const query = search.trim().toLowerCase();
+        return bookings.filter((booking) => {
+            const matchesFilter =
+                filter === 'all' ||
+                (filter === 'upcoming' && isUpcoming(booking, now)) ||
+                (filter === 'past' && !isUpcoming(booking, now));
+            const matchesSearch =
+                query.length === 0 ||
+                booking.venue?.name.toLowerCase().includes(query) ||
+                booking.name.toLowerCase().includes(query) ||
+                booking.email.toLowerCase().includes(query) ||
+                booking.comments?.toLowerCase().includes(query) ||
+                String(booking.id).includes(query);
+            return matchesFilter && matchesSearch;
+        });
+    }, [bookings, filter, now, search]);
+
     const handleDelete = (id: number) => {
-        if (confirm('Are you sure you want to delete this booking?')) {
-            router.delete(`/bookings/${id}`, {
-                onSuccess: () => alert('Booking deleted successfully!'),
-                onError: (errors) => alert('Error deleting booking'),
-            });
+        if (window.confirm('Are you sure you want to delete this booking?')) {
+            router.delete(`/bookings/${id}`);
         }
     };
 
-    return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    View Booking
-                </h2>
-            }
-        >
-            <Head title="ViewBooking" />
+    const exportBookings = () => {
+        const escapeCsv = (value: string | number) => `"${String(value).replace(/"/g, '""')}"`;
+        const rows = [
+            ['Booking ID', 'Venue', 'Date', 'Start time', 'End time', 'Capacity', 'Name', 'Email', 'Comments'],
+            ...filteredBookings.map((booking) => [
+                booking.id,
+                booking.venue?.name || 'No venue',
+                booking.date,
+                booking.start_time,
+                booking.end_time,
+                booking.capacity,
+                booking.name,
+                booking.email,
+                booking.comments || '',
+            ]),
+        ];
+        const csv = rows.map((row) => row.map(escapeCsv).join(',')).join('\r\n');
+        const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        downloadLink.download = 'my-bookings.csv';
+        downloadLink.click();
+        URL.revokeObjectURL(url);
+    };
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            {bookings.length === 0 ? (
-                                <div className="text-red-500">No bookings found.</div>
-                            ) : (
-                                <div>
-                                    <table className="min-w-full table-auto border-collapse">
-                                        <thead>
-                                            <tr>
-                                                <th className="border-b px-4 py-2">Venue</th>
-                                                <th className="border-b px-4 py-2">Date</th>
-                                                <th className="border-b px-4 py-2">Start Time</th>
-                                                <th className="border-b px-4 py-2">End Time</th>
-                                                <th className="border-b px-4 py-2">Capacity</th>
-                                                <th className="border-b px-4 py-2">Actions</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {bookings.map((booking) => (
-                                                <React.Fragment key={booking.id}>
-                                                    <tr
-                                                        onClick={() => handleRowClick(booking.id)}
-                                                        className="cursor-pointer hover:bg-gray-100"
-                                                    >
-                                                        <td className="text-center border-b px-4 py-2">{booking.venue?.name || 'No venue'}</td>
-                                                        <td className="text-center border-b px-4 py-2">{booking.date}</td>
-                                                        <td className="text-center border-b px-4 py-2">{booking.start_time}</td>
-                                                        <td className="text-center border-b px-4 py-2">{booking.end_time}</td>
-                                                        <td className="text-center border-b px-4 py-2">{booking.capacity}</td>
-                                                        <td className="text-center border-b px-4 py-2">
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    router.visit(`/bookings/${booking.id}/edit`); // Navigate to the edit page
-                                                                }}
-                                                                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-700"
-                                                            >
-                                                                Modify
-                                                            </button>
-                                                            <button
-                                                                onClick={(e) => {
-                                                                    e.stopPropagation();
-                                                                    handleDelete(booking.id);
-                                                                }}
-                                                                className="ml-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-700"
-                                                            >
-                                                                Delete
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                    {expandedRow === booking.id && (
-                                                        <tr>
-                                                            <td colSpan={6} className="border-b px-4 py-2">
-                                                                <div>
-                                                                    <p><strong>Name:</strong> {booking.name}</p>
-                                                                    <p><strong>Email:</strong> {booking.email}</p>
-                                                                    <p><strong>Comments:</strong> {booking.comments || 'No comments'}</p>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    )}
-                                                </React.Fragment>
-                                            ))}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            )}
-                        </div>
+    const tabs: Array<{ key: BookingFilter; label: string; count: number }> = [
+        { key: 'all', label: 'All bookings', count: bookings.length },
+        { key: 'upcoming', label: 'Upcoming', count: upcomingCount },
+        { key: 'past', label: 'Past', count: pastCount },
+    ];
+
+    return (
+        <AuthenticatedLayout>
+            <Head title="My Bookings" />
+            <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8 xl:px-8">
+                <section className="flex flex-col justify-between gap-4 border-b border-slate-200/80 pb-5 md:flex-row md:items-end">
+                    <div>
+                        <nav aria-label="Breadcrumb" className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
+                            <Link href={route('dashboard')} className="transition hover:text-blue-700">Dashboard</Link>
+                            <span aria-hidden="true">/</span>
+                            <span aria-current="page" className="font-semibold text-slate-800">My bookings</span>
+                        </nav>
+                        <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+                            My Venue Bookings
+                        </h1>
+                        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+                            Review your reservations, check session details, and manage upcoming bookings.
+                        </p>
                     </div>
-                </div>
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            type="button"
+                            onClick={exportBookings}
+                            disabled={filteredBookings.length === 0}
+                            className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                            <Icon name="download" className="h-4 w-4" />
+                            Export list
+                        </button>
+                        <Link
+                            href={route('booking')}
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+                        >
+                            Book a venue
+                            <Icon name="arrow" className="h-4 w-4" />
+                        </Link>
+                    </div>
+                </section>
+
+                <section aria-label="Booking summary" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <SummaryCard
+                        label="Total bookings"
+                        value={bookings.length}
+                        detail="Reservations in your history"
+                        icon="booking"
+                        tone="bg-blue-50 text-blue-700"
+                    />
+                    <SummaryCard
+                        label="Upcoming"
+                        value={upcomingCount}
+                        detail="Sessions not yet ended"
+                        icon="clock"
+                        tone="bg-emerald-50 text-emerald-700"
+                    />
+                    <SummaryCard
+                        label="Past sessions"
+                        value={pastCount}
+                        detail="Sessions that have ended"
+                        icon="check"
+                        tone="bg-slate-100 text-slate-700"
+                    />
+                    <SummaryCard
+                        label="Allocated time"
+                        value={`${totalHours.toLocaleString(undefined, { maximumFractionDigits: 1 })}h`}
+                        detail="Total duration of your reservations"
+                        icon="clock"
+                        tone="bg-violet-50 text-violet-700"
+                    />
+                </section>
+
+                <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
+                    <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-4">
+                        {tabs.map((tab) => (
+                            <button
+                                key={tab.key}
+                                type="button"
+                                aria-pressed={filter === tab.key}
+                                onClick={() => setFilter(tab.key)}
+                                className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
+                                    filter === tab.key
+                                        ? 'bg-blue-700 text-white shadow-sm'
+                                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                }`}
+                            >
+                                {tab.label}
+                                <span className={`rounded-full px-1.5 py-0.5 text-xs ${
+                                    filter === tab.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                                }`}>
+                                    {tab.count}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                    <div className="mt-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+                        <div>
+                            <h2 className="text-base font-bold text-slate-900">Reservation list</h2>
+                            <p className="mt-0.5 text-xs text-slate-500">
+                                Showing {filteredBookings.length} of {bookings.length} bookings
+                            </p>
+                        </div>
+                        <label className="relative block w-full sm:max-w-sm">
+                            <span className="sr-only">Search bookings</span>
+                            <Icon name="search" className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                            <input
+                                type="search"
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder="Search venue, name, email, or ID"
+                                className="w-full rounded-xl border-slate-200 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-800 shadow-sm placeholder:text-slate-400 focus:border-blue-500 focus:ring-blue-500"
+                            />
+                        </label>
+                    </div>
+                </section>
+
+                {filteredBookings.length === 0 ? (
+                    <section className="rounded-2xl border border-slate-200/80 bg-white px-5 py-14 text-center shadow-sm">
+                        <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-slate-100 text-slate-500">
+                            <Icon name="booking" />
+                        </span>
+                        <h2 className="mt-4 text-base font-bold text-slate-900">
+                            {bookings.length === 0 ? 'No bookings yet' : 'No bookings match your search'}
+                        </h2>
+                        <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
+                            {bookings.length === 0
+                                ? 'When you submit a venue booking, it will appear here.'
+                                : 'Try another search or switch to a different booking tab.'}
+                        </p>
+                        {bookings.length === 0 && (
+                            <Link
+                                href={route('booking')}
+                                className="mt-5 inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-blue-800"
+                            >
+                                Book a venue
+                                <Icon name="arrow" className="h-4 w-4" />
+                            </Link>
+                        )}
+                    </section>
+                ) : (
+                    <section aria-label="Reservations" className="flex flex-col gap-4">
+                        {filteredBookings.map((booking) => {
+                            const upcoming = isUpcoming(booking, now);
+                            const expanded = expandedBooking === booking.id;
+                            const minutes = durationMinutes(booking);
+                            const duration = minutes > 0
+                                ? `${Math.floor(minutes / 60)}h${minutes % 60 ? ` ${minutes % 60}m` : ''}`
+                                : '—';
+
+                            return (
+                                <article
+                                    key={booking.id}
+                                    className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm transition hover:shadow-md"
+                                >
+                                    <div className="flex flex-col gap-4 p-5 sm:p-6">
+                                        <div className="flex flex-wrap items-center justify-between gap-3">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-semibold text-slate-600">
+                                                    Booking #{booking.id}
+                                                </span>
+                                                <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-semibold ${
+                                                    upcoming
+                                                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                                        : 'border-slate-200 bg-slate-100 text-slate-600'
+                                                }`}>
+                                                    <span className={`h-1.5 w-1.5 rounded-full ${upcoming ? 'bg-emerald-600' : 'bg-slate-400'}`} />
+                                                    {upcoming ? 'Upcoming' : 'Past'}
+                                                </span>
+                                            </div>
+                                            <button
+                                                type="button"
+                                                onClick={() => setExpandedBooking(expanded ? null : booking.id)}
+                                                aria-expanded={expanded}
+                                                className="text-xs font-semibold text-blue-700 hover:text-blue-900"
+                                            >
+                                                {expanded ? 'Hide details' : 'View details'}
+                                            </button>
+                                        </div>
+
+                                        <div className="grid grid-cols-1 items-center gap-4 md:grid-cols-12">
+                                            <div className="space-y-2 md:col-span-7">
+                                                <h3 className="text-lg font-bold tracking-tight text-slate-900">
+                                                    {booking.venue?.name || 'No venue'}
+                                                </h3>
+                                                <p className="flex items-center gap-1.5 text-sm text-slate-500">
+                                                    <Icon name="pin" className="h-4 w-4 shrink-0 text-slate-400" />
+                                                    {booking.venue?.location || 'Venue location unavailable'}
+                                                </p>
+                                                <p className="flex items-center gap-1.5 text-sm text-slate-600">
+                                                    <Icon name="users" className="h-4 w-4 shrink-0 text-slate-400" />
+                                                    Requested capacity: <strong className="text-slate-800">{booking.capacity} people</strong>
+                                                </p>
+                                            </div>
+
+                                            <div className="space-y-1.5 rounded-xl border border-slate-200 bg-slate-50 p-4 md:col-span-5">
+                                                <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-slate-500">
+                                                    <span className="inline-flex items-center gap-1.5">
+                                                        <Icon name="calendar" className="h-4 w-4 text-blue-700" />
+                                                        {formatDate(booking.date)}
+                                                    </span>
+                                                    <span className="font-semibold text-slate-700">{duration} session</span>
+                                                </div>
+                                                <p className="text-lg font-bold tracking-tight text-slate-900">
+                                                    {formatTime(booking.start_time)} – {formatTime(booking.end_time)}
+                                                </p>
+                                                <div className="flex flex-wrap items-center justify-between gap-1 border-t border-slate-200 pt-2 text-xs text-slate-500">
+                                                    <span>Booked by <strong className="text-slate-700">{booking.name}</strong></span>
+                                                    <span>#{booking.id}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {expanded && (
+                                            <div className="grid grid-cols-1 gap-3 rounded-xl border border-slate-100 bg-slate-50/70 p-4 sm:grid-cols-2">
+                                                <div>
+                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Requester</p>
+                                                    <p className="mt-1 text-sm font-medium text-slate-800">{booking.name}</p>
+                                                    <p className="mt-0.5 break-all text-xs text-slate-500">{booking.email}</p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Comments</p>
+                                                    <p className="mt-1 text-sm leading-5 text-slate-700">
+                                                        {booking.comments || 'No comments provided.'}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="flex flex-col justify-between gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center">
+                                            <p className="flex items-start gap-2 text-xs leading-5 text-slate-500">
+                                                <Icon name="info" className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" />
+                                                Modify or delete this reservation using the actions.
+                                            </p>
+                                            <div className="flex flex-wrap items-center gap-2 sm:justify-end">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => router.visit(`/bookings/${booking.id}/edit`)}
+                                                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                                >
+                                                    <Icon name="edit" className="h-4 w-4" />
+                                                    Modify
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleDelete(booking.id)}
+                                                    className="inline-flex items-center gap-1.5 rounded-xl border border-rose-200 bg-white px-3.5 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50"
+                                                >
+                                                    <Icon name="delete" className="h-4 w-4" />
+                                                    Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </section>
+                )}
             </div>
         </AuthenticatedLayout>
     );
-}
+};
+
 export default ViewBooking;
