@@ -1,9 +1,11 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ClassScheduleController;
+use App\Http\Controllers\LecturerController;
 use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\VenueController;
 use App\Http\Controllers\VenueReportController;
 use App\Models\Venue;
@@ -29,7 +31,7 @@ Route::middleware(['auth', 'role:lecturer'])->group(function () {
 });
 
 Route::middleware(['auth', 'role:staff'])->group(function () {
-    Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
+    // Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
 });
 
 Route::middleware('auth')->group(function () {
@@ -44,8 +46,8 @@ Route::middleware('auth')->group(function () {
     Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
     Route::put('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus']);
     Route::get('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus']);
-
 });
+
 Route::get('/schedules/add', function () {
     return Inertia::render('AddSchedule');
 })->name('schedules.add');
@@ -74,6 +76,15 @@ Route::get('/class', function () {
     return Inertia::render('ClassSchedule');
 })->name('schedule');
 
+Route::get('/', function () {
+    return Inertia::render('Welcome', [
+        'canLogin' => Route::has('login'),
+        'canRegister' => Route::has('register'),
+        'laravelVersion' => Application::VERSION,
+        'phpVersion' => PHP_VERSION,
+    ]);
+});
+
 // route to count of total rooms
 Route::get('/api/rooms/count', function () {
     return response()->json([
@@ -92,40 +103,27 @@ Route::get('/api/bookings/count', function () {
 //schedule
 Route::get('/schedule', [ClassScheduleController::class, 'index']);
 
-Route::post('/classroom-suggestions', [BookingController::class, 'getSuggestions']);
-
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
-
-Route::post('/venues/status', [VenueController::class, 'checkVenueStatus']);
-
-Route::get('/api/venues', [VenueController::class, 'index']);
-
-Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show');
-
-Route::get('/viewbooking', [BookingController::class, 'index'])->name('viewbooking');
-
-// Routes for bookings
 Route::middleware('auth')->group(function () {
+    Route::post('/classroom-suggestions', [BookingController::class, 'getSuggestions']);
+
+    Route::post('/venues/status', [VenueController::class, 'checkVenueStatus']);
+
+    Route::get('/api/venues', [VenueController::class, 'index']);
+
+    Route::get('/venues/{id}', [VenueController::class, 'show'])->name('venues.show');
+
+    Route::get('/viewbooking', [BookingController::class, 'index'])->name('viewbooking');
+
+    // Routes for bookings
     Route::get('/bookings', [BookingController::class, 'index'])->name('bookings.index');
+    Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
+    Route::post('/api/bookings/check-time', [BookingController::class, 'checkTime']);
+    Route::delete('/bookings/{id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
+    Route::post('/api/venues/check-availability', [VenueController::class, 'checkAvailability']);
+    Route::get('/bookings/{id}/edit', [BookingController::class, 'edit'])->name('bookings.edit');
+    Route::patch('/bookings/{id}', [BookingController::class, 'update'])->name('bookings.update');
+    Route::get('/api/notifications', [BookingController::class, 'getNotifications']);
 });
-
-Route::post('/schedules', [ScheduleController::class, 'store'])->name('schedules.store');
-Route::get('/schedules/create', [ScheduleController::class, 'create'])->name('schedules.create');
-
-Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
-
-Route::post('/api/bookings/check-time', [BookingController::class, 'checkTime']);
-
-Route::delete('/bookings/{id}', [BookingController::class, 'destroy'])->name('bookings.destroy');
-
-Route::post('/api/venues/check-availability', [VenueController::class, 'checkAvailability']);
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
@@ -137,15 +135,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-//editing bookings
-Route::get('/bookings/{id}/edit', [BookingController::class, 'edit'])->name('bookings.edit');
-Route::patch('/bookings/{id}', [BookingController::class, 'update'])->name('bookings.update');
-
 Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'show']);
 Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
 Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
 
-Route::get('/api/notifications', [BookingController::class, 'getNotifications']);
 Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
 Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');
 

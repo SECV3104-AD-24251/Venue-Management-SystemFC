@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
-use App\Models\ClassSchedule;
 use App\Models\Venue;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +14,8 @@ class BookingController extends Controller
     // Display all bookings with venue details
     public function index()
     {
+        $this->authorize('viewAny', Booking::class);
+
         $bookings = Booking::with('venue')
             ->where('user_id', Auth::id()) // Filter by authenticated user
             ->get();
@@ -46,6 +47,8 @@ class BookingController extends Controller
     // Store a new booking in the database
     public function store(Request $request)
     {
+        $this->authorize('create', Booking::class);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -54,24 +57,12 @@ class BookingController extends Controller
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i|after:start_time',
-            'equipment' => 'nullable|array',
-            'equipment.*' => 'string|in:projector,soundSystem,whiteboard',
+            'comments' => 'nullable|string',
         ]);
 
         // Check for booking conflicts
         $conflictingBookings = Booking::conflicts($request->venue_id, $request->date, $request->start_time, $request->end_time)
             ->get();
-
-        // Check for equipment conflicts
-        foreach ($conflictingBookings as $booking) {
-            if (array_intersect($booking->equipment ?? [], $request->equipment ?? [])) {
-                if ($request->wantsJson()) {
-                    return response()->json(['success' => false, 'message' => 'Equipment conflict detected']);
-                }
-
-                return redirect()->back()->withErrors(['equipment' => 'Equipment conflict detected.']);
-            }
-        }
 
         // Create the booking
         Booking::create([
@@ -82,7 +73,6 @@ class BookingController extends Controller
             'date' => $request->date,
             'start_time' => $request->start_time,
             'end_time' => $request->end_time,
-            'equipment' => $request->equipment,
             'comments' => $request->comments,
             'user_id' => Auth::id(),
         ]);
@@ -99,6 +89,8 @@ class BookingController extends Controller
     // Check for time conflicts in venue bookings
     public function checkTime(Request $request)
     {
+        $this->authorize('create', Booking::class);
+
         $request->validate([
             'venue_id' => 'required|exists:venues,id',
             'date' => 'required|date',
@@ -128,6 +120,8 @@ class BookingController extends Controller
     {
         $booking = Booking::findOrFail($id);
 
+        $this->authorize('delete', $booking);
+
         try {
             $booking->delete();
 
@@ -151,6 +145,9 @@ class BookingController extends Controller
     public function edit($id)
     {
         $booking = Booking::with('venue')->findOrFail($id);
+
+        $this->authorize('view', $booking);
+
         $venues = Venue::all(); // Get all venues
 
         return Inertia::render('EditBooking', [
@@ -163,6 +160,8 @@ class BookingController extends Controller
     public function update(Request $request, $id): RedirectResponse
     {
         $booking = Booking::findOrFail($id);
+
+        $this->authorize('update', $booking);
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -196,6 +195,13 @@ class BookingController extends Controller
             ->whereDoesntHave('bookings', function ($query) use ($validated) {
                 $query->where('date', $validated['date'])
                     ->whereBetween('time', [$validated['startTime'], $validated['endTime']]);
+            })
+            ->whereDoesntHave('maintenances', function ($query) use ($validated) {
+                $query->where('scheduled_for_date', $validated['date'])
+                    ->where(function ($query) use ($validated) {
+                        $query->whereNull('scheduled_for_time')
+                            ->orWhereBetween('scheduled_for_time', [$validated['startTime'], $validated['endTime']]);
+                    });
             })
             ->where(function ($query) use ($validated) {
                 foreach ($validated['equipment'] as $equipment) {

@@ -10,17 +10,27 @@ class Schedule extends Model
     use HasFactory;
 
     protected $fillable = [
-        'class_name',
+        'subject',
         'section',
-        'lecturer_name',
         'day',
+        'time',
+        'duration',
+        'capacity',
+        'lecturer_id',
+        'venue_id',
+        'class_name',
+        'lecturer_name',
         'start_time',
         'end_time',
-        'venue_id',
     ];
 
     public function lecturer()
     {
         return $this->belongsTo(User::class, 'lecturer_id');
+    }
+
+    public function venue()
+    {
+        return $this->belongsTo(Venue::class, 'venue_id');
     }
 }

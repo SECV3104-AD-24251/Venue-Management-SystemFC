@@ -5,14 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Venue;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class VenueController extends Controller
 {
     public function index()
     {
-        $venues = Venue::all();
-        (['id', 'name', 'location', 'capacity', 'status']); // Fetch all venues from the database
+        $venues = Venue::all(['id', 'name', 'location', 'capacity', 'status']); // Fetch all venues from the database
 
         return response()->json($venues);
     }
@@ -87,31 +85,5 @@ class VenueController extends Controller
         }
 
         return response()->json($availableVenues);
-    }
-
-    public function getVenues()
-    {
-        $venues = DB::table('venues')
-            ->leftJoin('bookings', 'venues.id', '=', 'bookings.venue_id')
-            ->select('venues.name', DB::raw('COUNT(bookings.id) as bookings'))
-            ->groupBy('venues.id', 'venues.name')
-            ->orderBy('bookings', 'desc')
-            ->get();
-
-        return response()->json($venues);
-    }
-
-    public function getAvailableVenues()
-    {
-        try {
-            // Fetch the count of available venues
-            $availableVenuesCount = Venue::where('status', 'available')->count();
-
-            // Return the count as JSON
-            return response()->json(['availableVenues' => $availableVenuesCount]);
-        } catch (\Exception $e) {
-            // Handle any errors
-            return response()->json(['error' => 'Failed to fetch available venues'], 500);
-        }
     }
 }

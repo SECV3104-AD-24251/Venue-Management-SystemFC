@@ -4,17 +4,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ClassSchedule;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 
 class ClassScheduleController extends Controller
 {
     public function index()
     {
-        // Fetch all class schedules from the database
-        $schedules = ClassSchedule::with('venue')->get();
-        \Log::info($schedules);
+        $schedules = Schedule::with('venue')->get();
+        Log::info($schedules);
 
         return Inertia::render('ClassSchedule', [
             'schedules' => $schedules,
@@ -32,7 +32,7 @@ class ClassScheduleController extends Controller
             'end_time' => 'required|date_format:H:i|after:start_time',
         ]);
 
-        ClassSchedule::create($validated);
+        Schedule::create($validated);
 
         return redirect()->route('classSchedules.index')->with('success', 'Class schedule added successfully!');
     }

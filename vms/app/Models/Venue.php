@@ -26,4 +26,9 @@ class Venue extends Model
     {
         return $this->hasMany(Maintenance::class);
     }
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 }
