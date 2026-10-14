@@ -21,6 +21,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Booking::class);
     }
+
     protected $fillable = [
         'name',
         'email',
@@ -50,6 +51,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
     // app/Models/User.php
     public function getRoleAttribute(): string
     {
@@ -71,5 +73,4 @@ class User extends Authenticatable
 
         return isset($roles[$role]) && $this->level <= $roles[$role];
     }
-
 }

@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Booking;
-use Illuminate\Http\Request;
-
 class LecturerController extends Controller
 {
     public function index()
@@ -26,4 +23,3 @@ class LecturerController extends Controller
         return view('lecturer.schedule', compact('schedule'));
     }
 }
-

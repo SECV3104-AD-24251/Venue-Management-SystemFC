@@ -1,11 +1,10 @@
 <?php
 
-use App\Http\Controllers\VenueController;
-use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\VenueController;
 use App\Http\Controllers\VenueReportController;
-use App\Models\User;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/reports/venue', [VenueReportController::class, 'index']);
 
@@ -34,4 +33,3 @@ Route::get('/notifications', function () {
         ],
     ]);
 });
-

@@ -18,9 +18,9 @@ class Schedule extends Model
         'end_time',
         'venue_id',
     ];
-    
+
     public function lecturer()
-{
-    return $this->belongsTo(User::class, 'lecturer_id');
-}
+    {
+        return $this->belongsTo(User::class, 'lecturer_id');
+    }
 }

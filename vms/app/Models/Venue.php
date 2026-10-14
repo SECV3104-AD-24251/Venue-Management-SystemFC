@@ -10,20 +10,20 @@ class Venue extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 
-        'location', 
-        'capacity', 
+        'name',
+        'location',
+        'capacity',
         'status',
 
     ];
+
     protected $casts = [
         'info' => 'array',
         'equipment' => 'array',
     ];
-    public function maintenances()
-{
-    return $this->hasMany(Maintenance::class);
-}
-    
 
+    public function maintenances()
+    {
+        return $this->hasMany(Maintenance::class);
+    }
 }

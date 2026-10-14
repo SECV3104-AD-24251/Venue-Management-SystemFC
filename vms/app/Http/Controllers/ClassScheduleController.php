@@ -15,8 +15,9 @@ class ClassScheduleController extends Controller
         // Fetch all class schedules from the database
         $schedules = ClassSchedule::with('venue')->get();
         \Log::info($schedules);
+
         return Inertia::render('ClassSchedule', [
-            'schedules' => $schedules
+            'schedules' => $schedules,
         ]);
     }
 

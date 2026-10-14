@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Booking;
-use Illuminate\Http\Request;
+use App\Models\User;
 
 class AdminController extends Controller
 {

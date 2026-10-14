@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
-use Illuminate\Http\Request;
-use Illuminate\Http\RedirectResponse;
 use App\Models\Booking;
 use App\Models\ClassSchedule;
 use App\Models\Venue;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use Inertia\Inertia;
 
 class BookingController extends Controller
 {
@@ -17,8 +16,8 @@ class BookingController extends Controller
     public function index()
     {
         $bookings = Booking::with('venue')
-        ->where('user_id', Auth::id()) // Filter by authenticated user
-        ->get();
+            ->where('user_id', Auth::id()) // Filter by authenticated user
+            ->get();
 
         return Inertia::render('ViewBooking', [
             'bookings' => $bookings,
@@ -60,12 +59,7 @@ class BookingController extends Controller
         ]);
 
         // Check for booking conflicts
-        $conflictingBookings = Booking::where('venue_id', $request->venue_id)
-            ->where('date', $request->date)
-            ->where(function ($query) use ($request) {
-                $query->whereBetween('start_time', [$request->start_time, $request->end_time])
-                    ->orWhereBetween('end_time', [$request->start_time, $request->end_time]);
-            })
+        $conflictingBookings = Booking::conflicts($request->venue_id, $request->date, $request->start_time, $request->end_time)
             ->get();
 
         // Check for equipment conflicts
@@ -74,6 +68,7 @@ class BookingController extends Controller
                 if ($request->wantsJson()) {
                     return response()->json(['success' => false, 'message' => 'Equipment conflict detected']);
                 }
+
                 return redirect()->back()->withErrors(['equipment' => 'Equipment conflict detected.']);
             }
         }
@@ -116,21 +111,12 @@ class BookingController extends Controller
         $start_time = $request->start_time;
         $end_time = $request->end_time;
 
-        $conflictingBookings = Booking::where('venue_id', $venue_id)
-            ->where('date', $date)
-            ->where(function ($query) use ($start_time, $end_time) {
-                $query->whereBetween('start_time', [$start_time, $end_time])
-                    ->orWhereBetween('end_time', [$start_time, $end_time])
-                    ->orWhere(function ($query) use ($start_time, $end_time) {
-                        $query->where('start_time', '<=', $start_time)
-                            ->where('end_time', '>=', $end_time);
-                    });
-            })
+        $conflictingBookings = Booking::conflicts($venue_id, $date, $start_time, $end_time)
             ->exists();
 
         // Return JSON for API requests
         if ($request->wantsJson()) {
-            return response()->json(['success' => !$conflictingBookings]);
+            return response()->json(['success' => ! $conflictingBookings]);
         }
 
         // Handle Inertia requests gracefully (optional if Inertia isn't needed here)
@@ -144,6 +130,7 @@ class BookingController extends Controller
 
         try {
             $booking->delete();
+
             return redirect()->back()->with('success', 'Booking deleted successfully!');
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to delete booking.');

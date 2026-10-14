@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
- 
     public function up()
     {
         Schema::create('venues', function (Blueprint $table) {
@@ -17,7 +16,7 @@ return new class extends Migration
             $table->string('status')->default('Available');
             $table->timestamps();
         });
-        
+
     }
 
     public function down(): void

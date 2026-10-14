@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('info2')->nullable();
             $table->string('info3')->nullable();
             $table->string('info4')->nullable();
-        });;
+        });
     }
 
     /**

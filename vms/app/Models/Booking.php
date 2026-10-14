@@ -1,5 +1,5 @@
 <?php
- 
+
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -30,8 +30,17 @@ class Booking extends Model
     {
         return $this->belongsTo(Venue::class, 'venue_id');
     }
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function scopeConflicts($query, $venueId, $date, $startTime, $endTime)
+    {
+        return $query->where('venue_id', $venueId)
+            ->where('date', $date)
+            ->where('start_time', '<', $endTime)
+            ->where('end_time', '>', $startTime);
     }
 }

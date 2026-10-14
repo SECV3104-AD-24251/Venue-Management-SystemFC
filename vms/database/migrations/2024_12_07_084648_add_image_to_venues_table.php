@@ -7,16 +7,16 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     public function up()
-{
-    Schema::table('venues', function (Blueprint $table) {
-        $table->string('image')->nullable(); // Image URL or file path
-    });
-}
+    {
+        Schema::table('venues', function (Blueprint $table) {
+            $table->string('image')->nullable(); // Image URL or file path
+        });
+    }
 
-public function down()
-{
-    Schema::table('venues', function (Blueprint $table) {
-        $table->dropColumn('image');
-    });
-}
+    public function down()
+    {
+        Schema::table('venues', function (Blueprint $table) {
+            $table->dropColumn('image');
+        });
+    }
 };

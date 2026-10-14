@@ -1,16 +1,15 @@
 <?php
-use App\Http\Controllers\VenueController;
+
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\VenueController;
+use App\Http\Controllers\VenueReportController;
+use App\Models\Venue;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
-use App\Models\Venue;
-use App\Models\Booking;
-use App\Http\Controllers\BookingController;
-use App\Http\Controllers\ScheduleController;
-use App\Http\Controllers\MaintenanceController;
-use App\Http\Controllers\VenueReportController;
 
 //Route::get('/venue-reports', [VenueReportController::class, 'index'])->name('venue-reports');
 
@@ -55,7 +54,6 @@ Route::get('/refresh-csrf', function () {
     return response()->json(['csrf_token' => csrf_token()]);
 });
 
-
 Route::get('/venue', function () {
     return Inertia::render('Venue');
 })->name('venue');
@@ -87,6 +85,7 @@ Route::get('/api/rooms/count', function () {
 Route::get('/api/bookings/count', function () {
     $totalBookings = App\Models\Booking::count();
     \Log::info('Total bookings count:', ['count' => $totalBookings]); // Log for debugging
+
     return response()->json(['totalBookings' => $totalBookings]);
 });
 
@@ -120,7 +119,6 @@ Route::middleware('auth')->group(function () {
 Route::post('/schedules', [ScheduleController::class, 'store'])->name('schedules.store');
 Route::get('/schedules/create', [ScheduleController::class, 'create'])->name('schedules.create');
 
-
 Route::post('/bookings', [BookingController::class, 'store'])->name('bookings.store');
 
 Route::post('/api/bookings/check-time', [BookingController::class, 'checkTime']);
@@ -132,7 +130,6 @@ Route::post('/api/venues/check-availability', [VenueController::class, 'checkAva
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -151,7 +148,5 @@ Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus
 Route::get('/api/notifications', [BookingController::class, 'getNotifications']);
 Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
 Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');
-
-
 
 require __DIR__.'/auth.php';
