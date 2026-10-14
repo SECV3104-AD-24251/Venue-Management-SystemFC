@@ -30,10 +30,6 @@ Route::middleware(['auth', 'role:lecturer'])->group(function () {
     Route::get('/lecturer', [LecturerController::class, 'index'])->name('lecturer.index');
 });
 
-Route::middleware(['auth', 'role:staff'])->group(function () {
-    // Route::get('/staff', [StaffController::class, 'index'])->name('staff.index');
-});
-
 Route::middleware('auth')->group(function () {
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');
     Route::get('/maintenance/create', [MaintenanceController::class, 'create'])->name('maintenance.create');
@@ -41,11 +37,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('maintenance.show');
     Route::post('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus'])->name('maintenance.updateStatus');
     Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
-    Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'show']);
-    Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
-    Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
-    Route::put('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus']);
-    Route::get('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus']);
 });
 
 Route::get('/schedules/add', function () {
@@ -85,21 +76,6 @@ Route::get('/', function () {
     ]);
 });
 
-// route to count of total rooms
-Route::get('/api/rooms/count', function () {
-    return response()->json([
-        'totalRooms' => App\Models\Venue::count(),
-    ]);
-});
-
-// route to count of total bookings
-Route::get('/api/bookings/count', function () {
-    $totalBookings = App\Models\Booking::count();
-    \Log::info('Total bookings count:', ['count' => $totalBookings]); // Log for debugging
-
-    return response()->json(['totalBookings' => $totalBookings]);
-});
-
 //schedule
 Route::get('/schedule', [ClassScheduleController::class, 'index']);
 
@@ -134,10 +110,6 @@ Route::middleware('auth')->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
-
-Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'show']);
-Route::get('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
-Route::put('/api/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
 
 Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
 Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');

@@ -1,29 +1,62 @@
 <?php
 
+use App\Http\Controllers\BookingController;
+use App\Http\Controllers\MaintenanceController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VenueController;
 use App\Http\Controllers\VenueReportController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/reports/venue', [VenueReportController::class, 'index']);
+Route::middleware('auth:sanctum')->group(function () {
+    // Venue-related API routes
+    Route::apiResource('/venues', VenueController::class);
+
+    // Booking-related API routes
+    Route::apiResource('/bookings', BookingController::class);
+    Route::post('/bookings/check-time', [BookingController::class, 'checkTime']);
+    Route::get('/bookings/notifications', [BookingController::class, 'getNotifications']);
+
+    // Maintenance-related API routes
+    Route::apiResource('/maintenances', MaintenanceController::class);
+    Route::put('/maintenances/{id}/status', [MaintenanceController::class, 'updateStatus']);
+    Route::get('/maintenances/{id}/report', [MaintenanceController::class, 'generateReport']);
+    Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');
+
+    // Schedule-related API routes
+    Route::apiResource('/schedules', ScheduleController::class);
+
+    // User-related API routes
+    Route::get('/lecturers', [UserController::class, 'getLecturers']);
+
+    // Utility endpoints
+    Route::get('/rooms/count', function () {
+        return response()->json([
+            'totalRooms' => \App\Models\Venue::count(),
+        ]);
+    });
+
+    Route::get('/bookings/count', function () {
+        $totalBookings = \App\Models\Booking::count();
+        \Log::info('Total bookings count:', ['count' => $totalBookings]);
+
+        return response()->json(['totalBookings' => $totalBookings]);
+    });
+
+    // Venue availability & suggestions
+    Route::post('/venues/check-availability', [VenueController::class, 'checkAvailability']);
+    Route::post('/venues/status', [VenueController::class, 'checkVenueStatus']);
+    Route::post('/classroom-suggestions', [BookingController::class, 'getSuggestions']);
+
+    // Reports
+    Route::get('/reports/venue', [VenueReportController::class, 'index']);
+});
 
 Route::get('/refresh-csrf', function () {
     return response()->json(['csrf_token' => csrf_token()]);
 });
 
-Route::put('/maintenance/{id}', [MaintenanceController::class, 'updateStatus']);
-Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
-Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');
-
-Route::post('/schedules', [ScheduleController::class, 'store']);
-
-Route::get('/lecturers', [UserController::class, 'getLecturers']);
-
-// Venue-related API routes
-Route::apiResource('/venues', VenueController::class);
-
-// Notifications endpoint
+// Notifications endpoint (public for demo)
 Route::get('/notifications', function () {
     return response()->json([
         'notifications' => [
