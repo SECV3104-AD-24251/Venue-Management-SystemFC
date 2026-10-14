@@ -4,30 +4,35 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
+use Spatie\Permission\Models\Role;
 
 class UserSeeder extends Seeder
 {
     public function run()
     {
-        User::create([
+        Role::firstOrCreate(['name' => 'admin']);
+        Role::firstOrCreate(['name' => 'lecturer']);
+        Role::firstOrCreate(['name' => 'staff']);
+
+        $admin = User::create([
             'name' => 'Admin User',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
-            'level' => 1, // Admin
         ]);
+        $admin->assignRole('admin');
 
-        User::create([
+        $lecturer = User::create([
             'name' => 'Lecturer',
             'email' => 'lecturer@example.com',
             'password' => bcrypt('password'),
-            'level' => 2, // Editor
         ]);
+        $lecturer->assignRole('lecturer');
 
-        User::create([
+        $staff = User::create([
             'name' => 'Staff',
             'email' => 'staff@example.com',
             'password' => bcrypt('password'),
-            'level' => 3, // Viewer
         ]);
+        $staff->assignRole('staff');
     }
 }
