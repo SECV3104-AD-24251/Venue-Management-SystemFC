@@ -5,7 +5,7 @@ import { PropsWithChildren, ReactNode, useState } from 'react';
 type NavigationItem = {
     label: string;
     routeName: string;
-    icon: 'dashboard' | 'venues' | 'booking' | 'calendar' | 'maintenance' | 'report';
+    icon: 'dashboard' | 'venues' | 'booking' | 'calendar' | 'maintenance' | 'report' | 'users';
 };
 
 function Icon({
@@ -59,12 +59,13 @@ export default function Authenticated({
     const navigation: NavigationItem[] = [
         { label: 'Dashboard', routeName: 'dashboard', icon: 'dashboard' },
         { label: 'Venues', routeName: 'venue', icon: 'venues' },
-                ...(user.role === 'admin'
+...(user.role === 'admin'
             ? [
-                                    { label: 'Maintenance', routeName: 'maintenance.index', icon: 'maintenance' as const },
-                                    { label: 'Create Maintenance', routeName: 'maintenance.create', icon: 'booking' as const },
-                  { label: 'Maintenance Monitor', routeName: 'admin.maintenance.monitor', icon: 'maintenance' as const },
-                  { label: 'Venue Reports', routeName: 'venue-reports', icon: 'report' as const },
+                    { label: 'Maintenance', routeName: 'maintenance.index', icon: 'maintenance' as const },
+                    { label: 'Create Maintenance', routeName: 'maintenance.create', icon: 'booking' as const },
+                    { label: 'Maintenance Monitor', routeName: 'admin.maintenance.monitor', icon: 'maintenance' as const },
+                    { label: 'Venue Reports', routeName: 'venue-reports', icon: 'report' as const },
+                    { label: 'Manage Bookings', routeName: 'admin.bookings.index', icon: 'booking' as const },
               ]
                         : user.role === 'lecturer'
               ? [

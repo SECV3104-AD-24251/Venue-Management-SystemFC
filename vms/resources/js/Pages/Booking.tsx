@@ -376,6 +376,11 @@ export default function Booking() {
                         {submitError}
                     </div>
                 )}
+                {submitError && (
+                    <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                        {submitError}
+                    </div>
+                )}
 
                 <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12">
                     <section className="flex flex-col gap-5 lg:col-span-8">
@@ -707,7 +712,7 @@ export default function Booking() {
                                         disabled={submitting || venuesLoading || venues.length === 0}
                                         className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                                     >
-                                        {submitting ? 'Submitting…' : 'Submit request'}
+                                        {submitting ? 'Submitting…' : 'Submit for Approval'}
                                         {!submitting && <Icon name="arrow" className="h-4 w-4" />}
                                     </button>
                                 </div>
@@ -800,8 +805,8 @@ export default function Booking() {
                             <ol className="space-y-4">
                                 {[
                                     ['Submit your request', 'We validate your details and check the venue slot.'],
-                                    ['Booking review', 'The venue team reviews the request and follows up with you.'],
-                                    ['Confirmation', 'Your booking status will be available in your booking history.'],
+                                    ['Admin review', 'An administrator reviews the request and approves or rejects it.'],
+                                    ['Confirmation', 'You\'ll be notified of the decision. Check your booking history for status.'],
                                 ].map(([title, description], index) => (
                                     <li key={title} className="flex gap-3">
                                         <span className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
@@ -825,7 +830,7 @@ export default function Booking() {
                             <div>
                                 <h2 className="text-sm font-semibold text-slate-900">Booking guidelines</h2>
                                 <p className="mt-1 text-xs leading-5 text-slate-600">
-                                    Submit accurate attendance and schedule details. A request is not confirmed until it has been reviewed.
+                                    Submit accurate attendance and schedule details. Your request will be reviewed by an administrator before confirmation.
                                 </p>
                                 <Link
                                     href={route('viewbooking')}

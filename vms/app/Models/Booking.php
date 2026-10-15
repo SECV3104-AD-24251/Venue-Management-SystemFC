@@ -9,10 +9,8 @@ class Booking extends Model
 {
     use HasFactory;
 
-    // Specify the table name if it's not following the convention
     protected $table = 'bookings';
 
-    // Define the fields that can be mass assigned
     protected $fillable = [
         'name',
         'email',
@@ -23,9 +21,19 @@ class Booking extends Model
         'end_time',
         'comments',
         'user_id',
+        'status',
+        'approved_by',
+        'approved_at',
+        'rejection_reason',
     ];
 
-    // Define the relationship with the Venue model
+    protected $casts = [
+        'date' => 'date',
+        'start_time' => 'datetime:H:i',
+        'end_time' => 'datetime:H:i',
+        'approved_at' => 'datetime',
+    ];
+
     public function venue()
     {
         return $this->belongsTo(Venue::class, 'venue_id');
@@ -36,11 +44,36 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
     public function scopeConflicts($query, $venueId, $date, $startTime, $endTime)
     {
         return $query->where('venue_id', $venueId)
             ->where('date', $date)
             ->where('start_time', '<', $endTime)
             ->where('end_time', '>', $startTime);
+    }
+
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
+
+    public function scopeExpired($query)
+    {
+        return $query->where('status', 'expired');
     }
 }

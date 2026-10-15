@@ -1,23 +1,30 @@
-import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
+import React, { useState, useEffect } from 'react';
+import { Head, router, usePage } from '@inertiajs/react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
+interface Booking {
+    id: number;
+    name: string;
+    email: string;
+    capacity: number;
+    venue: { id: number; name: string };
+    date: string;
+    start_time: string;
+    end_time: string;
+    comments: string | null;
+    status: 'pending' | 'approved' | 'rejected' | 'expired';
+    rejection_reason: string | null;
+    user_id: number;
+}
+
 interface EditBookingProps {
-    booking: {
-        id: number;
-        name: string;
-        email: string;
-        capacity: number;
-        venue: { id: number, name: string };
-        date: string;
-        start_time: string;
-        end_time: string;
-        comments: string | null;
-    };
-    venues: { id: number, name: string }[]; // List of available venues
+    booking: Booking;
+    venues: { id: number; name: string }[];
 }
 
 const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
+    const { props } = usePage();
+    const user = props.auth.user;
     const [formData, setFormData] = useState({
         name: booking.name,
         email: booking.email,
@@ -29,6 +36,15 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
         comments: booking.comments || '',
     });
 
+    const isApproved = booking.status === 'approved';
+    const isOwnBooking = booking.user_id === user?.id;
+
+    useEffect(() => {
+        if (isApproved && isOwnBooking) {
+            router.visit(route('viewbooking'));
+        }
+    }, [isApproved, isOwnBooking]);
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
         setFormData({
@@ -39,12 +55,15 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (isApproved) return;
         router.patch(`/bookings/${booking.id}`, formData, {
-            onSuccess: () => alert('Booking updated successfully!'),
+            onSuccess: () => {
+                alert('Booking updated successfully!');
+                router.visit(route('viewbooking'));
+            },
             onError: (errors) => alert('Error updating booking'),
         });
     };
-    
 
     return (
         <AuthenticatedLayout header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Edit Booking</h2>}>
@@ -54,7 +73,12 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <div className="p-6 text-gray-900">
-                            
+                            {isApproved && isOwnBooking && (
+                                <div className="mb-6 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                                    This booking has been approved and cannot be modified. You are being redirected to your bookings list.
+                                </div>
+                            )}
+
                             <form onSubmit={handleSubmit}>
                                 <div className="mb-4">
                                     <label className="block text-sm font-semibold text-gray-700">Name</label>
@@ -63,7 +87,8 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="name"
                                         value={formData.name}
                                         onChange={handleChange}
-                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        disabled={isApproved}
+                                        className={`mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${isApproved ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
 
@@ -74,7 +99,8 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="email"
                                         value={formData.email}
                                         onChange={handleChange}
-                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        disabled={isApproved}
+                                        className={`mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${isApproved ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
 
@@ -85,7 +111,8 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="capacity"
                                         value={formData.capacity}
                                         onChange={handleChange}
-                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        disabled={isApproved}
+                                        className={`mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${isApproved ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
 
@@ -95,7 +122,8 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="venue_id"
                                         value={formData.venue_id}
                                         onChange={handleChange}
-                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        disabled={isApproved}
+                                        className={`mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${isApproved ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                     >
                                         {venues.map((venue) => (
                                             <option key={venue.id} value={venue.id}>
@@ -112,7 +140,8 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="date"
                                         value={formData.date}
                                         onChange={handleChange}
-                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        disabled={isApproved}
+                                        className={`mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${isApproved ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
 
@@ -123,7 +152,8 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="start_time"
                                         value={formData.start_time}
                                         onChange={handleChange}
-                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        disabled={isApproved}
+                                        className={`mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${isApproved ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
 
@@ -134,7 +164,8 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="end_time"
                                         value={formData.end_time}
                                         onChange={handleChange}
-                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        disabled={isApproved}
+                                        className={`mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${isApproved ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
 
@@ -144,16 +175,34 @@ const EditBooking: React.FC<EditBookingProps> = ({ booking, venues }) => {
                                         name="comments"
                                         value={formData.comments}
                                         onChange={handleChange}
-                                        className="mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                                        disabled={isApproved}
+                                        className={`mt-1 block w-1/2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${isApproved ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                                     />
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-                                >
-                                    Update Booking
-                                </button>
+                                {booking.rejection_reason && (
+                                    <div className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                                        <p className="font-semibold">Rejection Reason:</p>
+                                        <p>{booking.rejection_reason}</p>
+                                    </div>
+                                )}
+
+                                <div className="flex gap-3">
+                                    <button
+                                        type="submit"
+                                        disabled={isApproved}
+                                        className={`px-4 py-2 rounded hover:bg-blue-700 ${isApproved ? 'bg-blue-300 cursor-not-allowed' : 'bg-blue-500 text-white'}`}
+                                    >
+                                        Update Booking
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => router.visit(route('viewbooking'))}
+                                        className="px-4 py-2 bg-gray-500 text-white rounded hover:bg-gray-700"
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </div>

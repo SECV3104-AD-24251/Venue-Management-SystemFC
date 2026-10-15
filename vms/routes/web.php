@@ -26,6 +26,10 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
     Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
     Route::get('/admin/maintenance-monitor', [MaintenanceController::class, 'monitor'])->name('admin.maintenance.monitor');
+
+    Route::get('/admin/bookings', [BookingController::class, 'adminIndex'])->name('admin.bookings.index');
+    Route::patch('/admin/bookings/{id}/approve', [BookingController::class, 'approve'])->name('admin.bookings.approve');
+    Route::patch('/admin/bookings/{id}/reject', [BookingController::class, 'reject'])->name('admin.bookings.reject');
 });
 
 // Lecturer routes - only booking, viewbooking, schedule
@@ -34,9 +38,7 @@ Route::middleware(['auth', 'role:lecturer'])->group(function () {
     Route::get('/booking', function () {
         return Inertia::render('Booking');
     })->name('booking');
-    Route::get('/viewbooking', function () {
-        return Inertia::render('ViewBooking');
-    })->name('viewbooking');
+    Route::get('/viewbooking', [BookingController::class, 'index'])->name('viewbooking');
     Route::get('/schedule', [ClassScheduleController::class, 'index'])->name('schedule');
     Route::get('/venue', function () {
         return Inertia::render('Venue');

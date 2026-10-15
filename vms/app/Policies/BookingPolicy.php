@@ -14,7 +14,7 @@ class BookingPolicy
 
     public function view(User $user, Booking $booking): bool
     {
-        return $booking->user_id === $user->id;
+        return $booking->user_id === $user->id || $user->hasRole('admin');
     }
 
     public function create(User $user): bool
@@ -24,12 +24,22 @@ class BookingPolicy
 
     public function update(User $user, Booking $booking): bool
     {
-        return $booking->user_id === $user->id;
+        return $booking->user_id === $user->id && $booking->status !== 'approved';
     }
 
     public function delete(User $user, Booking $booking): bool
     {
         return $booking->user_id === $user->id;
+    }
+
+    public function approve(User $user, Booking $booking): bool
+    {
+        return $user->hasRole('admin') && $booking->status === 'pending';
+    }
+
+    public function reject(User $user, Booking $booking): bool
+    {
+        return $user->hasRole('admin') && $booking->status === 'pending';
     }
 
     public function restore(User $user, Booking $booking): bool

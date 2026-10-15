@@ -12,6 +12,8 @@ interface Booking {
     start_time: string;
     end_time: string;
     comments: string | null;
+    status: 'pending' | 'approved' | 'rejected' | 'expired';
+    rejection_reason: string | null;
 }
 
 interface ViewBookingProps {
@@ -19,12 +21,13 @@ interface ViewBookingProps {
 }
 
 type BookingFilter = 'all' | 'upcoming' | 'past';
+type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected' | 'expired';
 
 function Icon({
     name,
     className = 'h-5 w-5',
 }: {
-    name: 'booking' | 'check' | 'clock' | 'search' | 'calendar' | 'pin' | 'users' | 'edit' | 'delete' | 'download' | 'arrow' | 'info';
+    name: 'booking' | 'check' | 'clock' | 'search' | 'calendar' | 'pin' | 'users' | 'edit' | 'delete' | 'download' | 'arrow' | 'info' | 'x' | 'check-circle' | 'x-circle';
     className?: string;
 }) {
     const shared = {
@@ -63,7 +66,31 @@ function Icon({
             return <svg {...shared}><path d="M5 12h14M13 6l6 6-6 6" /></svg>;
         case 'info':
             return <svg {...shared}><circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8h.01" /></svg>;
+        case 'x':
+            return <svg {...shared}><path d="M18 6 6 18M6 6l12 12" /></svg>;
+        case 'check-circle':
+            return <svg {...shared}><circle cx="12" cy="12" r="9" /><path d="m8 12 2.5 2.5L16 9" /></svg>;
+        case 'x-circle':
+            return <svg {...shared}><circle cx="12" cy="12" r="9" /><path d="M10 10l4 4M14 10l-4 4" /></svg>;
     }
+}
+
+function StatusBadge({ status }: { status: Booking['status'] }) {
+    const config: Record<Booking['status'], { bg: string; text: string; icon: 'clock' | 'check-circle' | 'x-circle' | 'info' }> = {
+        pending: { bg: 'bg-amber-100', text: 'text-amber-800', icon: 'clock' },
+        approved: { bg: 'bg-emerald-100', text: 'text-emerald-800', icon: 'check-circle' },
+        rejected: { bg: 'bg-rose-100', text: 'text-rose-800', icon: 'x-circle' },
+        expired: { bg: 'bg-slate-100', text: 'text-slate-700', icon: 'info' },
+    };
+
+    const cfg = config[status];
+
+    return (
+        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${cfg.bg} ${cfg.text}`}>
+            <Icon name={cfg.icon} className="h-3.5 w-3.5" />
+            {status.charAt(0).toUpperCase() + status.slice(1)}
+        </span>
+    );
 }
 
 function getBookingEnd(booking: Booking): Date {
@@ -131,7 +158,8 @@ function SummaryCard({
 
 const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
     const [expandedBooking, setExpandedBooking] = useState<number | null>(null);
-    const [filter, setFilter] = useState<BookingFilter>('all');
+    const [timeFilter, setTimeFilter] = useState<BookingFilter>('all');
+    const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
     const [search, setSearch] = useState('');
     const now = new Date();
 
@@ -139,13 +167,22 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
     const pastCount = bookings.length - upcomingCount;
     const totalHours = bookings.reduce((total, booking) => total + durationMinutes(booking), 0) / 60;
 
+    const statusCounts = {
+        pending: bookings.filter((b) => b.status === 'pending').length,
+        approved: bookings.filter((b) => b.status === 'approved').length,
+        rejected: bookings.filter((b) => b.status === 'rejected').length,
+        expired: bookings.filter((b) => b.status === 'expired').length,
+    };
+
     const filteredBookings = useMemo(() => {
         const query = search.trim().toLowerCase();
         return bookings.filter((booking) => {
-            const matchesFilter =
-                filter === 'all' ||
-                (filter === 'upcoming' && isUpcoming(booking, now)) ||
-                (filter === 'past' && !isUpcoming(booking, now));
+            const matchesTimeFilter =
+                timeFilter === 'all' ||
+                (timeFilter === 'upcoming' && isUpcoming(booking, now)) ||
+                (timeFilter === 'past' && !isUpcoming(booking, now));
+            const matchesStatusFilter =
+                statusFilter === 'all' || booking.status === statusFilter;
             const matchesSearch =
                 query.length === 0 ||
                 booking.venue?.name.toLowerCase().includes(query) ||
@@ -153,9 +190,9 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
                 booking.email.toLowerCase().includes(query) ||
                 booking.comments?.toLowerCase().includes(query) ||
                 String(booking.id).includes(query);
-            return matchesFilter && matchesSearch;
+            return matchesTimeFilter && matchesStatusFilter && matchesSearch;
         });
-    }, [bookings, filter, now, search]);
+    }, [bookings, timeFilter, statusFilter, now, search]);
 
     const handleDelete = (id: number) => {
         if (window.confirm('Are you sure you want to delete this booking?')) {
@@ -265,21 +302,55 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
 
                 <section className="rounded-2xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-5">
                     <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 pb-4">
-                        {tabs.map((tab) => (
+                        <span className="text-xs font-semibold text-slate-500 mr-2">Time:</span>
+                        {[
+                            { key: 'all', label: 'All', count: bookings.length },
+                            { key: 'upcoming', label: 'Upcoming', count: upcomingCount },
+                            { key: 'past', label: 'Past', count: pastCount },
+                        ].map((tab) => (
                             <button
                                 key={tab.key}
                                 type="button"
-                                aria-pressed={filter === tab.key}
-                                onClick={() => setFilter(tab.key)}
+                                aria-pressed={timeFilter === tab.key}
+                                onClick={() => setTimeFilter(tab.key as BookingFilter)}
                                 className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
-                                    filter === tab.key
+                                    timeFilter === tab.key
                                         ? 'bg-blue-700 text-white shadow-sm'
                                         : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
                                 }`}
                             >
                                 {tab.label}
                                 <span className={`rounded-full px-1.5 py-0.5 text-xs ${
-                                    filter === tab.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                                    timeFilter === tab.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
+                                }`}>
+                                    {tab.count}
+                                </span>
+                            </button>
+                        ))}
+                    </div>
+                    <div className="mt-3 flex flex-wrap items-center gap-2 border-b border-slate-100 pb-4">
+                        <span className="text-xs font-semibold text-slate-500 mr-2">Status:</span>
+                        {[
+                            { key: 'all', label: 'All', count: bookings.length },
+                            { key: 'pending', label: 'Pending', count: statusCounts.pending },
+                            { key: 'approved', label: 'Approved', count: statusCounts.approved },
+                            { key: 'rejected', label: 'Rejected', count: statusCounts.rejected },
+                            { key: 'expired', label: 'Expired', count: statusCounts.expired },
+                        ].map((tab) => (
+                            <button
+                                key={tab.key}
+                                type="button"
+                                aria-pressed={statusFilter === tab.key}
+                                onClick={() => setStatusFilter(tab.key as StatusFilter)}
+                                className={`inline-flex items-center gap-2 rounded-xl px-3.5 py-2 text-sm font-semibold transition ${
+                                    statusFilter === tab.key
+                                        ? 'bg-blue-700 text-white shadow-sm'
+                                        : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900'
+                                }`}
+                            >
+                                {tab.label}
+                                <span className={`rounded-full px-1.5 py-0.5 text-xs ${
+                                    statusFilter === tab.key ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'
                                 }`}>
                                     {tab.count}
                                 </span>
@@ -339,6 +410,7 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
                             const duration = minutes > 0
                                 ? `${Math.floor(minutes / 60)}h${minutes % 60 ? ` ${minutes % 60}m` : ''}`
                                 : '—';
+                            const canModify = booking.status !== 'approved';
 
                             return (
                                 <article
@@ -359,6 +431,7 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
                                                     <span className={`h-1.5 w-1.5 rounded-full ${upcoming ? 'bg-emerald-600' : 'bg-slate-400'}`} />
                                                     {upcoming ? 'Upcoming' : 'Past'}
                                                 </span>
+                                                <StatusBadge status={booking.status} />
                                             </div>
                                             <button
                                                 type="button"
@@ -416,19 +489,34 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
                                                         {booking.comments || 'No comments provided.'}
                                                     </p>
                                                 </div>
+                                                {booking.status === 'rejected' && booking.rejection_reason && (
+                                                    <div className="sm:col-span-2">
+                                                        <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Rejection Reason</p>
+                                                        <p className="mt-1 text-sm leading-5 text-rose-700 bg-rose-50 p-3 rounded-xl border border-rose-200">
+                                                            {booking.rejection_reason}
+                                                        </p>
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
 
                                         <div className="flex flex-col justify-between gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center">
                                             <p className="flex items-start gap-2 text-xs leading-5 text-slate-500">
                                                 <Icon name="info" className="mt-0.5 h-4 w-4 shrink-0 text-blue-700" />
-                                                Modify or delete this reservation using the actions.
+                                                {booking.status === 'approved'
+                                                    ? 'This booking is confirmed and cannot be modified.'
+                                                    : 'Modify or delete this reservation using the actions.'}
                                             </p>
                                             <div className="flex flex-wrap items-center gap-2 sm:justify-end">
                                                 <button
                                                     type="button"
                                                     onClick={() => router.visit(`/bookings/${booking.id}/edit`)}
-                                                    className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                                                    disabled={!canModify}
+                                                    className={`inline-flex items-center gap-1.5 rounded-xl px-3.5 py-2 text-xs font-semibold transition ${
+                                                        canModify
+                                                            ? 'border border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                                                            : 'border border-slate-200 bg-slate-100 text-slate-400 cursor-not-allowed'
+                                                    }`}
                                                 >
                                                     <Icon name="edit" className="h-4 w-4" />
                                                     Modify
