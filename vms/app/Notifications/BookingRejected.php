@@ -3,13 +3,10 @@
 namespace App\Notifications;
 
 use App\Models\Booking;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
 
-class BookingRejected extends Notification implements ShouldQueue
+class BookingRejected extends Notification
 {
-    use Queueable;
 
     public function __construct(
         public Booking $booking
@@ -17,7 +14,7 @@ class BookingRejected extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
     public function toDatabase(object $notifiable): array
@@ -28,8 +25,14 @@ class BookingRejected extends Notification implements ShouldQueue
             'date' => $this->booking->date?->format('Y-m-d'),
             'start_time' => $this->booking->start_time?->format('H:i'),
             'end_time' => $this->booking->end_time?->format('H:i'),
+            'status' => 'rejected',
             'rejection_reason' => $this->booking->rejection_reason,
             'message' => "Your booking for {$this->booking->venue->name} on {$this->booking->date} was rejected. Reason: {$this->booking->rejection_reason}",
         ];
+    }
+
+    public function toBroadcast(object $notifiable): array
+    {
+        return $this->toDatabase($notifiable);
     }
 }

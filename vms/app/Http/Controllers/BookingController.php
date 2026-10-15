@@ -312,22 +312,45 @@ class BookingController extends Controller
 
     public function getNotifications()
     {
-        $notifications = Booking::with('venue')
-            ->where('user_id', Auth::id())
-            ->orderBy('created_at', 'desc')
-            ->take(5)
-            ->get()
-            ->map(function ($booking) {
-                $statusLabel = ucfirst($booking->status);
+        $user = Auth::user();
 
+        $dbNotifications = $user->notifications()
+            ->orderBy('created_at', 'desc')
+            ->take(20)
+            ->get()
+            ->map(function ($notification) {
                 return [
-                    'id' => $booking->id,
-                    'message' => "Booking for {$booking->venue->name} on {$booking->date} from {$booking->start_time} to {$booking->end_time}.",
-                    'status' => $booking->status,
-                    'status_label' => $statusLabel,
+                    'id' => $notification->id,
+                    'type' => $notification->type,
+                    'data' => $notification->data,
+                    'read_at' => $notification->read_at,
+                    'created_at' => $notification->created_at->toISOString(),
                 ];
             });
 
-        return response()->json(['notifications' => $notifications]);
+        return response()->json([
+            'notifications' => $dbNotifications,
+            'unread_count' => $user->unreadNotifications()->count(),
+        ]);
+    }
+
+    public function markNotificationAsRead($id)
+    {
+        $notification = Auth::user()->notifications()->where('id', $id)->first();
+
+        if (! $notification) {
+            return response()->json(['success' => false, 'message' => 'Notification not found.'], 404);
+        }
+
+        $notification->markAsRead();
+
+        return response()->json(['success' => true]);
+    }
+
+    public function markAllNotificationsAsRead()
+    {
+        Auth::user()->unreadNotifications->markAsRead();
+
+        return response()->json(['success' => true]);
     }
 }
