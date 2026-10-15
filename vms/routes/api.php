@@ -29,20 +29,6 @@ Route::middleware('auth:sanctum')->group(function () {
     // User-related API routes
     Route::get('/lecturers', [UserController::class, 'getLecturers']);
 
-    // Utility endpoints
-    Route::get('/rooms/count', function () {
-        return response()->json([
-            'totalRooms' => \App\Models\Venue::count(),
-        ]);
-    });
-
-    Route::get('/bookings/count', function () {
-        $totalBookings = \App\Models\Booking::count();
-        \Log::info('Total bookings count:', ['count' => $totalBookings]);
-
-        return response()->json(['totalBookings' => $totalBookings]);
-    });
-
     // Venue availability & suggestions
     Route::post('/venues/check-availability', [VenueController::class, 'checkAvailability']);
     Route::post('/venues/status', [VenueController::class, 'checkVenueStatus']);

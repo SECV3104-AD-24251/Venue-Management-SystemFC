@@ -59,24 +59,26 @@ export default function Authenticated({
     const navigation: NavigationItem[] = [
         { label: 'Dashboard', routeName: 'dashboard', icon: 'dashboard' },
         { label: 'Venues', routeName: 'venue', icon: 'venues' },
-        ...(user.level === '1'
+                ...(user.role === 'admin'
             ? [
-                  { label: 'View Bookings', routeName: 'viewbooking', icon: 'booking' as const },
-                  { label: 'Class Schedule', routeName: 'schedule', icon: 'calendar' as const },
+                                    { label: 'Maintenance', routeName: 'maintenance.index', icon: 'maintenance' as const },
+                                    { label: 'Create Maintenance', routeName: 'maintenance.create', icon: 'booking' as const },
                   { label: 'Maintenance Monitor', routeName: 'admin.maintenance.monitor', icon: 'maintenance' as const },
                   { label: 'Venue Reports', routeName: 'venue-reports', icon: 'report' as const },
               ]
-            : user.level === '2'
+                        : user.role === 'lecturer'
               ? [
                     { label: 'Book a Venue', routeName: 'booking', icon: 'booking' as const },
                     { label: 'View Bookings', routeName: 'viewbooking', icon: 'calendar' as const },
                     { label: 'Class Schedule', routeName: 'schedule', icon: 'calendar' as const },
                 ]
-              : [
-                    { label: 'Maintenance', routeName: 'maintenance.index', icon: 'maintenance' as const },
-                    { label: 'Create Maintenance', routeName: 'maintenance.create', icon: 'booking' as const },
-                    { label: 'Venue Reports', routeName: 'venue-reports', icon: 'report' as const },
-                ]),
+                            : user.role === 'staff'
+                                ? [
+                                            { label: 'Maintenance', routeName: 'maintenance.index', icon: 'maintenance' as const },
+                                            { label: 'Create Maintenance', routeName: 'maintenance.create', icon: 'booking' as const },
+                                            { label: 'Venue Reports', routeName: 'venue-reports', icon: 'report' as const },
+                                    ]
+                                : []),
     ];
 
     return (
