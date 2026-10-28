@@ -219,8 +219,8 @@ export default function MaintenanceList({ maintenances = [] }: Props) {
         setStatusError('');
         try {
             const token = await refreshCsrfToken();
-            const response = await fetch(`/api/maintenance/${maintenanceId}`, {
-                method: 'PUT',
+            const response = await fetch(route('maintenance.updateStatus', maintenanceId), {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': token || csrfToken || '',

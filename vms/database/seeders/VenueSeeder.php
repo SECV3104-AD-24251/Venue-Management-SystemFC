@@ -10,9 +10,9 @@ class VenueSeeder extends Seeder
 {
     public function run()
     {
-        DB::statement('PRAGMA foreign_keys = OFF'); // Disable foreign key constraints
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0');
         DB::table('venues')->truncate();
-        DB::statement('PRAGMA foreign_keys = ON');  // Re-enable foreign key constraints
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1');
 
         Venue::create(['name' => 'Bilik Kuliah', 'location' => 'N28', 'capacity' => 40, 'image' => '/images/bk.jpeg', 'info1' => 'Projector',
             'info1' => 'Air-Conditioner', 'info2' => 'White Board', 'info3' => 'Projector are provided ( on ceiling )', 'info4' => 'WiFi facility given']);

@@ -14,12 +14,11 @@ class Venue extends Model
         'location',
         'capacity',
         'status',
-
-    ];
-
-    protected $casts = [
-        'info' => 'array',
-        'equipment' => 'array',
+        'image',
+        'info1',
+        'info2',
+        'info3',
+        'info4',
     ];
 
     public function maintenances()

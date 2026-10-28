@@ -30,6 +30,13 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/bookings', [BookingController::class, 'adminIndex'])->name('admin.bookings.index');
     Route::patch('/admin/bookings/{id}/approve', [BookingController::class, 'approve'])->name('admin.bookings.approve');
     Route::patch('/admin/bookings/{id}/reject', [BookingController::class, 'reject'])->name('admin.bookings.reject');
+
+    Route::get('/admin/venues', [VenueController::class, 'adminIndex'])->name('venue-management.index');
+    Route::get('/admin/venues/create', [VenueController::class, 'create'])->name('venue-management.create');
+    Route::post('/admin/venues', [VenueController::class, 'store'])->name('venue-management.store');
+    Route::get('/admin/venues/{venue}/edit', [VenueController::class, 'edit'])->name('venue-management.edit');
+    Route::patch('/admin/venues/{venue}', [VenueController::class, 'update'])->name('venue-management.update');
+    Route::delete('/admin/venues/{venue}', [VenueController::class, 'destroy'])->name('venue-management.destroy');
 });
 
 // Lecturer routes - only booking, viewbooking, schedule
@@ -60,6 +67,7 @@ Route::middleware(['auth', 'role:staff'])->group(function () {
     Route::get('/maintenance/{id}', [MaintenanceController::class, 'show'])->name('maintenance.show');
     Route::post('/maintenance/{id}/status', [MaintenanceController::class, 'updateStatus'])->name('maintenance.updateStatus');
     Route::delete('/maintenances/{maintenance}', [MaintenanceController::class, 'destroy'])->name('maintenance.destroy');
+    Route::get('/maintenance/{id}/report', [MaintenanceController::class, 'generateReport']);
     Route::get('/venue-reports', [VenueReportController::class, 'index'])->name('venue-reports');
 });
 
@@ -90,6 +98,8 @@ Route::middleware('auth')->group(function () {
         return response()->json(['totalRooms' => \App\Models\Venue::count()]);
     });
     Route::get('/api/notifications', [BookingController::class, 'getNotifications']);
+    Route::post('/api/notifications/{id}/read', [BookingController::class, 'markNotificationAsRead']);
+    Route::post('/api/notifications/read-all', [BookingController::class, 'markAllNotificationsAsRead']);
     Route::post('/api/venues/check-availability', [VenueController::class, 'checkAvailability']);
     Route::post('/api/venues/status', [VenueController::class, 'checkVenueStatus']);
     Route::post('/api/bookings/check-time', [BookingController::class, 'checkTime']);

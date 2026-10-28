@@ -5,21 +5,90 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Venue;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
 
 class VenueController extends Controller
 {
     public function index()
     {
-        $venues = Venue::all(['id', 'name', 'location', 'capacity', 'status']); // Fetch all venues from the database
+        $venues = Venue::all(['id', 'name', 'location', 'capacity', 'status']);
 
         return response()->json($venues);
     }
 
     public function show($id)
     {
-        $venue = Venue::findOrFail($id); // Find the venue or throw a 404 error
+        $venue = Venue::findOrFail($id);
 
-        return inertia('VenueDetails', ['venue' => $venue]);
+        return Inertia::render('VenueDetails', ['venue' => $venue]);
+    }
+
+    public function create()
+    {
+        return Inertia::render('VenueManagement/Create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'capacity' => 'required|integer|min:1',
+            'status' => 'required|in:available,unavailable,maintenance',
+            'image' => 'nullable|string|max:255',
+            'info1' => 'nullable|string|max:255',
+            'info2' => 'nullable|string|max:255',
+            'info3' => 'nullable|string|max:255',
+            'info4' => 'nullable|string|max:255',
+        ]);
+
+        Venue::create($validated);
+
+        return redirect()->route('venue-management.index')->with('success', 'Venue created successfully.');
+    }
+
+    public function edit(Venue $venue)
+    {
+        return Inertia::render('VenueManagement/Edit', ['venue' => $venue]);
+    }
+
+    public function update(Request $request, Venue $venue)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'capacity' => 'required|integer|min:1',
+            'status' => 'required|in:available,unavailable,maintenance',
+            'image' => 'nullable|string|max:255',
+            'info1' => 'nullable|string|max:255',
+            'info2' => 'nullable|string|max:255',
+            'info3' => 'nullable|string|max:255',
+            'info4' => 'nullable|string|max:255',
+        ]);
+
+        $venue->update($validated);
+
+        return redirect()->route('venue-management.index')->with('success', 'Venue updated successfully.');
+    }
+
+    public function destroy(Venue $venue)
+    {
+        if ($venue->bookings()->exists()) {
+            return redirect()->route('venue-management.index')->with('error', 'Cannot delete venue with existing bookings.');
+        }
+
+        $venue->delete();
+
+        return redirect()->route('venue-management.index')->with('success', 'Venue deleted successfully.');
+    }
+
+    public function adminIndex()
+    {
+        $venues = Venue::withCount(['bookings', 'maintenances'])
+            ->orderBy('name')
+            ->get();
+
+        return Inertia::render('VenueManagement/Index', ['venues' => $venues]);
     }
 
     public function checkVenueStatus(Request $request)

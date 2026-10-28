@@ -1,11 +1,12 @@
 import Dropdown from '@/Components/Dropdown';
+import NotificationBell from '@/Components/NotificationBell';
 import { Link, usePage } from '@inertiajs/react';
 import { PropsWithChildren, ReactNode, useState } from 'react';
 
 type NavigationItem = {
     label: string;
     routeName: string;
-    icon: 'dashboard' | 'venues' | 'booking' | 'calendar' | 'maintenance' | 'report' | 'users';
+    icon: 'dashboard' | 'venues' | 'booking' | 'calendar' | 'maintenance' | 'report' | 'users' | 'settings';
 };
 
 function Icon({
@@ -41,6 +42,8 @@ function Icon({
             return <svg {...shared}><path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4L14 13l-3-3z" /></svg>;
         case 'report':
             return <svg {...shared}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><path d="M14 2v6h6M8 13h8M8 17h8M8 9h2" /></svg>;
+        case 'settings':
+            return <svg {...shared}><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>;
         case 'menu':
             return <svg {...shared}><path d="M4 6h16M4 12h16M4 18h16" /></svg>;
         case 'close':
@@ -59,13 +62,12 @@ export default function Authenticated({
     const navigation: NavigationItem[] = [
         { label: 'Dashboard', routeName: 'dashboard', icon: 'dashboard' },
         { label: 'Venues', routeName: 'venue', icon: 'venues' },
-...(user.role === 'admin'
+        ...(user.role === 'admin'
             ? [
-                    { label: 'Maintenance', routeName: 'maintenance.index', icon: 'maintenance' as const },
-                    { label: 'Create Maintenance', routeName: 'maintenance.create', icon: 'booking' as const },
                     { label: 'Maintenance Monitor', routeName: 'admin.maintenance.monitor', icon: 'maintenance' as const },
                     { label: 'Venue Reports', routeName: 'venue-reports', icon: 'report' as const },
                     { label: 'Manage Bookings', routeName: 'admin.bookings.index', icon: 'booking' as const },
+                    { label: 'Manage Venues', routeName: 'venue-management.index', icon: 'settings' as const },
               ]
                         : user.role === 'lecturer'
               ? [
@@ -122,6 +124,7 @@ export default function Authenticated({
                     </div>
 
                     <div className="flex shrink-0 items-center gap-3">
+                        <NotificationBell />
                         <div className="hidden text-right md:block">
                             <p className="max-w-36 truncate text-sm font-semibold text-slate-800">{user.name}</p>
                             <p className="text-xs capitalize text-slate-500">{user.role}</p>
