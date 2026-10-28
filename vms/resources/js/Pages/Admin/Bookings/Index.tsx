@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Modal from '@/Components/Modal';
 import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
 import { useState } from 'react';
 
@@ -120,15 +121,15 @@ function StatusBadge({ status }: { status: Booking['status'] }) {
 }
 
 function formatDate(date: string): string {
-    const parsed = new Date(`${date}T00:00:00`);
+    const parsed = new Date(date.includes('T') ? date : `${date}T00:00:00`);
     return Number.isNaN(parsed.getTime())
         ? date
         : new Intl.DateTimeFormat('en', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-            year: 'numeric',
-        }).format(parsed);
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric',
+          }).format(parsed);
 }
 
 function formatTime(time: string): string {
@@ -204,9 +205,12 @@ const AdminBookings: React.FC<AdminBookingsProps> = ({ bookings, filters }) => {
     const [dateTo, setDateTo] = useState(filters.date_to || '');
     const [rejectBookingId, setRejectBookingId] = useState<number | null>(null);
     const [rejectLoading, setRejectLoading] = useState(false);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [confirmedAction, setConfirmedAction] = useState<{ booking: Booking; action: 'approved' | 'rejected' } | null>(null);
 
     const handleReject = (bookingId: number, reason: string) => {
         setRejectLoading(true);
+        const booking = bookings.data.find((b) => b.id === bookingId) ?? null;
         router.patch(
             route('admin.bookings.reject', bookingId),
             { rejection_reason: reason },
@@ -214,6 +218,10 @@ const AdminBookings: React.FC<AdminBookingsProps> = ({ bookings, filters }) => {
                 onSuccess: () => {
                     setRejectBookingId(null);
                     setRejectLoading(false);
+                    if (booking) {
+                        setConfirmedAction({ booking, action: 'rejected' });
+                        setShowConfirmModal(true);
+                    }
                 },
                 onError: () => setRejectLoading(false),
             }
@@ -221,10 +229,17 @@ const AdminBookings: React.FC<AdminBookingsProps> = ({ bookings, filters }) => {
     };
 
     const handleApprove = (bookingId: number) => {
+        const booking = bookings.data.find((b) => b.id === bookingId) ?? null;
         router.patch(
             route('admin.bookings.approve', bookingId),
             {},
             {
+                onSuccess: () => {
+                    if (booking) {
+                        setConfirmedAction({ booking, action: 'approved' });
+                        setShowConfirmModal(true);
+                    }
+                },
                 onError: () => {},
             }
         );
@@ -459,6 +474,76 @@ const AdminBookings: React.FC<AdminBookingsProps> = ({ bookings, filters }) => {
                     loading={rejectLoading}
                     bookingId={rejectBookingId}
                 />
+
+                <Modal show={showConfirmModal} onClose={() => setShowConfirmModal(false)} maxWidth="md">
+                    <div className="p-6">
+                        <div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${confirmedAction?.action === 'approved' ? 'bg-emerald-100' : 'bg-rose-100'}`}>
+                            <Icon
+                                name={confirmedAction?.action === 'approved' ? 'check-circle' : 'x-circle'}
+                                className={`h-7 w-7 ${confirmedAction?.action === 'approved' ? 'text-emerald-600' : 'text-rose-600'}`}
+                            />
+                        </div>
+                        <h3 className="mt-4 text-center text-lg font-bold text-slate-900">
+                            Booking {confirmedAction?.action === 'approved' ? 'Approved' : 'Rejected'}
+                        </h3>
+                        <p className="mt-2 text-center text-sm text-slate-500">
+                            {confirmedAction?.action === 'approved'
+                                ? 'The booking request has been approved. The requester will be notified.'
+                                : 'The booking request has been rejected. The requester will be notified with the reason.'}
+                        </p>
+
+                        {confirmedAction?.booking && (
+                            <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                                <dl className="space-y-3 text-sm">
+                                    <div className="flex justify-between gap-4">
+                                        <dt className="font-medium text-slate-500">Booking</dt>
+                                        <dd className="text-right font-semibold text-slate-900">#{confirmedAction.booking.id}</dd>
+                                    </div>
+                                    <div className="flex justify-between gap-4">
+                                        <dt className="font-medium text-slate-500">Requester</dt>
+                                        <dd className="text-right font-semibold text-slate-900">{confirmedAction.booking.user.name}</dd>
+                                    </div>
+                                    <div className="flex justify-between gap-4">
+                                        <dt className="font-medium text-slate-500">Venue</dt>
+                                        <dd className="text-right font-semibold text-slate-900">
+                                            {confirmedAction.booking.venue?.name || '—'}
+                                        </dd>
+                                    </div>
+                                    <div className="flex justify-between gap-4">
+                                        <dt className="font-medium text-slate-500">Date</dt>
+                                        <dd className="text-right font-semibold text-slate-900">
+                                            {formatDate(confirmedAction.booking.date)}
+                                        </dd>
+                                    </div>
+                                    <div className="flex justify-between gap-4">
+                                        <dt className="font-medium text-slate-500">Time</dt>
+                                        <dd className="text-right font-semibold text-slate-900">
+                                            {formatTime(confirmedAction.booking.start_time)} – {formatTime(confirmedAction.booking.end_time)}
+                                        </dd>
+                                    </div>
+                                    {confirmedAction.booking.status === 'rejected' && confirmedAction.booking.rejection_reason && (
+                                        <div className="flex justify-between gap-4">
+                                            <dt className="font-medium text-slate-500">Reason</dt>
+                                            <dd className="text-right font-semibold text-rose-700">
+                                                {confirmedAction.booking.rejection_reason}
+                                            </dd>
+                                        </div>
+                                    )}
+                                </dl>
+                            </div>
+                        )}
+
+                        <div className="mt-6 flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowConfirmModal(false)}
+                                className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                            >
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                </Modal>
             </div>
         </AuthenticatedLayout>
     );

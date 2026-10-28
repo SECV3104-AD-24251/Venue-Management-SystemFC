@@ -1,4 +1,5 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import Modal from '@/Components/Modal';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import axios from 'axios';
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
@@ -120,6 +121,8 @@ export default function Booking() {
     const [submitMessage, setSubmitMessage] = useState('');
     const [submitError, setSubmitError] = useState('');
     const [fieldErrors, setFieldErrors] = useState<Partial<Record<BookingField, string>>>({});
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [confirmedBooking, setConfirmedBooking] = useState<BookingData | null>(null);
     const suggestionRequest = useRef(0);
 
     useEffect(() => {
@@ -299,6 +302,8 @@ export default function Booking() {
                 return;
             }
             setSubmitMessage(response.message || 'Booking request submitted successfully.');
+            setConfirmedBooking({ ...data });
+            setShowSuccessModal(true);
             reset();
             setSuggestions([]);
             setFieldErrors({});
@@ -369,11 +374,6 @@ export default function Booking() {
                     <div role="status" className="flex items-start gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
                         <Icon name="check" className="mt-0.5 h-5 w-5 shrink-0" />
                         <p>{submitMessage}</p>
-                    </div>
-                )}
-                {submitError && (
-                    <div role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
-                        {submitError}
                     </div>
                 )}
                 {submitError && (
@@ -843,6 +843,71 @@ export default function Booking() {
                     </aside>
                 </div>
             </div>
+
+            <Modal show={showSuccessModal} onClose={() => setShowSuccessModal(false)} maxWidth="md">
+                <div className="p-6">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-100">
+                        <Icon name="check" className="h-7 w-7 text-emerald-600" />
+                    </div>
+                    <h3 className="mt-4 text-center text-lg font-bold text-slate-900">Booking Request Submitted</h3>
+                    <p className="mt-2 text-center text-sm text-slate-500">
+                        Your booking request has been submitted for approval. You will be notified once an administrator reviews it.
+                    </p>
+
+                    {confirmedBooking && (
+                        <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                            <dl className="space-y-3 text-sm">
+                                <div className="flex justify-between gap-4">
+                                    <dt className="font-medium text-slate-500">Venue</dt>
+                                    <dd className="text-right font-semibold text-slate-900">
+                                        {venues.find((v) => String(v.id) === confirmedBooking.venue_id)?.name || '—'}
+                                    </dd>
+                                </div>
+                                <div className="flex justify-between gap-4">
+                                    <dt className="font-medium text-slate-500">Date</dt>
+                                    <dd className="text-right font-semibold text-slate-900">
+                                        {new Intl.DateTimeFormat('en', {
+                                            weekday: 'short',
+                                            month: 'short',
+                                            day: 'numeric',
+                                            year: 'numeric',
+                                        }).format(new Date(`${confirmedBooking.date}T00:00:00`))}
+                                    </dd>
+                                </div>
+                                <div className="flex justify-between gap-4">
+                                    <dt className="font-medium text-slate-500">Time</dt>
+                                    <dd className="text-right font-semibold text-slate-900">
+                                        {confirmedBooking.start_time} – {confirmedBooking.end_time}
+                                    </dd>
+                                </div>
+                                <div className="flex justify-between gap-4">
+                                    <dt className="font-medium text-slate-500">Attendance</dt>
+                                    <dd className="text-right font-semibold text-slate-900">
+                                        {confirmedBooking.capacity} people
+                                    </dd>
+                                </div>
+                            </dl>
+                        </div>
+                    )}
+
+                    <div className="mt-6 flex justify-end gap-3">
+                        <button
+                            type="button"
+                            onClick={() => setShowSuccessModal(false)}
+                            className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-600 transition hover:bg-slate-50"
+                        >
+                            Close
+                        </button>
+                        <Link
+                            href={route('viewbooking')}
+                            className="inline-flex items-center gap-2 rounded-xl bg-blue-700 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-800"
+                        >
+                            View my bookings
+                            <Icon name="arrow" className="h-4 w-4" />
+                        </Link>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

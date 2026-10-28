@@ -67,7 +67,7 @@ function statusClasses(status: string): string {
 }
 
 function formatDate(value: string): string {
-    const date = new Date(`${value}T00:00:00`);
+    const date = new Date(value.includes('T') ? value : `${value}T00:00:00`);
     return Number.isNaN(date.getTime())
         ? value
         : new Intl.DateTimeFormat('en', { year: 'numeric', month: 'short', day: 'numeric' }).format(date);

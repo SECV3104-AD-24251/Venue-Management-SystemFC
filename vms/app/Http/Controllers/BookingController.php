@@ -336,20 +336,25 @@ class BookingController extends Controller
 
     public function markNotificationAsRead($id)
     {
-        $notification = Auth::user()->notifications()->where('id', $id)->first();
+        $updated = Auth::user()->notifications()
+            ->where('id', $id)
+            ->whereNull('read_at')
+            ->update(['read_at' => now()]);
 
-        if (! $notification) {
-            return response()->json(['success' => false, 'message' => 'Notification not found.'], 404);
+        if (! $updated) {
+            $exists = Auth::user()->notifications()->where('id', $id)->exists();
+            if (! $exists) {
+                return response()->json(['success' => false, 'message' => 'Notification not found.'], 404);
+            }
         }
-
-        $notification->markAsRead();
 
         return response()->json(['success' => true]);
     }
 
     public function markAllNotificationsAsRead()
     {
-        Auth::user()->unreadNotifications->markAsRead();
+        Auth::user()->unreadNotifications()
+            ->update(['read_at' => now()]);
 
         return response()->json(['success' => true]);
     }

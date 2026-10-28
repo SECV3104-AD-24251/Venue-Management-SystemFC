@@ -103,7 +103,7 @@ function isUpcoming(booking: Booking, now: Date): boolean {
 }
 
 function formatDate(date: string): string {
-    const parsed = new Date(`${date}T00:00:00`);
+    const parsed = new Date(date.includes('T') ? date : `${date}T00:00:00`);
     return Number.isNaN(parsed.getTime())
         ? date
         : new Intl.DateTimeFormat('en', {

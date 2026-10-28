@@ -65,7 +65,6 @@ export default function Authenticated({
         ...(user.role === 'admin'
             ? [
                     { label: 'Maintenance Monitor', routeName: 'admin.maintenance.monitor', icon: 'maintenance' as const },
-                    { label: 'Venue Reports', routeName: 'venue-reports', icon: 'report' as const },
                     { label: 'Manage Bookings', routeName: 'admin.bookings.index', icon: 'booking' as const },
                     { label: 'Manage Venues', routeName: 'venue-management.index', icon: 'settings' as const },
               ]
