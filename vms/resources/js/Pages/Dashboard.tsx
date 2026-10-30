@@ -100,14 +100,20 @@ const Dashboard = () => {
             .catch((error: unknown) => reportError('booking count', error));
 
         axios
-            .get<{ notifications: Array<string | { message: string }> }>('/api/notifications')
+            .get<{
+                notifications: Array<
+                    string | { message?: string; data?: { message?: string } }
+                >;
+            }>('/api/notifications')
             .then(({ data }) => {
                 if (!Array.isArray(data.notifications)) {
                     throw new Error('Unexpected notifications response');
                 }
-                const messages = data.notifications.map((item) =>
-                    typeof item === 'string' ? item : item.message,
-                );
+                const messages = data.notifications
+                    .map((item) =>
+                        typeof item === 'string' ? item : item.data?.message ?? item.message,
+                    )
+                    .filter((message): message is string => Boolean(message?.trim()));
                 if (isMounted) setNotifications(messages);
             })
             .catch((error: unknown) => reportError('recent activity', error));
