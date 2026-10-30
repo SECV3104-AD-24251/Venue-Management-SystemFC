@@ -36,6 +36,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Reports
     Route::get('/reports/venue', [VenueReportController::class, 'index']);
+    Route::get('/reports/bookings/summary', [VenueReportController::class, 'bookingsSummary']);
+    Route::get('/reports/maintenances/summary', [VenueReportController::class, 'maintenancesSummary']);
+
+    // Maintenance status updates
+    Route::post('/maintenances/status/bulk', [MaintenanceController::class, 'updateStatusBulk']);
 });
 
 Route::get('/refresh-csrf', function () {

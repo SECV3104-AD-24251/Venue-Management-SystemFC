@@ -371,4 +371,11 @@ class BookingController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    public function getUnreadCount()
+    {
+        return response()->json([
+            'unread_count' => Auth::user()->unreadNotifications()->count(),
+        ]);
+    }
 }

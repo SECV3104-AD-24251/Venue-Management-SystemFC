@@ -76,6 +76,46 @@ class MaintenanceController extends Controller
         return response()->json(['success' => true, 'message' => 'Status updated successfully']);
     }
 
+    public function updateStatusBulk(Request $request)
+    {
+        $validated = $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'required|integer|exists:maintenances,id',
+            'status' => 'required|in:scheduled,in-progress,completed',
+        ]);
+
+        $updatedIds = [];
+
+        foreach ($validated['ids'] as $id) {
+            $maintenance = Maintenance::find($id);
+
+            if (! $maintenance) {
+                continue;
+            }
+
+            if ($maintenance->status === $validated['status']) {
+                continue;
+            }
+
+            $maintenance->status = $validated['status'];
+
+            if ($validated['status'] === 'completed') {
+                $maintenance->completed_at = now();
+            } else {
+                $maintenance->completed_at = null;
+            }
+
+            $maintenance->save();
+
+            $updatedIds[] = $maintenance->id;
+        }
+
+        return response()->json([
+            'success' => true,
+            'updated' => $updatedIds,
+        ]);
+    }
+
     public function generateReport($id)
     {
         try {

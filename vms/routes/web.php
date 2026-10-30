@@ -100,6 +100,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/notifications', [BookingController::class, 'getNotifications']);
     Route::post('/api/notifications/{id}/read', [BookingController::class, 'markNotificationAsRead']);
     Route::post('/api/notifications/read-all', [BookingController::class, 'markAllNotificationsAsRead']);
+    Route::get('/api/notifications/unread-count', [BookingController::class, 'getUnreadCount']);
     Route::post('/api/venues/check-availability', [VenueController::class, 'checkAvailability']);
     Route::post('/api/venues/status', [VenueController::class, 'checkVenueStatus']);
     Route::post('/api/bookings/check-time', [BookingController::class, 'checkTime']);
