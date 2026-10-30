@@ -45,6 +45,39 @@ it('allows a lecturer to submit a booking request', function () {
     ]);
 });
 
+it('returns the total booking count on the dashboard endpoint', function () {
+    Booking::create([
+        'name' => 'Test Lecture',
+        'email' => $this->lecturer->email,
+        'capacity' => 30,
+        'venue_id' => $this->venue->id,
+        'date' => '2026-11-01',
+        'start_time' => '09:00',
+        'end_time' => '10:30',
+        'user_id' => $this->lecturer->id,
+        'status' => 'pending',
+    ]);
+
+    $response = $this->actingAs($this->lecturer)->getJson('/api/bookings/count');
+
+    $response
+        ->assertOk()
+        ->assertExactJson(['totalBookings' => 1]);
+});
+
+it('returns booking notification messages in the recent activity response', function () {
+    $this->lecturer->notifications()->create([
+        'id' => (string) \Illuminate\Support\Str::uuid(),
+        'type' => 'App\\Notifications\\BookingApproved',
+        'data' => ['message' => 'Your booking has been approved.'],
+    ]);
+
+    $this->actingAs($this->lecturer)
+        ->getJson('/api/notifications')
+        ->assertOk()
+        ->assertJsonPath('notifications.0.data.message', 'Your booking has been approved.');
+});
+
 it('does not allow a booking that conflicts with an approved booking', function () {
     Booking::create([
         'name' => 'Approved Lecture',

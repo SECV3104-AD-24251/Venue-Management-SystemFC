@@ -13,7 +13,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/venues', VenueController::class);
 
     // Booking-related API routes
-    Route::apiResource('/bookings', BookingController::class);
+    Route::apiResource('/bookings', BookingController::class)->except(['show']);
     Route::post('/bookings/check-time', [BookingController::class, 'checkTime']);
     Route::get('/bookings/notifications', [BookingController::class, 'getNotifications']);
 
