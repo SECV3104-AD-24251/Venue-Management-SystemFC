@@ -122,9 +122,10 @@ class MaintenanceController extends Controller
 
     public function fetchMaintenanceNotifications()
     {
-        // Fetch venues that are under maintenance, make sure to replace this query according to your DB schema
-        $maintenanceNotifications = Venue::where('is_under_maintenance', true)
-            ->with('name') // Assuming there's a 'name' field in the Venue model
+        // Fetch maintenance tasks that are scheduled or in progress, with venue details
+        $maintenanceNotifications = Maintenance::with('venue')
+            ->where('status', '!=', 'completed')
+            ->orderBy('scheduled_for_date', 'asc')
             ->get();
 
         return response()->json([
