@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/classroom-suggestions', [BookingController::class, 'getSuggestions']);
 
     // Reports
-    Route::get('/reports/venue', [VenueReportController::class, 'index']);
+    Route::get('/reports/venue', [VenueReportController::class, 'data']);
     Route::get('/reports/bookings/summary', [VenueReportController::class, 'bookingsSummary']);
     Route::get('/reports/maintenances/summary', [VenueReportController::class, 'maintenancesSummary']);
 
