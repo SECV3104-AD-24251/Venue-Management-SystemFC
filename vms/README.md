@@ -1,66 +1,200 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Venue Management System (VMS)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![Laravel](https://img.shields.io/badge/Laravel-11.x-FF7043?logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)
+![Inertia](https://img.shields.io/badge/Inertia.js-Laravel-4E5BC4)
 
-## About Laravel
+## Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+The **Venue Management System (VMS)** is a full-stack web application built to support venue
+operations for a faculty computing department. The system digitises the end-to-end lifecycle of
+physical learning venues, including venue discovery, booking requests, approval workflows, maintenance
+scheduling, class scheduling, and operational reporting.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+The application serves three user roles with dedicated workflows:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- **Admin** — monitors maintenance activity, reviews and approves/rejects booking requests, and
+  manages the venue catalogue.
+- **Lecturer** — browses available venues, checks availability, submits booking requests, and reviews
+  class schedules.
+- **Staff** — handles maintenance requests and generates venue operational reports.
 
-## Learning Laravel
+All authenticated users share a dashboard with aggregated metrics and notifications.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Core Features
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Authentication & Role-Based Access Control
+- Secure registration, login, email verification, and password reset flows.
+- Three roles (`admin`, `lecturer`, `staff`) enforced via Laravel middleware and spatie permission packages.
+- Role-specific navigation and permissions.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Venue Management
+- Venue directory with name, location, capacity, status, image and informational fields.
+- Admin-only venue create / update / delete operations.
+- Venue availability checks and classroom suggestions based on capacity and equipment requirements.
 
-## Laravel Sponsors
+### Booking Management
+- Lecturers submit booking requests (venue, date, time range, capacity, comments).
+- Automatic conflict detection against existing bookings.
+- Admin approval / rejection workflow with notifications and rejection reasons.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### Maintenance Management
+- Maintenance scheduling per venue (date, time, description).
+- Status workflow: `scheduled → in-progress → completed` (with completion timestamp).
+- Maintenance reports (PDF via DomPDF) and admin maintenance monitor dashboard.
 
-### Premium Partners
+### Scheduling & Reporting
+- Class schedule creation with conflict checks against venues, bookings and maintenance.
+- Venue reports: most used venues, most maintained venues, maintenance completion rates, and venue
+  utilisation hours.
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## Tech Stack
 
-## Contributing
+| Layer | Technology |
+|---|---|
+| Backend | Laravel 11 (PHP 8.2+), Eloquent ORM, Sanctum |
+| Frontend | Inertia.js + React 18 (TypeScript), Tailwind CSS |
+| Database | SQLite (development) |
+| RBAC | spatie/laravel-permission |
+| Reporting | barryvdh/laravel-dompdf |
+| Real-time / Queue | Pusher (laravel-echo, pusher-php-server), database queue |
+| Testing | PestPHP, Laravel Pint |
+| Build tooling | Vite, TypeScript |
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Getting Started
 
-## Code of Conduct
+```bash
+# from the project root (repository root containing the `vms/` folder)
+cd vms
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Backend setup
+composer install
+cp .env.example .env
+php artisan key:generate
+php artisan migrate
+php artisan db:seed
 
-## Security Vulnerabilities
+# Frontend setup
+npm install
+npm run dev
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# Or run the full stack (server + queue + vite)
+composer dev
+```
+
+## Demo Accounts
+
+| Role | Email | Password |
+|---|---|---|
+| Admin | `admin@example.com` | `password` |
+| Lecturer | `lecturer@example.com` | `password` |
+| Staff | `staff@example.com` | `password` |
+
+## Screenshots
+
+Placeholder images for each major page. Replace the files in `docs/images/` with real captures.
+
+### Public
+
+#### Welcome page
+
+- ![Welcome page — hero section](docs/images/welcome-1.png)
+- ![Welcome page — features and call to action](docs/images/welcome-2.png)
+
+### Authentication
+
+#### Login page
+
+- ![Login page — authentication view 1](docs/images/login-1.png)
+- ![Login page — authentication view 2](docs/images/login-2.png)
+
+#### Registration page
+
+- ![Registration page — registration view 1](docs/images/register-1.png)
+- ![Registration page — registration view 2](docs/images/register-2.png)
+
+### Lecturer Pages
+
+#### Dashboard
+
+- ![Lecturer dashboard — metrics and greeting](docs/images/dashboard-1.png)
+- ![Lecturer dashboard — availability and recent activity](docs/images/dashboard-2.png)
+
+#### Venue browsing
+
+- ![Venue directory view 1](docs/images/venues-1.png)
+- ![Venue details view 2](docs/images/venues-2.png)
+
+#### Booking flow
+
+- ![Booking request form](docs/images/booking-1.png)
+- ![Booking availability check / suggestions](docs/images/booking-2.png)
+
+#### My bookings
+
+- ![My bookings — list view](docs/images/viewbooking-1.png)
+- ![My bookings — detail view](docs/images/viewbooking-2.png)
+
+#### Class schedule
+
+- ![Class schedule view 1](docs/images/classschedule-1.png)
+- ![Class schedule view 2](docs/images/classschedule-2.png)
+
+### Staff Pages
+
+#### Maintenance
+
+- ![Maintenance list view 1](docs/images/maintenance-1.png)
+- ![Maintenance create view 2](docs/images/maintenance-2.png)
+
+#### Venue reports
+
+- ![Venue reports — view 1](docs/images/venue-reports-1.png)
+- ![Venue reports — view 2](docs/images/venue-reports-2.png)
+
+### Admin Pages
+
+#### Manage bookings
+
+- ![Admin bookings — list view 1](docs/images/admin-bookings-1.png)
+- ![Admin bookings — approve/reject view 2](docs/images/admin-bookings-2.png)
+
+#### Manage venues
+
+- ![Admin venues — list view 1](docs/images/admin-venues-1.png)
+- ![Admin venues — create/edit view 2](docs/images/admin-venues-2.png)
+
+#### Maintenance monitor
+
+- ![Maintenance monitor — overview view 1](docs/images/admin-monitor-1.png)
+- ![Maintenance monitor — status update view 2](docs/images/admin-monitor-2.png)
+
+## Project Structure
+
+```text
+vms/
+├── app/
+│   ├── Http/Controllers/   # Feature controllers
+│   ├── Models/              # Eloquent models (User, Venue, Booking, Maintenance, Schedule)
+│   ├── Policies/            # Authorization policies
+│   └── Notifications/       # Booking status notifications
+├── database/
+│   ├── migrations/
+│   └── seeders/
+├── docs/images/             # Screenshot placeholders
+├── resources/js/
+│   ├── Components/
+│   ├── Layouts/
+│   ├── Pages/
+│   └── app.tsx
+├── resources/views/         # Blade + PDF report views
+├── routes/
+├── tests/
+└── vite.config.js
+```
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the MIT license.
