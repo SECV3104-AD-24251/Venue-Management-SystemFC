@@ -26,42 +26,47 @@ All authenticated users share a dashboard with aggregated metrics and notificati
 ## Core Features
 
 ### Authentication & Role-Based Access Control
+
 - Secure registration, login, email verification, and password reset flows.
 - Three roles (`admin`, `lecturer`, `staff`) enforced via Laravel middleware and spatie permission packages.
 - Role-specific navigation and permissions.
 
 ### Venue Management
+
 - Venue directory with name, location, capacity, status, image and informational fields.
 - Admin-only venue create / update / delete operations.
 - Venue availability checks and classroom suggestions based on capacity and equipment requirements.
 
 ### Booking Management
+
 - Lecturers submit booking requests (venue, date, time range, capacity, comments).
 - Automatic conflict detection against existing bookings.
 - Admin approval / rejection workflow with notifications and rejection reasons.
 
 ### Maintenance Management
+
 - Maintenance scheduling per venue (date, time, description).
 - Status workflow: `scheduled → in-progress → completed` (with completion timestamp).
 - Maintenance reports (PDF via DomPDF) and admin maintenance monitor dashboard.
 
 ### Scheduling & Reporting
+
 - Class schedule creation with conflict checks against venues, bookings and maintenance.
 - Venue reports: most used venues, most maintained venues, maintenance completion rates, and venue
   utilisation hours.
 
 ## Tech Stack
 
-| Layer | Technology |
-|---|---|
-| Backend | Laravel 11 (PHP 8.2+), Eloquent ORM, Sanctum |
-| Frontend | Inertia.js + React 18 (TypeScript), Tailwind CSS |
-| Database | SQLite (development) |
-| RBAC | spatie/laravel-permission |
-| Reporting | barryvdh/laravel-dompdf |
+| Layer             | Technology                                               |
+| ----------------- | -------------------------------------------------------- |
+| Backend           | Laravel 11 (PHP 8.2+), Eloquent ORM, Sanctum             |
+| Frontend          | Inertia.js + React 18 (TypeScript), Tailwind CSS         |
+| Database          | MySQL (Development)                                      |
+| RBAC              | spatie/laravel-permission                                |
+| Reporting         | barryvdh/laravel-dompdf                                  |
 | Real-time / Queue | Pusher (laravel-echo, pusher-php-server), database queue |
-| Testing | PestPHP, Laravel Pint |
-| Build tooling | Vite, TypeScript |
+| Testing           | PestPHP, Laravel Pint                                    |
+| Build tooling     | Vite, TypeScript                                         |
 
 ## Getting Started
 
@@ -86,11 +91,11 @@ composer dev
 
 ## Demo Accounts
 
-| Role | Email | Password |
-|---|---|---|
-| Admin | `admin@example.com` | `password` |
+| Role     | Email                  | Password   |
+| -------- | ---------------------- | ---------- |
+| Admin    | `admin@example.com`    | `password` |
 | Lecturer | `lecturer@example.com` | `password` |
-| Staff | `staff@example.com` | `password` |
+| Staff    | `staff@example.com`    | `password` |
 
 ## Screenshots
 

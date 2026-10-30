@@ -13,6 +13,10 @@ class Maintenance extends Model
         'venue_id', 'description', 'scheduled_for_date', 'scheduled_for_time', 'status',
     ];
 
+    protected $casts = [
+        'scheduled_for_date' => 'date',
+    ];
+
     public function venue()
     {
         return $this->belongsTo(Venue::class);

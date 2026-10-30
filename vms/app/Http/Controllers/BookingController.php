@@ -272,6 +272,19 @@ class BookingController extends Controller
             'comments' => 'nullable|string',
         ]);
 
+        $conflicts = Booking::conflicts($booking->venue_id, $booking->date, $booking->start_time, $booking->end_time)
+            ->where('status', '!=', 'rejected')
+            ->where('id', '!=', $booking->id)
+            ->exists();
+
+        if ($conflicts) {
+            if ($request->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'Cannot update: venue has a conflicting booking at this time.'], 422);
+            }
+
+            return redirect()->back()->with('error', 'Cannot update: venue has a conflicting booking at this time.');
+        }
+
         $booking->update($validated);
 
         return redirect()->route('bookings.index')->with('success', 'Booking updated successfully!');

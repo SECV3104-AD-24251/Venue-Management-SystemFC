@@ -39,11 +39,15 @@ class ScheduleController extends Controller
                 ->withInput();
         }
 
-        $bookingConflict = Booking::where('venue_id', $validated['venue_id'])
-            ->whereRaw('DAYNAME(`date`) = ?', [$validated['day']])
-            ->where('start_time', '<', $validated['end_time'])
-            ->where('end_time', '>', $validated['start_time'])
-            ->exists();
+        $bookings = Booking::where('venue_id', $validated['venue_id'])
+            ->where('status', '!=', 'rejected')
+            ->get(['date', 'start_time', 'end_time']);
+
+        $bookingConflict = $bookings->contains(function (Booking $booking) use ($validated) {
+            return $booking->date->format('l') === $validated['day']
+                && $booking->start_time < $validated['end_time']
+                && $booking->end_time > $validated['start_time'];
+        });
 
         if ($bookingConflict) {
             return redirect()->back()
@@ -51,16 +55,26 @@ class ScheduleController extends Controller
                 ->withInput();
         }
 
-        $maintenanceConflict = Maintenance::where('venue_id', $validated['venue_id'])
-            ->whereRaw('DAYNAME(`scheduled_for_date`) = ?', [$validated['day']])
-            ->where(function ($query) use ($validated) {
-                $query->whereNull('scheduled_for_time')
-                    ->orWhere(function ($q) use ($validated) {
-                        $q->where('scheduled_for_time', '<', $validated['end_time'])
-                            ->where('scheduled_for_time', '>', $validated['start_time']);
-                    });
-            })
-            ->exists();
+        $maintenances = Maintenance::where('venue_id', $validated['venue_id'])
+            ->whereIn('status', ['scheduled', 'in-progress'])
+            ->get(['scheduled_for_date', 'scheduled_for_time', 'status']);
+
+        $maintenanceConflict = $maintenances->contains(function (Maintenance $maintenance) use ($validated) {
+            if ($maintenance->status === 'completed') {
+                return false;
+            }
+
+            if ($maintenance->scheduled_for_date->format('l') !== $validated['day']) {
+                return false;
+            }
+
+            if ($maintenance->scheduled_for_time === null) {
+                return true;
+            }
+
+            return $maintenance->scheduled_for_time < $validated['end_time']
+                && $maintenance->scheduled_for_time > $validated['start_time'];
+        });
 
         if ($maintenanceConflict) {
             return redirect()->back()
