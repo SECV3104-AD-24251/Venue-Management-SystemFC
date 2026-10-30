@@ -3,11 +3,11 @@
 namespace App\Notifications;
 
 use App\Models\Booking;
+use Carbon\Carbon;
 use Illuminate\Notifications\Notification;
 
 class BookingApproved extends Notification
 {
-
     public function __construct(
         public Booking $booking
     ) {}
@@ -19,14 +19,16 @@ class BookingApproved extends Notification
 
     public function toDatabase(object $notifiable): array
     {
+        $booking = $this->booking;
+
         return [
-            'booking_id' => $this->booking->id,
-            'venue_name' => $this->booking->venue->name ?? 'Unknown Venue',
-            'date' => $this->booking->date?->format('Y-m-d'),
-            'start_time' => $this->booking->start_time?->format('H:i'),
-            'end_time' => $this->booking->end_time?->format('H:i'),
+            'booking_id' => $booking->id,
+            'venue_name' => $booking->venue->name ?? 'Unknown Venue',
+            'date' => $booking->date?->format('Y-m-d'),
+            'start_time' => $booking->start_time ? Carbon::parse($booking->start_time)->format('H:i') : null,
+            'end_time' => $booking->end_time ? Carbon::parse($booking->end_time)->format('H:i') : null,
             'status' => 'approved',
-            'message' => "Your booking for {$this->booking->venue->name} on {$this->booking->date} has been approved.",
+            'message' => 'Your booking for '.$booking->venue->name.' on '.$booking->date?->format('Y-m-d').' has been approved.',
         ];
     }
 

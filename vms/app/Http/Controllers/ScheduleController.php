@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Maintenance;
 use App\Models\Schedule;
+use App\Models\User;
+use App\Models\Venue;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -19,7 +22,7 @@ class ScheduleController extends Controller
     {
         $validated = $request->validate([
             'class_name' => 'required|string|max:255',
-            'section' => 'required|string|max:50',
+            'section' => 'required|integer|max:50',
             'lecturer_name' => 'required|string|max:255',
             'day' => 'required|in:Monday,Tuesday,Wednesday,Thursday,Friday',
             'start_time' => 'required|date_format:H:i',
@@ -82,7 +85,23 @@ class ScheduleController extends Controller
                 ->withInput();
         }
 
-        Schedule::create($validated);
+        $lecturer = User::where('name', $validated['lecturer_name'])->first();
+        $venue = Venue::find($validated['venue_id']);
+
+        Schedule::create([
+            'subject' => $validated['class_name'],
+            'section' => $validated['section'],
+            'day' => $validated['day'],
+            'time' => $validated['start_time'],
+            'duration' => Carbon::parse($validated['end_time'])->diffInMinutes(Carbon::parse($validated['start_time'])),
+            'capacity' => $venue?->capacity ?? 0,
+            'lecturer_id' => $lecturer?->id,
+            'venue_id' => $validated['venue_id'],
+            'class_name' => $validated['class_name'],
+            'lecturer_name' => $validated['lecturer_name'],
+            'start_time' => $validated['start_time'],
+            'end_time' => $validated['end_time'],
+        ]);
 
         return redirect()->route('schedules.add')->with('success', 'Schedule created successfully.');
     }
