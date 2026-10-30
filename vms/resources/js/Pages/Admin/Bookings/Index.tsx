@@ -259,11 +259,6 @@ const AdminBookings: React.FC<AdminBookingsProps> = ({ bookings, filters }) => {
             <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8 xl:px-8">
                 <section className="flex flex-col justify-between gap-4 border-b border-slate-200/80 pb-5 md:flex-row md:items-end">
                     <div>
-                        <nav aria-label="Breadcrumb" className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
-                            <Link href={route('admin.index')} className="transition hover:text-blue-700">Admin</Link>
-                            <span aria-hidden="true">/</span>
-                            <span aria-current="page" className="font-semibold text-slate-800">Manage Bookings</span>
-                        </nav>
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                             Manage Bookings
                         </h1>

@@ -237,11 +237,6 @@ const ViewBooking: React.FC<ViewBookingProps> = ({ bookings = [] }) => {
             <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8 xl:px-8">
                 <section className="flex flex-col justify-between gap-4 border-b border-slate-200/80 pb-5 md:flex-row md:items-end">
                     <div>
-                        <nav aria-label="Breadcrumb" className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
-                            <Link href={route('dashboard')} className="transition hover:text-blue-700">Dashboard</Link>
-                            <span aria-hidden="true">/</span>
-                            <span aria-current="page" className="font-semibold text-slate-800">My bookings</span>
-                        </nav>
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                             My Venue Bookings
                         </h1>

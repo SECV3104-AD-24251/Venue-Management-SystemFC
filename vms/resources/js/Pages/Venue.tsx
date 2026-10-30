@@ -264,9 +264,6 @@ export default function Venue() {
             <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8 xl:px-8">
                 <section className="flex flex-col justify-between gap-4 border-b border-slate-200/80 pb-5 md:flex-row md:items-end">
                     <div>
-                        <p className="mb-1 text-xs font-semibold uppercase tracking-[0.12em] text-blue-700">
-                            Venue management
-                        </p>
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                             Faculty Venue Directory
                         </h1>

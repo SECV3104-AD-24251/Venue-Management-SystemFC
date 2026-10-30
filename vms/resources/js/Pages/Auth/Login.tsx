@@ -85,10 +85,6 @@ export default function Login({
                                 <span className="mt-0.5 block text-xs text-slate-500">Faculty of Computing &amp; Informatics</span>
                             </span>
                         </Link>
-                        <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-600 sm:flex">
-                            <Icon name="shield" className="h-4 w-4 text-emerald-700" />
-                            Secure account access
-                        </div>
                     </div>
                 </header>
 
@@ -117,16 +113,9 @@ export default function Login({
                             </div>
 
                             <div>
-                                <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold text-blue-100">
-                                    <Icon name="shield" className="h-4 w-4" />
-                                    Venue access portal
-                                </span>
                                 <h1 className="mt-6 text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
                                     Welcome back to your campus workspace.
                                 </h1>
-                                <p className="mt-4 max-w-md text-sm leading-6 text-slate-300">
-                                    Sign in to manage venue reservations and access the services available to your account.
-                                </p>
                             </div>
 
                             <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
@@ -248,10 +237,6 @@ export default function Login({
                                             />
                                             <span className="text-sm text-slate-600">Remember me</span>
                                         </label>
-                                        <span className="hidden items-center gap-1.5 text-xs text-slate-400 sm:inline-flex">
-                                            <Icon name="shield" className="h-3.5 w-3.5" />
-                                            Secure sign-in
-                                        </span>
                                     </div>
 
                                     <button

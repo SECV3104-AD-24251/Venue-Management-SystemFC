@@ -151,23 +151,12 @@ const MaintenanceMonitor: React.FC<Props> = ({ maintenances = [] }) => {
     ];
 
     return (
-        <AuthenticatedLayout
-            header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Maintenance Monitoring
-                </h2>
-            }
-        >
+        <AuthenticatedLayout>
             <Head title="Maintenance Monitoring" />
 
             <div className="mx-auto flex w-full max-w-[1600px] flex-col gap-6 px-4 py-6 sm:px-6 lg:py-8 xl:px-8">
                 <section className="flex flex-col justify-between gap-4 border-b border-slate-200/80 pb-5 lg:flex-row lg:items-end">
                     <div>
-                        <nav aria-label="Breadcrumb" className="mb-2 flex items-center gap-2 text-xs font-medium text-slate-500">
-                            <span className="font-semibold text-slate-800">Admin</span>
-                            <span aria-hidden="true">/</span>
-                            <span aria-current="page">Maintenance Monitor</span>
-                        </nav>
                         <h1 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
                             Maintenance Monitoring
                         </h1>
