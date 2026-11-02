@@ -16,6 +16,7 @@ use Inertia\Inertia;
 // Admin routes
 Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin', [AdminController::class, 'index'])->name('admin.index');
+    Route::get('/admin/schedules', [ClassScheduleController::class, 'adminIndex'])->name('admin.schedules.index');
     Route::get('/venue-reports', [VenueReportController::class, 'index'])->name('venue-reports');
 
     Route::get('/maintenance', [MaintenanceController::class, 'index'])->name('maintenance.index');

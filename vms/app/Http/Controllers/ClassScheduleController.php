@@ -21,6 +21,15 @@ class ClassScheduleController extends Controller
         ]);
     }
 
+    public function adminIndex()
+    {
+        $schedules = Schedule::with('venue')->get();
+
+        return Inertia::render('Admin/Schedules/Index', [
+            'schedules' => $schedules,
+        ]);
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate([
