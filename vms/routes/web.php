@@ -46,7 +46,8 @@ Route::middleware(['auth', 'role:lecturer'])->group(function () {
         return Inertia::render('Booking');
     })->name('booking');
     Route::get('/viewbooking', [BookingController::class, 'index'])->name('viewbooking');
-    Route::get('/schedule', [ClassScheduleController::class, 'index'])->name('schedule');
+    Route::get('/lecturer/schedule', [ClassScheduleController::class, 'index'])->name('lecturer.schedule');
+    Route::post('/lecturer/schedule', [ClassScheduleController::class, 'store'])->name('lecturer.schedule.store');
     Route::get('/venue', function () {
         return Inertia::render('Venue');
     })->name('venue');
