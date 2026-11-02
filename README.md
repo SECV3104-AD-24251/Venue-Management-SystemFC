@@ -129,7 +129,7 @@ Placeholder images for each major page. Replace the files in `docs/images/` with
 
 #### Venue browsing
 
-- ![Venue directory view 1](docs/images/venues-1.png)
+- ![Venue directory view 1](vms/docs/images/venues-1.png)
 - ![Venue details view 2](docs/images/venues-2.png)
 
 #### Booking flow
