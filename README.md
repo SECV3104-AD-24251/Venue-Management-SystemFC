@@ -111,72 +111,72 @@ Placeholder images for each major page. Replace the files in `docs/images/` with
 
 #### Login page
 
-- ![Login page — authentication view 1](docs/images/login-1.png)
+- ![Login page — authentication view 1](vms/docs/images/login-1.png)
 
 #### Registration page
 
-- ![Registration page — registration view 1](docs/images/register-1.png)
+- ![Registration page — registration view 1](vms/docs/images/register-1.png)
 
 ### Lecturer Pages
 
 #### Dashboard
 
-- ![Lecturer dashboard — metrics and greeting](docs/images/dashboard-1.png)
+- ![Lecturer dashboard — metrics and greeting](vms/docs/images/dashboard-1.png)
 
 #### Profile
 
-- ![Profile](docs/images/profile-1.png)
+- ![Profile](vms/docs/images/profile-1.png)
 
 #### Venue browsing
 
 - ![Venue directory view 1](vms/docs/images/venues-1.png)
-- ![Venue details view 2](docs/images/venues-2.png)
+- ![Venue details view 2](vms/docs/images/venues-2.png)
 
 #### Booking flow
 
-- ![Booking request form](docs/images/booking-1.png)
-- ![Booking availability check / suggestions](docs/images/booking-2.png)
+- ![Booking request form](vms/docs/images/booking-1.png)
+- ![Booking availability check / suggestions](vms/docs/images/booking-2.png)
 
 #### My bookings
 
-- ![My bookings — list view](docs/images/viewbooking-1.png)
+- ![My bookings — list view](vms/docs/images/viewbooking-1.png)
 
 #### Notification Bar
 
-- ![Notification bar](docs/images/notification-1.png)
+- ![Notification bar](vms/docs/images/notification-1.png)
 
 #### Class schedule
 
-- ![Class schedule view 1](docs/images/classschedule-1.png)
-- ![Class schedule view 2](docs/images/classschedule-2.png)
+- ![Class schedule view 1](vms/docs/images/classschedule-1.png)
+- ![Class schedule view 2](vms/docs/images/classschedule-2.png)
 
 ### Staff Pages
 
 #### Maintenance
 
-- ![Maintenance list view 1](docs/images/maintenance-1.png)
-- ![Maintenance create view 2](docs/images/maintenance-2.png)
+- ![Maintenance list view 1](vms/docs/images/maintenance-1.png)
+- ![Maintenance create view 2](vms/docs/images/maintenance-2.png)
 
 #### Venue reports
 
-- ![Venue reports — view 1](docs/images/venue-reports-1.png)
-- ![Venue reports — view 2](docs/images/venue-reports-2.png)
+- ![Venue reports — view 1](vms/docs/images/venue-reports-1.png)
+- ![Venue reports — view 2](vms/docs/images/venue-reports-2.png)
 
 ### Admin Pages
 
 #### Manage bookings
 
-- ![Admin bookings — list view 1](docs/images/admin-bookings-1.png)
-- ![Admin bookings — approve/reject view 2](docs/images/admin-bookings-2.png)
+- ![Admin bookings — list view 1](vms/docs/images/admin-bookings-1.png)
+- ![Admin bookings — approve/reject view 2](vms/docs/images/admin-bookings-2.png)
 
 #### Manage venues
 
-- ![Admin venues — list view 1](docs/images/admin-venues-1.png)
-- ![Admin venues — create/edit view 2](docs/images/admin-venues-2.png)
+- ![Admin venues — list view 1](vms/docs/images/admin-venues-1.png)
+- ![Admin venues — create/edit view 2](vms/docs/images/admin-venues-2.png)
 
 #### Maintenance monitor
 
-- ![Maintenance monitor — overview view 1](docs/images/admin-monitor-1.png)
+- ![Maintenance monitor — overview view 1](vms/docs/images/admin-monitor-1.png)
 
 ## Project Structure
 
