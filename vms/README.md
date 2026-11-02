@@ -106,26 +106,22 @@ Placeholder images for each major page. Replace the files in `docs/images/` with
 #### Welcome page
 
 - ![Welcome page — hero section](docs/images/welcome-1.png)
-- ![Welcome page — features and call to action](docs/images/welcome-2.png)
 
 ### Authentication
 
 #### Login page
 
 - ![Login page — authentication view 1](docs/images/login-1.png)
-- ![Login page — authentication view 2](docs/images/login-2.png)
 
 #### Registration page
 
 - ![Registration page — registration view 1](docs/images/register-1.png)
-- ![Registration page — registration view 2](docs/images/register-2.png)
 
 ### Lecturer Pages
 
 #### Dashboard
 
 - ![Lecturer dashboard — metrics and greeting](docs/images/dashboard-1.png)
-- ![Lecturer dashboard — availability and recent activity](docs/images/dashboard-2.png)
 
 #### Venue browsing
 
@@ -141,6 +137,10 @@ Placeholder images for each major page. Replace the files in `docs/images/` with
 
 - ![My bookings — list view](docs/images/viewbooking-1.png)
 - ![My bookings — detail view](docs/images/viewbooking-2.png)
+
+#### Notification Bar
+
+- ![Notification bar](docs/images/notification-1.png)
 
 #### Class schedule
 
@@ -174,7 +174,6 @@ Placeholder images for each major page. Replace the files in `docs/images/` with
 #### Maintenance monitor
 
 - ![Maintenance monitor — overview view 1](docs/images/admin-monitor-1.png)
-- ![Maintenance monitor — status update view 2](docs/images/admin-monitor-2.png)
 
 ## Project Structure
 
