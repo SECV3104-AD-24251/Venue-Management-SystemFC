@@ -123,6 +123,10 @@ Placeholder images for each major page. Replace the files in `docs/images/` with
 
 - ![Lecturer dashboard — metrics and greeting](docs/images/dashboard-1.png)
 
+#### Profile
+
+- ![Profile](docs/images/profile-1.png)
+
 #### Venue browsing
 
 - ![Venue directory view 1](docs/images/venues-1.png)
@@ -136,7 +140,6 @@ Placeholder images for each major page. Replace the files in `docs/images/` with
 #### My bookings
 
 - ![My bookings — list view](docs/images/viewbooking-1.png)
-- ![My bookings — detail view](docs/images/viewbooking-2.png)
 
 #### Notification Bar
 
