@@ -11,7 +11,7 @@ class VenueController extends Controller
 {
     public function index()
     {
-        $venues = Venue::all(['id', 'name', 'location', 'capacity', 'status']);
+        $venues = Venue::all(['id', 'name', 'location', 'capacity', 'status', 'image']);
 
         return response()->json($venues);
     }

@@ -9,6 +9,7 @@ interface Venue {
     location: string;
     capacity: number;
     status: string;
+    image?: string | null;
 }
 
 type VenueStatusFilter = 'all' | 'available' | 'other';
@@ -106,7 +107,7 @@ export default function Venue() {
     const [selectedEndTime, setSelectedEndTime] = useState('');
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState<VenueStatusFilter>('all');
-    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('grid');
     const [loadingVenues, setLoadingVenues] = useState(true);
     const [checkingAvailability, setCheckingAvailability] = useState(false);
     const [loadError, setLoadError] = useState('');
@@ -280,37 +281,6 @@ export default function Venue() {
                         <Icon name="download" className="h-4 w-4" />
                         Export list
                     </button>
-                </section>
-
-                <section aria-label="Venue summary" className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                    <SummaryCard
-                        label="Total venues"
-                        value={loadingVenues ? '—' : venues.length}
-                        detail="In the faculty directory"
-                        icon="venue"
-                        tone="bg-slate-100 text-slate-700"
-                    />
-                    <SummaryCard
-                        label="Available"
-                        value={loadingVenues ? '—' : availableCount}
-                        detail={availability ? 'For selected time slot' : 'Based on listed status'}
-                        icon="check"
-                        tone="bg-emerald-50 text-emerald-700"
-                    />
-                    <SummaryCard
-                        label="Other status"
-                        value={loadingVenues ? '—' : otherStatusCount}
-                        detail="Occupied, unavailable, or in maintenance"
-                        icon="clock"
-                        tone="bg-amber-50 text-amber-700"
-                    />
-                    <SummaryCard
-                        label="Matching results"
-                        value={loadingVenues ? '—' : filteredVenues.length}
-                        detail="Based on current filters"
-                        icon="search"
-                        tone="bg-blue-50 text-blue-700"
-                    />
                 </section>
 
                 <section className="rounded-2xl border border-slate-200/80 bg-white p-5 shadow-sm sm:p-6">
@@ -556,8 +526,22 @@ export default function Venue() {
                                 const available = isAvailable(venue);
 
                                 return (
-                                    <li key={venue.id} className="flex flex-col rounded-xl border border-slate-200 p-4 transition hover:border-blue-200 hover:shadow-sm">
-                                        <div className="flex items-start justify-between gap-3">
+                                    <li key={venue.id} className="flex flex-col overflow-hidden rounded-xl border border-slate-200 transition hover:border-blue-200 hover:shadow-sm">
+                                        {venue.image ? (
+                                            <img
+                                                src={venue.image}
+                                                alt={`${venue.name} venue`}
+                                                className="h-40 w-full shrink-0 object-cover"
+                                                loading="lazy"
+                                            />
+                                        ) : (
+                                            <div className="flex h-40 items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-blue-900">
+                                                <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 text-xl font-bold text-white">
+                                                    {venue.name.trim().charAt(0).toUpperCase() || 'V'}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="mt-4 flex items-start justify-between gap-3">
                                             <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
                                                 <Icon name="venue" />
                                             </span>
