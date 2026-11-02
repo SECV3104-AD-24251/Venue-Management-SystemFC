@@ -73,7 +73,7 @@ export default function Authenticated({
               ? [
                     { label: 'Book a Venue', routeName: 'booking', icon: 'booking' as const },
                     { label: 'View Bookings', routeName: 'viewbooking', icon: 'calendar' as const },
-                    { label: 'Class Schedule', routeName: 'schedule', icon: 'calendar' as const },
+                    { label: 'Class Schedule', routeName: 'lecturer.schedule', icon: 'calendar' as const },
                 ]
                             : user.role === 'staff'
                                 ? [

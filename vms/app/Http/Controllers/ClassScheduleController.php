@@ -12,7 +12,7 @@ class ClassScheduleController extends Controller
 {
     public function index()
     {
-        $schedules = Schedule::with('venue')
+        $schedules = Schedule::with('venue:id,name,image')
             ->where('lecturer_id', auth()->id())
             ->get();
 

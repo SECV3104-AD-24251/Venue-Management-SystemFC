@@ -22,6 +22,7 @@ beforeEach(function () {
         'location' => 'Test Location',
         'capacity' => 50,
         'status' => 'available',
+        'image' => '/images/schedule-hall.jpg',
     ]);
 
     $this->lecturer = User::factory()->create(['name' => 'Dr. Smith']);
@@ -155,7 +156,10 @@ it('allows a lecturer to view their own class schedule', function () {
     $response = $this->actingAs($this->lecturer)->get('/lecturer/schedule');
 
     $response->assertOk();
-    $response->assertInertia(fn (AssertableInertia $page) => $page->component('ClassSchedule')->has('schedules', 1));
+    $response->assertInertia(fn (AssertableInertia $page) => $page
+        ->component('ClassSchedule')
+        ->has('schedules', 1)
+        ->where('schedules.0.venue.image', '/images/schedule-hall.jpg'));
 });
 
 it('allows an admin to view all class schedules', function () {
